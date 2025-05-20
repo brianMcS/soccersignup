@@ -33,3 +33,28 @@ A full-stack web application for organizing weekly social soccer games. Replaces
 
 ## 📦 Project Structure
 
+soccersignup/
+│
+├── backend/ # Spring Boot REST API
+├── frontend/ # Next.js + Tailwind frontend
+├── database/ # SQL scripts or DB-specific tooling
+├── .github/ # GitHub Actions CI/CD configs
+├── docker-compose.yml
+├── README.md
+└── .gitignore
+
+---
+
+## 🚀 Getting Started (Local Dev)
+
+### Prerequisites
+- Node.js 18+
+- Java 17+
+- Docker
+- PostgreSQL (or use Docker)
+
+### Frontend Setup
+```bash
+cd frontend
+npm install
+npm run dev
