@@ -1,17 +1,31 @@
 version: '3.8'
 
 services:
-  db:
+  postgres:
     image: postgres:15
-    restart: always
+    container_name: postgres
     environment:
       POSTGRES_DB: soccersignup
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: mysecretpassword
+    volumes:
+      - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-    volumes:
-      - db_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: springboot-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/soccersignup
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: mysecretpassword
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
 
 volumes:
-  db_data:
+  pgdata:
