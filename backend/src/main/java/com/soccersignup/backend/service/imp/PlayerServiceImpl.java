@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.soccersignup.backend.model.Player;
-import com.soccersignup.backend.repositroy.PlayerRepository;
+import com.soccersignup.backend.repository.PlayerRepository;
 import com.soccersignup.backend.service.PlayerService;
 
 @Service
