@@ -5,57 +5,77 @@ import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name="game_slots")
+@Table(name = "game_slots")
 public class GameSlot {
 
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
 
     @Column(nullable = false)
     private LocalDate gameDate; // e.g. the Monday of that game week
 
     @Column(nullable = false)
-    private String playerName;
-
-    @Column(nullable = false)
     private Long userId; // or UUID/String if you're using that
 
-    @Column(nullable = false)
     private LocalDateTime timestamp;
 
-    public GameSlot() {}
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "player_id", nullable = false)
+    private Player player;
 
-    public GameSlot(LocalDate gameDate, String playerName, Long userId, LocalDateTime timestamp) {
+    public GameSlot() {
+    }
+
+    public GameSlot(LocalDate gameDate, Player player) {
         this.gameDate = gameDate;
-        this.playerName = playerName;
-        this.userId = userId;
-        this.timestamp = timestamp;
+        this.player = player;
+        this.timestamp = LocalDateTime.now();
     }
 
     // Getters and setters
-    public Long getId() { return id; }
+    public Long getId() {
+        return id;
+    }
 
-    public LocalDate getGameDate() { return gameDate; }
+    public LocalDate getGameDate() {
+        return gameDate;
+    }
 
-    public void setGameDate(LocalDate gameDate) { this.gameDate = gameDate; }
+    public void setGameDate(LocalDate gameDate) {
+        this.gameDate = gameDate;
+    }
 
-    public String getPlayerName() { return playerName; }
+    public Long getUserId() {
+        return userId;
+    }
 
-    public void setPlayerName(String playerName) { this.playerName = playerName; }
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
 
-    public Long getUserId() { return userId; }
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
 
-    public void setUserId(Long userId) { this.userId = userId; }
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
+    }
 
-    public LocalDateTime getTimestamp() { return timestamp; }
+    public Player getPlayer() {
+        return player;
+    }
 
-    public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
+    public void setPlayer(Player player) {
+        this.player = player;
+    }
 }

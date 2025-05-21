@@ -21,22 +21,31 @@ public class GameSlotServiceImpl implements GameSlotService {
     }
 
     @Override
-public List<GameSlot> getSignupsForWeek(LocalDate date) {
-    LocalDate friday = date.with(DayOfWeek.FRIDAY);
-    LocalDate thursday = date.with(DayOfWeek.THURSDAY);
-    return gameSlotRepository.findByGameDateBetween(friday, thursday);
-}
+    public List<GameSlot> getSignupsForWeek(LocalDate date) {
+        LocalDate friday = date.with(DayOfWeek.FRIDAY);
+        LocalDate thursday = date.with(DayOfWeek.THURSDAY);
+        return gameSlotRepository.findByGameDateBetween(friday, thursday);
+    }
 
     @Override
-    public GameSlot addSignup(GameSlot slot) {
-        // prevent double signup
-        gameSlotRepository.findByUserIdAndGameDate(slot.getUserId(), slot.getGameDate())
-                .ifPresent(existing -> {
-                    throw new RuntimeException("User already signed up for this week");
-                });
+    public GameSlot addSignup(GameSlot gameSlot) {
+        LocalDate date = gameSlot.getGameDate();
+        List<GameSlot> currentSignups = gameSlotRepository.findByGameDate(date);
 
-        slot.setTimestamp(LocalDateTime.now());
-        return gameSlotRepository.save(slot);
+        if (currentSignups.size() >= 18) {
+            throw new IllegalStateException("Maximum number of players (18) already signed up for this date.");
+        }
+
+        // Prevent duplicate signup by same player (optional)
+        boolean alreadySignedUp = currentSignups.stream()
+                .anyMatch(slot -> slot.getPlayer().getId().equals(gameSlot.getPlayer().getId()));
+
+        if (alreadySignedUp) {
+            throw new IllegalStateException("Player already signed up for this date.");
+        }
+
+        gameSlot.setTimestamp(LocalDateTime.now());
+        return gameSlotRepository.save(gameSlot);
     }
 
     @Override
