@@ -1,1 +1,25 @@
-<p>game-signup-list works!</p>
+<div class="signup-form">
+  <h2>Join This Week's Soccer Game</h2>
+
+  <form (ngSubmit)="onSubmit()" #signupForm="ngForm">
+    <label>
+      Name:
+      <input type="text" name="playerName" [(ngModel)]="form.playerName" required />
+    </label>
+
+    <label>
+      Email:
+      <input type="email" name="email" [(ngModel)]="form.email" required />
+    </label>
+
+    <label>
+      Phone:
+      <input type="text" name="phone" [(ngModel)]="form.phone" />
+    </label>
+
+    <button type="submit" [disabled]="signupForm.invalid">Sign Up</button>
+  </form>
+
+  <div *ngIf="successMessage" class="success">{{ successMessage }}</div>
+  <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+</div>
