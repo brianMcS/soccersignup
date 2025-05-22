@@ -24,13 +24,10 @@ public class GameSlot {
     @Column(nullable = false)
     private LocalDate gameDate; // e.g. the Monday of that game week
 
-    @Column(nullable = false)
-    private Long userId; // or UUID/String if you're using that
-
     private LocalDateTime timestamp;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "player_id", nullable = false)
+    @JoinColumn(name = "player_id", nullable = true)
     private Player player;
 
     public GameSlot() {
@@ -53,14 +50,6 @@ public class GameSlot {
 
     public void setGameDate(LocalDate gameDate) {
         this.gameDate = gameDate;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
     }
 
     public LocalDateTime getTimestamp() {

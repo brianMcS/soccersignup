@@ -1,0 +1,10 @@
+.error {
+  color: red;
+  font-size: 0.9em;
+}
+input.ng-touched.ng-invalid {
+  border-color: red;
+}
+input.ng-touched.ng-valid {
+  border-color: green;
+}

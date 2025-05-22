@@ -1,25 +1,33 @@
-<div class="signup-form">
-  <h2>Join This Week's Soccer Game</h2>
+<h2>This Week’s Game Sign-up</h2>
 
-  <form (ngSubmit)="onSubmit()" #signupForm="ngForm">
+<ul>
+  <li *ngFor="let slot of slots; let i = index">
+    <strong>Slot {{ i + 1 }}:</strong>
+    <span *ngIf="slot.playerName">
+      {{ slot.playerName }} (Joined)
+    </span>
+    <span *ngIf="!slot.playerName">
+      <button (click)="showJoinForm(i)">Join</button>
+    </span>
+  </li>
+</ul>
+
+<div *ngIf="formVisible">
+  <h3>Join Game</h3>
+  <form (ngSubmit)="submitForm()">
     <label>
-      Name:
-      <input type="text" name="playerName" [(ngModel)]="form.playerName" required />
+      Name: <input [(ngModel)]="form.playerName" name="playerName" required />
     </label>
-
+    <br />
     <label>
-      Email:
-      <input type="email" name="email" [(ngModel)]="form.email" required />
+      Email: <input [(ngModel)]="form.email" name="email" />
     </label>
-
+    <br />
     <label>
-      Phone:
-      <input type="text" name="phone" [(ngModel)]="form.phone" />
+      Phone: <input [(ngModel)]="form.phone" name="phone" />
     </label>
-
-    <button type="submit" [disabled]="signupForm.invalid">Sign Up</button>
+    <br />
+    <button type="submit">Confirm</button>
+    <button type="button" (click)="cancelJoin()">Cancel</button>
   </form>
-
-  <div *ngIf="successMessage" class="success">{{ successMessage }}</div>
-  <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
 </div>

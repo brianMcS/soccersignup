@@ -1,5 +1,5 @@
+import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
@@ -11,43 +11,63 @@ import { CommonModule } from '@angular/common';
   templateUrl: './game-signup-list.component.html',
   styleUrl: './game-signup-list.component.css'
 })
-export class GameSignupListComponent {
+export class GameSignupListComponent implements OnInit {
+  slots: { playerName?: string; email?: string; phone?: string }[] = [];
+  formVisible = false;
+  joiningSlotIndex: number | null = null;
+
   form = {
     playerName: '',
     email: '',
     phone: ''
   };
 
-  successMessage = '';
-  errorMessage = '';
-
   constructor(private http: HttpClient) {}
 
-  onSubmit() {
+  ngOnInit() {
+    this.fetchSlots();
+  }
+
+  fetchSlots() {
+    this.http.get<any[]>('http://localhost:8080/gameslots').subscribe({
+      next: (data) => {
+        // Fill in the 18 slots, even if empty
+        this.slots = Array(18).fill({}).map((_, i) => data[i] || {});
+      },
+      error: (err) => console.error('Error fetching game slots', err)
+    });
+  }
+
+  showJoinForm(index: number) {
+    this.joiningSlotIndex = index;
+    this.formVisible = true;
+  }
+
+  cancelJoin() {
+    this.formVisible = false;
+    this.form = { playerName: '', email: '', phone: '' };
+  }
+
+  submitForm() {
     const today = new Date();
-    const currentThursday = this.getUpcomingThursday(today);
     const gameSlot = {
       ...this.form,
-      date: currentThursday.toISOString().split('T')[0],
+      date: this.getUpcomingThursday(today).toISOString().split('T')[0],
       timestamp: new Date().toISOString()
     };
 
     this.http.post('http://localhost:8080/gameslots', gameSlot).subscribe({
       next: () => {
-        this.successMessage = 'Signed up successfully!';
-        this.errorMessage = '';
-        this.form = { playerName: '', email: '', phone: '' };
+        this.fetchSlots();
+        this.cancelJoin();
       },
-      error: () => {
-        this.errorMessage = 'Failed to sign up. Try again later.';
-        this.successMessage = '';
-      }
+      error: () => alert('Failed to join. Try again.')
     });
   }
 
   getUpcomingThursday(date: Date): Date {
-    const day = date.getDay(); // Sunday = 0 ... Saturday = 6
-    const diff = (4 - day + 7) % 7; // 4 = Thursday
+    const day = date.getDay();
+    const diff = (4 - day + 7) % 7;
     date.setDate(date.getDate() + diff);
     return date;
   }

@@ -8,6 +8,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.soccersignup.backend.model.GameSlot;
+import com.soccersignup.backend.model.Player;
 import com.soccersignup.backend.repository.GameSlotRepository;
 import com.soccersignup.backend.service.GameSlotService;
 
@@ -49,8 +50,8 @@ public class GameSlotServiceImpl implements GameSlotService {
     }
 
     @Override
-    public void removeSignup(Long userId, LocalDate gameDate) {
-        gameSlotRepository.findByUserIdAndGameDate(userId, gameDate)
+    public void removeSignup(Player player, LocalDate gameDate) {
+        gameSlotRepository.findByPlayerAndGameDate(player, gameDate)
                 .ifPresent(gameSlotRepository::delete);
     }
 }

@@ -1,0 +1,68 @@
+<h2>Register as a New Player</h2>
+
+<form (ngSubmit)="onSubmit()" #registerForm="ngForm" novalidate>
+
+  <!-- Name Field -->
+  <label>
+    Name:
+    <input
+      type="text"
+      [(ngModel)]="form.name"
+      name="name"
+      required
+      minlength="2"
+      #name="ngModel"
+    />
+  </label>
+  <div *ngIf="name.invalid && name.touched" class="error">
+    <small *ngIf="name.errors?.required">Name is required.</small>
+    <small *ngIf="name.errors?.minlength">Name must be at least 2 characters.</small>
+  </div>
+
+  <br />
+
+  <!-- Email Field -->
+  <label>
+    Email:
+    <input
+      type="email"
+      [(ngModel)]="form.email"
+      name="email"
+      required
+      email
+      #email="ngModel"
+    />
+  </label>
+  <div *ngIf="email.invalid && email.touched" class="error">
+    <small *ngIf="email.errors?.required">Email is required.</small>
+    <small *ngIf="email.errors?.email">Email format is invalid.</small>
+  </div>
+
+  <br />
+
+  <!-- Phone Field -->
+  <label>
+    Phone:
+    <input
+      type="tel"
+      [(ngModel)]="form.phone"
+      name="phone"
+      required
+      pattern="^[0-9]{7,15}$"
+      #phone="ngModel"
+    />
+  </label>
+  <div *ngIf="phone.invalid && phone.touched" class="error">
+    <small *ngIf="phone.errors?.required">Phone number is required.</small>
+    <small *ngIf="phone.errors?.pattern">Enter 7–15 digits only.</small>
+  </div>
+
+  <br />
+
+  <button type="submit" [disabled]="registerForm.invalid">Register</button>
+
+</form>
+
+<!-- Feedback Messages -->
+<p style="color: green;" *ngIf="successMessage">{{ successMessage }}</p>
+<p style="color: red;" *ngIf="errorMessage">{{ errorMessage }}</p>
