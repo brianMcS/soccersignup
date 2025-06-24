@@ -23,7 +23,7 @@ export class RegisterComponent {
   constructor(private http: HttpClient) {}
 
   onSubmit() {
-    this.http.post('http://localhost:8080/players', this.form).subscribe({
+    this.http.post('http://localhost:8080/api/players', this.form).subscribe({
       next: () => {
         this.successMessage = 'Registration successful!';
         this.errorMessage = '';

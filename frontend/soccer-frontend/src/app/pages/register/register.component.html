@@ -15,8 +15,8 @@
     />
   </label>
   <div *ngIf="name.invalid && name.touched" class="error">
-    <small *ngIf="name.errors?.required">Name is required.</small>
-    <small *ngIf="name.errors?.minlength">Name must be at least 2 characters.</small>
+    <small *ngIf="name.errors?.['required']">Name is required.</small>
+    <small *ngIf="name.errors?.['minlength']">Name must be at least 2 characters.</small>
   </div>
 
   <br />
@@ -34,8 +34,8 @@
     />
   </label>
   <div *ngIf="email.invalid && email.touched" class="error">
-    <small *ngIf="email.errors?.required">Email is required.</small>
-    <small *ngIf="email.errors?.email">Email format is invalid.</small>
+    <small *ngIf="email.errors?.['required']">Email is required.</small>
+    <small *ngIf="email.errors?.['email']">Email format is invalid.</small>
   </div>
 
   <br />
@@ -53,8 +53,8 @@
     />
   </label>
   <div *ngIf="phone.invalid && phone.touched" class="error">
-    <small *ngIf="phone.errors?.required">Phone number is required.</small>
-    <small *ngIf="phone.errors?.pattern">Enter 7–15 digits only.</small>
+    <small *ngIf="phone.errors?.['required']">Phone number is required.</small>
+    <small *ngIf="phone.errors?.['pattern']">Enter 7–15 digits only.</small>
   </div>
 
   <br />
