@@ -18,23 +18,19 @@ public class Player {
     @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(nullable = false, unique = true)
     private String phone;
-
-    @Column(name = "is_attending")
-    private Boolean isAttending;
-
 
     public Player() {}
 
-    public Player(String name, String email, String phone, Boolean isAttending) {
+    public Player(String name, String email, String phone) {
         this.name = name;
         this.email = email;
         this.phone = phone;
-        this.isAttending = isAttending;
     }
-    
 
     public Long getId() { return id; }
 
@@ -49,8 +45,4 @@ public class Player {
     public String getPhone() { return phone; }
 
     public void setPhone(String phone) { this.phone = phone; }
-
-    public Boolean getIsAttending() { return isAttending; }
-
-    public void setIsAttending(Boolean isAttending) { this.isAttending = isAttending; }
 }
