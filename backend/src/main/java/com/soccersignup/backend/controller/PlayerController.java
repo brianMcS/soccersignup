@@ -21,29 +21,27 @@ public class PlayerController {
 
     private final PlayerService playerService;
 
-    public PlayerController(PlayerService playerService){
-        this.playerService= playerService;
+    public PlayerController(PlayerService playerService) {
+        this.playerService = playerService;
     }
 
     @GetMapping
-    public List<Player> getAllPlayers(){
+    public List<Player> getAllPlayers() {
         return playerService.getAllPlayers();
     }
-    
-    @GetMapping("path")
+
+    @GetMapping("/{id}")
     public ResponseEntity<Player> getPlayerById(@PathVariable Long id) {
         return playerService.getPlayerById(id)
-            	.map(ResponseEntity::ok)
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-    
 
     @PostMapping
     public ResponseEntity<Player> createPlayer(@RequestBody Player player) {
         Player savedPlayer = playerService.savePlayer(player);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedPlayer);
     }
-
 
     @PutMapping("/{id}")
     public ResponseEntity<Player> updatePlayer(@PathVariable Long id, @RequestBody Player playerDetails) {
@@ -58,5 +56,5 @@ public class PlayerController {
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
-    
+
 }

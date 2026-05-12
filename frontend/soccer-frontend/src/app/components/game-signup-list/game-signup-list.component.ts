@@ -29,7 +29,8 @@ export class GameSignupListComponent implements OnInit {
   }
 
   fetchSlots() {
-    this.http.get<any[]>('http://localhost:8080/gameslots').subscribe({
+    const today = new Date().toISOString().split('T')[0];
+    this.http.get<any[]>('/api/gameslots?date=${today}').subscribe({
       next: (data) => {
         // Fill in the 18 slots, even if empty
         this.slots = Array(18).fill({}).map((_, i) => data[i] || {});
@@ -56,7 +57,7 @@ export class GameSignupListComponent implements OnInit {
       timestamp: new Date().toISOString()
     };
 
-    this.http.post('http://localhost:8080/gameslots', gameSlot).subscribe({
+    this.http.post('/api/gameslots', gameSlot).subscribe({
       next: () => {
         this.fetchSlots();
         this.cancelJoin();

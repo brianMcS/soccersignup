@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.soccersignup.backend.model.GameSlot;
-import com.soccersignup.backend.model.Player;
 import com.soccersignup.backend.service.GameSlotService;
 
 @RestController
@@ -44,10 +43,10 @@ public class GameSlotController {
     // ✅ Remove a signup
     @DeleteMapping
     public ResponseEntity<Void> removeSignup(
-            @RequestParam Player player,
+            @RequestParam Long playerId,
             @RequestParam String date) {
         LocalDate gameDate = LocalDate.parse(date);
-        gameSlotService.removeSignup(player, gameDate);
+        gameSlotService.removeSignup(playerId, gameDate);
         return ResponseEntity.noContent().build();
     }
 }

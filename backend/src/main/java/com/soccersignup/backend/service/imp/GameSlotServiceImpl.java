@@ -10,15 +10,18 @@ import org.springframework.stereotype.Service;
 import com.soccersignup.backend.model.GameSlot;
 import com.soccersignup.backend.model.Player;
 import com.soccersignup.backend.repository.GameSlotRepository;
+import com.soccersignup.backend.repository.PlayerRepository;
 import com.soccersignup.backend.service.GameSlotService;
 
 @Service
 public class GameSlotServiceImpl implements GameSlotService {
 
     private final GameSlotRepository gameSlotRepository;
+    private final PlayerRepository playerRepository;
 
-    public GameSlotServiceImpl(GameSlotRepository gameSlotRepository) {
+    public GameSlotServiceImpl(GameSlotRepository gameSlotRepository, PlayerRepository playerRepository) {
         this.gameSlotRepository = gameSlotRepository;
+        this.playerRepository = playerRepository;
     }
 
     @Override
@@ -50,7 +53,9 @@ public class GameSlotServiceImpl implements GameSlotService {
     }
 
     @Override
-    public void removeSignup(Player player, LocalDate gameDate) {
+    public void removeSignup(Long playerId, LocalDate gameDate) {
+        Player player = playerRepository.findById(playerId)
+                .orElseThrow(() -> new IllegalArgumentException("Player not found " + playerId));
         gameSlotRepository.findByPlayerAndGameDate(player, gameDate)
                 .ifPresent(gameSlotRepository::delete);
     }

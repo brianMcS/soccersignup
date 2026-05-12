@@ -27,6 +27,10 @@ public class GameSlot {
     private LocalDateTime timestamp;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "game_id", nullable = true)
+    private Game game;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "player_id", nullable = true)
     private Player player;
 
@@ -66,5 +70,13 @@ public class GameSlot {
 
     public void setPlayer(Player player) {
         this.player = player;
+    }
+
+    public Game getGame() {
+        return game;
+    }
+
+    public void setGame(Game game) {
+        this.game = game;
     }
 }
