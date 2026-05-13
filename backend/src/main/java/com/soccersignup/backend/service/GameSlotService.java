@@ -1,13 +1,12 @@
 package com.soccersignup.backend.service;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import com.soccersignup.backend.model.GameSlot;
 public interface GameSlotService {
-    List<GameSlot> getSignupsForWeek(LocalDate gameDate);
+    List<GameSlot> getSignupsForGame(Long gameId);
 
-    GameSlot addSignup(GameSlot slot);
+    GameSlot addSignup(Long gameId, Long playerId);
 
-    void removeSignup(Long playerId, LocalDate gameDate);
+    void removeSignup(Long gameId, Long playerId);
 }

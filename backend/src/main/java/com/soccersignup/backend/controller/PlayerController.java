@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
+import com.soccersignup.backend.dto.PlayerRequest;
 import com.soccersignup.backend.model.Player;
 import com.soccersignup.backend.service.PlayerService;
 
@@ -38,19 +40,19 @@ public class PlayerController {
     }
 
     @PostMapping
-    public ResponseEntity<Player> createPlayer(@RequestBody Player player) {
+    public ResponseEntity<Player> createPlayer(@Valid @RequestBody PlayerRequest request) {
+        Player player = new Player(request.name(), request.email(), request.phone());
         Player savedPlayer = playerService.savePlayer(player);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedPlayer);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Player> updatePlayer(@PathVariable Long id, @RequestBody Player playerDetails) {
+    public ResponseEntity<Player> updatePlayer(@PathVariable Long id, @Valid @RequestBody PlayerRequest request) {
         return playerService.getPlayerById(id)
                 .map(existingPlayer -> {
-                    existingPlayer.setName(playerDetails.getName());
-                    existingPlayer.setEmail(playerDetails.getEmail());
-                    existingPlayer.setPhone(playerDetails.getPhone());
-                    existingPlayer.setIsAttending(playerDetails.getIsAttending());
+                    existingPlayer.setName(request.name());
+                    existingPlayer.setEmail(request.email());
+                    existingPlayer.setPhone(request.phone());
                     Player updatedPlayer = playerService.savePlayer(existingPlayer);
                     return ResponseEntity.ok(updatedPlayer);
                 })

@@ -3,65 +3,39 @@ package com.soccersignup.backend.model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
-@Table(name = "game_slots")
+@Table(name = "game_slots", uniqueConstraints = @UniqueConstraint(columnNames =  {"game_id", "player_id"}))
 public class GameSlot {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private LocalDate gameDate; // e.g. the Monday of that game week
-
-    private LocalDateTime timestamp;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "game_id", nullable = true)
+    @JoinColumn(name = "game_id", nullable = false)
     private Game game;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "player_id", nullable = true)
+    @JoinColumn(name = "player_id", nullable = false)
     private Player player;
+
+    @Enumerated(EnumType.STRING)
+    private SlotStatus status = SlotStatus.CONFIRMED;
+
+    @Column(nullable = false)
+    private LocalDateTime signedUpAt;
 
     public GameSlot() {
     }
 
     public GameSlot(LocalDate gameDate, Player player) {
-        this.gameDate = gameDate;
         this.player = player;
-        this.timestamp = LocalDateTime.now();
     }
 
     // Getters and setters
     public Long getId() {
         return id;
-    }
-
-    public LocalDate getGameDate() {
-        return gameDate;
-    }
-
-    public void setGameDate(LocalDate gameDate) {
-        this.gameDate = gameDate;
-    }
-
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
     }
 
     public Player getPlayer() {
@@ -78,5 +52,25 @@ public class GameSlot {
 
     public void setGame(Game game) {
         this.game = game;
+    }
+
+    public SlotStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(SlotStatus status) {
+        this.status = status;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public LocalDateTime getSignedUpAt() {
+        return signedUpAt;
+    }
+
+    public void setSignedUpAt(LocalDateTime signedUpAt) {
+        this.signedUpAt = signedUpAt;
     }
 }

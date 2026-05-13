@@ -2,17 +2,11 @@ package com.soccersignup.backend.model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "games")
@@ -21,10 +15,16 @@ public class Game {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(nullable = false)
     private LocalDate gameDate;
 
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalTime kickOffTime;
+    private String location;
+    private int maxPlayers = 18;
+    private LocalDateTime createdAt;
+
+    @Enumerated(EnumType.STRING)
+    private GameStatus status = GameStatus.OPEN;
 
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<GameSlot> slots = new ArrayList<>();
@@ -48,5 +48,61 @@ public class Game {
 
     public List<GameSlot> getGameSlots() {
         return slots;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setGameDate(LocalDate gameDate) {
+        this.gameDate = gameDate;
+    }
+
+    public LocalTime getKickOffTime() {
+        return kickOffTime;
+    }
+
+    public void setKickOffTime(LocalTime kickOffTime) {
+        this.kickOffTime = kickOffTime;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public int getMaxPlayers() {
+        return maxPlayers;
+    }
+
+    public void setMaxPlayers(int maxPlayers) {
+        this.maxPlayers = maxPlayers;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public GameStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(GameStatus status) {
+        this.status = status;
+    }
+
+    public List<GameSlot> getSlots() {
+        return slots;
+    }
+
+    public void setSlots(List<GameSlot> slots) {
+        this.slots = slots;
     }
 }
