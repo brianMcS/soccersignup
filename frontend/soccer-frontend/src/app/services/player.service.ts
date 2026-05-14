@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Player } from '../models/player';
+import { Player } from '../models/player.model';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -15,7 +15,11 @@ export class PlayerService {
     return this.http.get<Player[]>(this.apiUrl);
   }
 
-  // getPaginatedPlayers(page: number, size: number): Observable<Player[]> {
-  //   return this.http.get<Player[]>(`${this.apiUrl}?page=${page}&size=${size}`);
-  // }
+  getPlayerById(id: number): Observable<Player> {
+    return this.http.get<Player>(`${this.apiUrl}/${id}`);
+  }
+
+  registerPlayer(player: { name: string; email: string; phone: string }): Observable<Player> {
+    return this.http.post<Player>(this.apiUrl, player);
+  }
 }
