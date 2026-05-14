@@ -1,75 +1,112 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { GamesService } from '../../services/games.service';
+import { PlayerService } from '../../services/player.service';
+import { Game } from '../../models/game.model';
+import { GameSlot } from '../../models/game-slot.model';
 
 @Component({
   selector: 'app-game-signup-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule],
-
+  imports: [CommonModule, FormsModule],
   templateUrl: './game-signup-list.component.html',
   styleUrl: './game-signup-list.component.css'
 })
 export class GameSignupListComponent implements OnInit {
-  slots: { playerName?: string; email?: string; phone?: string }[] = [];
+
+  game: Game | null = null;
+  slots: GameSlot[] = [];
+  allSlots: (GameSlot | null)[] = [];
+
+  // Join form
   formVisible = false;
-  joiningSlotIndex: number | null = null;
+  playerEmail = '';
+  joining = false;
+  joinError = '';
+  joinSuccess = '';
 
-  form = {
-    playerName: '',
-    email: '',
-    phone: ''
-  };
-
-  constructor(private http: HttpClient) {}
+  constructor(
+    private gamesService: GamesService,
+    private playerService: PlayerService
+  ) {}
 
   ngOnInit() {
-    this.fetchSlots();
+    this.loadLatestGame();
   }
 
-  fetchSlots() {
-    const today = new Date().toISOString().split('T')[0];
-    this.http.get<any[]>('/api/gameslots?date=${today}').subscribe({
-      next: (data) => {
-        // Fill in the 18 slots, even if empty
-        this.slots = Array(18).fill({}).map((_, i) => data[i] || {});
+  loadLatestGame(): void {
+    this.gamesService.getAllGames().subscribe({
+      next: (games) =>{
+        const open =games.find(g => g.status === 'OPEN');
+        if(open && open.id){
+          this.game = open;
+          this.loadSignups(open.id);
+        }
       },
-      error: (err) => console.error('Error fetching game slots', err)
+      error: (err) => console.error('Could not load games, err')
     });
   }
 
-  showJoinForm(index: number) {
-    this.joiningSlotIndex = index;
+  loadSignups(gameId: number): void {
+    this.gamesService.getSignups(gameId).subscribe({
+      next: (slots) => {
+        this.slots = slots;
+        const max = this.game?.maxPlayers ?? 18;
+        this.allSlots = Array(max).fill(null)
+          .map((_, i) => slots[i] ?? null);
+      },
+      error: (err) => console.error('Could not load signups, err')
+    });
+  }
+
+  showJoinForm(): void {
     this.formVisible = true;
+    this.joinError = '';
+    this.joinSuccess = '';
   }
 
   cancelJoin() {
     this.formVisible = false;
-    this.form = { playerName: '', email: '', phone: '' };
+    this.playerEmail = '';
+    this.joinError = '';
   }
 
-  submitForm() {
-    const today = new Date();
-    const gameSlot = {
-      ...this.form,
-      date: this.getUpcomingThursday(today).toISOString().split('T')[0],
-      timestamp: new Date().toISOString()
-    };
+  submitJoin(): void{
+    if (!this.game?.id || this.playerEmail.trim()) return;
 
-    this.http.post('/api/gameslots', gameSlot).subscribe({
-      next: () => {
-        this.fetchSlots();
-        this.cancelJoin();
+    this.joining = true;
+    this.joinError = '';
+
+    this.playerService.getPlayers().subscribe({
+      next: (players) => {
+        const player = players.find(
+          p => p.email.toLowerCase() === this.playerEmail.toLowerCase().trim()
+        );
+        if(!player || !player.id) {
+          this.joinError = 'No player found with that email. Please register first.';
+          this.joining = false;
+          return;
+        }
+        this.gamesService.joinGame(this.game!.id!, player.id!).subscribe({
+          next: ()=> {
+            this.joinSuccess = 'You are in! See you on the pitch.';
+            this.formVisible = false;
+            this.playerEmail= '';
+            this.joining = false;
+            this.loadSignups(this.game!.id!);
+          },
+          error: (err) => {
+            this.joinError = err.error ?? 'Could not join. Try again.';
+            this.joining = false;
+          }
+        });
       },
-      error: () => alert('Failed to join. Try again.')
+      error: () => {
+        this.joinError = 'Could not verify player. Try again.';
+        this.joining = false;
+      }
     });
-  }
-
-  getUpcomingThursday(date: Date): Date {
-    const day = date.getDay();
-    const diff = (4 - day + 7) % 7;
-    date.setDate(date.getDate() + diff);
-    return date;
   }
 }

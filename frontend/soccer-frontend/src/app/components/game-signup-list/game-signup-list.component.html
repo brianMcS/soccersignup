@@ -1,33 +1,58 @@
-<h2>This Week’s Game Sign-up</h2>
+<div *ngIf="!game">
+  <p>No upcoming game found. Check back soon!</p>
+</div>
 
-<ul>
-  <li *ngFor="let slot of slots; let i = index">
-    <strong>Slot {{ i + 1 }}:</strong>
-    <span *ngIf="slot.playerName">
-      {{ slot.playerName }} (Joined)
-    </span>
-    <span *ngIf="!slot.playerName">
-      <button (click)="showJoinForm(i)">Join</button>
-    </span>
-  </li>
-</ul>
+<div *ngIf="game">
+  <h2>⚽ This Week's Game</h2>
+  <p>
+    <strong>{{ game.gameDate }}</strong>
+    <span *ngIf="game.kickOffTime"> at {{ game.kickOffTime }}</span>
+    <span *ngIf="game.location"> — {{ game.location }}</span>
+  </p>
+  <p>{{ slots.length }} / {{ game.maxPlayers }} players signed up</p>
 
-<div *ngIf="formVisible">
-  <h3>Join Game</h3>
-  <form (ngSubmit)="submitForm()">
+  <ul style="list-style:none;padding:0">
+    <li *ngFor="let slot of allSlots; let i = index"
+        style="padding:4px 0;border-bottom:1px solid #eee">
+      <strong>{{ i + 1 }}.</strong>
+      <span *ngIf="slot">{{ slot.playerName }}</span>
+      <span *ngIf="!slot" style="color:#999">— open —</span>
+    </li>
+  </ul>
+
+  <div *ngIf="joinSuccess" style="color:green;margin:.5rem 0">
+    {{ joinSuccess }}
+  </div>
+
+  <button
+    *ngIf="!formVisible && slots.length < (game.maxPlayers ?? 18)"
+    (click)="showJoinForm()"
+    style="margin-top:.75rem">
+    Join This Game
+  </button>
+
+  <p *ngIf="slots.length >= (game.maxPlayers ?? 18)" style="color:red">
+    This game is full.
+  </p>
+
+  <div *ngIf="formVisible" style="margin-top:1rem;padding:1rem;border:1px solid #ccc;border-radius:6px">
+    <h3>Join the Game</h3>
+    <p style="font-size:13px;color:#666">Enter the email you registered with</p>
     <label>
-      Name: <input [(ngModel)]="form.playerName" name="playerName" required />
+      Email:
+      <input
+        type="email"
+        [(ngModel)]="playerEmail"
+        name="playerEmail"
+        placeholder="your@email.com"
+        style="margin-left:8px"
+      />
     </label>
-    <br />
-    <label>
-      Email: <input [(ngModel)]="form.email" name="email" />
-    </label>
-    <br />
-    <label>
-      Phone: <input [(ngModel)]="form.phone" name="phone" />
-    </label>
-    <br />
-    <button type="submit">Confirm</button>
-    <button type="button" (click)="cancelJoin()">Cancel</button>
-  </form>
+    <br /><br />
+    <button (click)="submitJoin()" [disabled]="joining">
+      {{ joining ? 'Joining...' : 'Confirm' }}
+    </button>
+    <button (click)="cancelJoin()" style="margin-left:8px">Cancel</button>
+    <p *ngIf="joinError" style="color:red;margin-top:.5rem">{{ joinError }}</p>
+  </div>
 </div>

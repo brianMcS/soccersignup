@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import {PlayerService} from '../../services/player.service';
+import {HttpClientModule} from '@angular/common/http';
 
 @Component({
   selector: 'app-register',
@@ -11,27 +12,28 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
   styleUrls: ['./register.component.css']
 })
 export class RegisterComponent {
-  form = {
-    name: '',
-    email: '',
-    phone: ''
-  };
-
+  form = {name: '', email: '', phone: ''};
   successMessage = '';
-  errorMessage = '';
+  errorMessage:  string | null = null;
 
-  constructor(private http: HttpClient) {}
+  constructor(private playerService: PlayerService) {}
 
   onSubmit() {
-    this.http.post('/api/players', this.form).subscribe({
+    this.successMessage = '';
+    this.errorMessage = null;
+
+    this.playerService.registerPlayer(this.form).subscribe({
       next: () => {
-        this.successMessage = 'Registration successful!';
-        this.errorMessage = '';
+        this.successMessage = 'Registration successful! You can now join a game.';
         this.form = { name: '', email: '', phone: '' };
-      },
-      error: () => {
-        this.errorMessage = 'Registration failed. Try again.';
-        this.successMessage = '';
+    },
+    error: (err) => {
+        if (err.error && typeof  err.error === 'object'){
+          const messages = Object.values(err.error) as string[];
+          this.errorMessage = messages[0];
+        } else {
+          this.errorMessage = 'Registration failed. Please try again.'
+        }
       }
     });
   }
