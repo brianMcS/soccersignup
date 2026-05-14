@@ -1,7 +1,6 @@
 export interface Player {
-    id: number;
+    id?: number;
     name: string;
     email: string;
-    phone: string;
-    isAttending: boolean;
+    phone?: number;
 }
