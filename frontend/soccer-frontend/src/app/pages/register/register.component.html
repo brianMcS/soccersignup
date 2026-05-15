@@ -1,5 +1,15 @@
 <h2>Register as a New Player</h2>
 
+<!-- OAuth2 Login Option -->
+<div style="margin-bottom: 20px;">
+  <button type="button" (click)="onGoogleLogin()" style="background-color: #1f2937; color: white; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+    Sign in with Google
+  </button>
+</div>
+
+<p style="text-align: center;">--- OR ---</p>
+
+<!-- Traditional Registration Form -->
 <form (ngSubmit)="onSubmit()" #registerForm="ngForm" novalidate>
 
   <!-- Name Field -->

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {PlayerService} from '../../services/player.service';
 import {HttpClientModule} from '@angular/common/http';
+import {AuthService} from '../../services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -15,8 +16,24 @@ export class RegisterComponent {
   form = {name: '', email: '', phone: ''};
   successMessage = '';
   errorMessage:  string | null = null;
+  isLoggedIn = false;
 
-  constructor(private playerService: PlayerService) {}
+  constructor(
+    private playerService: PlayerService,
+    private authService: AuthService
+  ) {}
+
+  ngOnInit() {
+    // Check if already logged in
+    this.isLoggedIn = this.authService.hasToken();
+    this.authService.isLoggedIn$.subscribe(loggedIn => {
+      this.isLoggedIn = loggedIn;
+    });
+  }
+
+  onGoogleLogin(){
+    this.authService.loginWithGoogle();
+  }
 
   onSubmit() {
     this.successMessage = '';

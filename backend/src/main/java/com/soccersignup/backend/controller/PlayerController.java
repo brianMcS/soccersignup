@@ -2,6 +2,7 @@ package com.soccersignup.backend.controller;
 
 import java.util.List;
 
+import com.soccersignup.backend.dto.PlayerResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,22 +29,26 @@ public class PlayerController {
     }
 
     @GetMapping
-    public List<Player> getAllPlayers() {
-        return playerService.getAllPlayers();
+    public List<PlayerResponse> getAllPlayers() {
+        return playerService.getAllPlayers()
+                .stream()
+                .map(PlayerResponse::from)
+                .toList();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Player> getPlayerById(@PathVariable Long id) {
+    public ResponseEntity<PlayerResponse> getPlayerById(@PathVariable Long id) {
         return playerService.getPlayerById(id)
+                .map(PlayerResponse::from)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<Player> createPlayer(@Valid @RequestBody PlayerRequest request) {
+    public ResponseEntity<PlayerResponse> createPlayer(@Valid @RequestBody PlayerRequest request) {
         Player player = new Player(request.name(), request.email(), request.phone());
-        Player savedPlayer = playerService.savePlayer(player);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedPlayer);
+        Player saved = playerService.savePlayer(player);
+        return ResponseEntity.status(HttpStatus.CREATED).body(PlayerResponse.from(saved));
     }
 
     @PutMapping("/{id}")

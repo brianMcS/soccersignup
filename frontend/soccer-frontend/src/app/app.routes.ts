@@ -17,6 +17,11 @@ export const appRoutes: Routes = [
       .then(m => m.RegisterComponent)
   },
   {
+    path: 'oauth-redirect',
+    loadComponent: () => import('./components/oauth-redirect/o-auth-redirect.component')
+      .then(m => m.OAuthRedirectComponent)
+  },
+  {
     path: 'players',
     loadComponent: () => import('./player-list/player-list.component')
       .then(m => m.PlayerListComponent)
