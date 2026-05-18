@@ -1,4 +1,4 @@
-package com.soccersignup.backend.service.imp;
+package com.soccersignup.backend.service.impl;
 
 import java.util.List;
 import java.util.Optional;

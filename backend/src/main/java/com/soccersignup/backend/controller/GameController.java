@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.soccersignup.backend.dto.GameRequest;
 import com.soccersignup.backend.dto.GameResponse;
+import com.soccersignup.backend.service.GameService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.soccersignup.backend.model.Game;
-import com.soccersignup.backend.service.GameService;
 
 @RestController
 @RequestMapping("/api/games")

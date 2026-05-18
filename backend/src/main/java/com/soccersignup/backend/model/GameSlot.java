@@ -33,6 +33,21 @@ public class GameSlot {
         this.player = player;
     }
 
+    public static GameSlot create(
+            Game game,
+            Player player,
+            SlotStatus status,
+            LocalDateTime signedUpAt
+    ) {
+        GameSlot slot = new GameSlot();
+        slot.game = game;
+        slot.player = player;
+        slot.status = status;
+        slot.signedUpAt = signedUpAt;
+
+        return slot;
+    }
+
     // Getters and setters
     public Long getId() {
         return id;

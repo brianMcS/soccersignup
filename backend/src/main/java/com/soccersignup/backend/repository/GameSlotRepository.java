@@ -20,4 +20,6 @@ public interface GameSlotRepository extends JpaRepository<GameSlot, Long> {
     long countByGameAndStatus(Game game, SlotStatus status);
 
     Optional<GameSlot> findFirstByGameAndStatusOrderBySignedUpAtAsc(Game game, SlotStatus status);
+
+    boolean existsByGameAndPlayer(Game game, Player player);
 }

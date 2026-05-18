@@ -38,6 +38,12 @@ public class Game {
         this.slots = slots;
     }
 
+    public SlotStatus determineSignupStatus(long confirmedCount) {
+        return confirmedCount >= maxPlayers
+                ? SlotStatus.WAITLISTED
+                : SlotStatus.CONFIRMED;
+    }
+
     public Long getId() {
         return id;
     }
