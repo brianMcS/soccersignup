@@ -48,10 +48,9 @@ public class GameSlotServiceImpl implements GameSlotService {
         Player player = playerRepository.findById(playerId)
                 .orElseThrow(()-> new IllegalArgumentException("Player not found" + playerId));
 
-        List<GameSlot> currentSignups = gameSlotRepository.findByGame(game);
-        if (currentSignups.size() >= game.getMaxPlayers()) {
-            throw new IllegalStateException("Game is full (" + game.getMaxPlayers() + " players max)");
-        }
+        long confirmedCount = gameSlotRepository.countByGameAndStatus(game, SlotStatus.CONFIRMED);
+        SlotStatus assignedStatus = (confirmedCount >= game.getMaxPlayers())
+                ? SlotStatus.WAITLISTED : SlotStatus.CONFIRMED;
 
         // Prevent duplicate signup by same player
         boolean alreadySignedUp = gameSlotRepository.findByGameAndPlayer(game, player).isPresent();
@@ -62,7 +61,7 @@ public class GameSlotServiceImpl implements GameSlotService {
         GameSlot slot = new GameSlot();
         slot.setGame(game);
         slot.setPlayer(player);
-        slot.setStatus(SlotStatus.CONFIRMED);
+        slot.setStatus(assignedStatus);
         slot.setSignedUpAt(LocalDateTime.now());
 
         return gameSlotRepository.save(slot);
@@ -77,7 +76,17 @@ public class GameSlotServiceImpl implements GameSlotService {
         Player player = playerRepository.findById(playerId)
                 .orElseThrow(() -> new IllegalArgumentException("Player not found " + playerId));
 
-        gameSlotRepository.findByGameAndPlayer(game, player)
-                .ifPresent(gameSlotRepository::delete);
+        GameSlot removedSlot = gameSlotRepository.findByGameAndPlayer(game, player)
+                .orElseThrow(() -> new IllegalArgumentException("Signup not found for this player/game"));
+
+        gameSlotRepository.delete(removedSlot);
+
+        if (removedSlot.getStatus() == SlotStatus.CONFIRMED) {
+            gameSlotRepository.findFirstByGameAndStatusOrderBySignedUpAtAsc(game, SlotStatus.WAITLISTED)
+                    .ifPresent(waitListedSlot ->{
+                        waitListedSlot.setStatus(SlotStatus.CONFIRMED);
+                        gameSlotRepository.save(waitListedSlot);
+                    });
+        }
     }
 }

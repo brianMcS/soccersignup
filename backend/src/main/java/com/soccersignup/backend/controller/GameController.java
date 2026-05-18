@@ -2,6 +2,10 @@ package com.soccersignup.backend.controller;
 
 import java.util.List;
 
+import com.soccersignup.backend.dto.GameRequest;
+import com.soccersignup.backend.dto.GameResponse;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,9 +27,14 @@ public class GameController {
     }
 
     @PostMapping
-    public ResponseEntity<Game> createGame(@RequestBody Game game) {
-        Game created = gameService.createGame(game);
-        return ResponseEntity.ok(created);
+    public ResponseEntity<GameResponse> createGame(@Valid @RequestBody GameRequest request) {
+        Game game = new Game();
+        game.setGameDate(request.gameDate());
+        game.setKickOffTime(request.kickOffTime());
+        game.setLocation(request.location());
+        game.setMaxPlayers(request.maxPlayers());
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(GameResponse.from(gameService.createGame(game)));
     }
 
     @GetMapping
