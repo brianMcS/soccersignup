@@ -3,6 +3,7 @@ package com.soccersignup.backend.service.impl;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.soccersignup.backend.exception.ResourceNotFoundException;
 import com.soccersignup.backend.model.Game;
 import com.soccersignup.backend.model.GameSlot;
 import com.soccersignup.backend.model.Player;
@@ -65,22 +66,22 @@ public class GameSlotServiceImpl implements GameSlotService {
 
     private Game findGameById(Long gameId) {
         return gameRepository.findById(gameId)
-                .orElseThrow(() -> new IllegalArgumentException("Game not found: " + gameId));
+                .orElseThrow(() -> new ResourceNotFoundException("Game not found: " + gameId));
     }
 
     private Game findWithLockingById(Long gameId){
         return gameRepository.findWithLockingById(gameId)
-                .orElseThrow(() -> new IllegalArgumentException("Game not found: " + gameId));
+                .orElseThrow(() -> new ResourceNotFoundException("Game not found: " + gameId));
     }
 
     private Player findPlayerById(Long playerId){
         return playerRepository.findById(playerId)
-                .orElseThrow(() -> new IllegalArgumentException("Player not found: " + playerId));
+                .orElseThrow(() -> new ResourceNotFoundException("Player not found: " + playerId));
     }
 
     private GameSlot findSignup(Game game, Player player){
         return gameSlotRepository.findByGameAndPlayer(game, player)
-                .orElseThrow(() -> new IllegalArgumentException("Signup not found for this player/game"));
+                .orElseThrow(() -> new ResourceNotFoundException("Signup not found for this player/game"));
     }
 
     private void validatePlayerNotAlreadySignedUp(Game game, Player player){
