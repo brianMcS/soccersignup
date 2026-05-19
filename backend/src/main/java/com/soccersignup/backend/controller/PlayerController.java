@@ -76,8 +76,9 @@ public class PlayerController {
 
     @PatchMapping("/{id}/deactivate")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<PlayerResponse> deactivatePlayer(@PathVariable Long id) {
-        return ResponseEntity.ok(playerService.deactivatePlayer(id));
+    public ResponseEntity deactivatePlayer(@PathVariable Long id) {
+        playerService.deactivatePlayer(id);
+        return ResponseEntity.ok().build();
     }
 
 }

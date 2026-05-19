@@ -37,4 +37,14 @@ public class PlayerServiceImpl implements PlayerService {
     public void deletePlayer(Long id) {
         playerRepository.deleteById(id);
     }
+
+    @Override
+    public void deactivatePlayer(Long id){
+        Optional<Player> playerOpt = playerRepository.findById(id);
+        if (playerOpt.isPresent()) {
+            Player player = playerOpt.get();
+            player.setIsActive(false); // Mark as inactive instead of deleting
+            playerRepository.save(player);
+        }
+    }
 }

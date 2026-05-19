@@ -11,4 +11,5 @@ public interface PlayerService {
     Optional<Player> getPlayerById(Long id);
     Player savePlayer(Player player);
     void deletePlayer(Long id);
+    void deactivatePlayer(Long id);
 }
