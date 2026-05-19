@@ -2,8 +2,11 @@ package com.soccersignup.backend.service.impl;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import com.soccersignup.backend.dto.PlayerRequest;
+import com.soccersignup.backend.dto.PlayerResponse;
+import com.soccersignup.backend.exception.ResourceNotFoundException;
 import com.soccersignup.backend.model.OAuthProvider;
 import com.soccersignup.backend.model.PlayerRole;
 import org.springframework.stereotype.Service;
@@ -84,5 +87,13 @@ public class PlayerServiceImpl implements PlayerService {
                     newPlayer.addRole(PlayerRole.PLAYER);
                     return playerRepository.save(newPlayer);
                 });
+    }
+
+    @Override
+    public PlayerResponse updateRoles(Long id, Set<PlayerRole> roles){
+        Player player = playerRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Player not found: " + id));
+        player.setRoles(roles);
+        return PlayerResponse.from(playerRepository.save(player));
     }
 }

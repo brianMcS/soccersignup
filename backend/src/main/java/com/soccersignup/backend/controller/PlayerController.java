@@ -3,6 +3,7 @@ package com.soccersignup.backend.controller;
 import java.util.List;
 
 import com.soccersignup.backend.dto.PlayerResponse;
+import com.soccersignup.backend.dto.UpdateRolesRequest;
 import com.soccersignup.backend.model.PlayerRole;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -81,4 +82,9 @@ public class PlayerController {
         return ResponseEntity.ok().build();
     }
 
+    @PutMapping("/{id}/roles")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity updateRoles(@PathVariable Long id, @RequestBody UpdateRolesRequest request) {
+        return ResponseEntity.ok(playerService.updateRoles(id, request.roles()));
+    }
 }

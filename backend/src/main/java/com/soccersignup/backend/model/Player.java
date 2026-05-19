@@ -62,7 +62,6 @@ public class Player {
         this.oauthProviderId = oauthProviderId;
         this.isActive = true;
         this.roles = new HashSet<>();
-        this.roles.add(PlayerRole.PLAYER); // Default role
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
@@ -73,7 +72,6 @@ public class Player {
         this.phone = phone;
         this.isActive = true;
         this.roles = new HashSet<>();
-        this.roles.add(PlayerRole.PLAYER); // give a default role here too
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
