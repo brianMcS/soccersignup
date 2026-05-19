@@ -52,10 +52,6 @@ public class Game {
         return gameDate;
     }
 
-    public List<GameSlot> getGameSlots() {
-        return slots;
-    }
-
     public void setId(Long id) {
         this.id = id;
     }

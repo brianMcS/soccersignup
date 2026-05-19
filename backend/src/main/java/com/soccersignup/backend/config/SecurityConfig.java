@@ -2,6 +2,7 @@ package com.soccersignup.backend.config;
 
 import com.soccersignup.backend.security.JwtAuthenticationFilter;
 import com.soccersignup.backend.security.OAuth2AuthenticationSuccessHandler;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -36,20 +37,41 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                        // OAuth2 needs a session briefly for the state param handshake,
+                        // but we won't use it for API auth after that
+                        session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/api/auth/**", "/oauth2/**", "/login/**").permitAll()
+                        .requestMatchers(
+                                "/",
+                                "/api/auth/**",
+                                "/oauth2/**",
+                                "/login/**",
+                                "/health"
+                        ).permitAll()
                         .requestMatchers(
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
-                                "/swagger-resources/**"
+                                "/v3/api-docs",
+                                "/swagger-resources/**",
+                                "/webjars/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth ->
                         oauth.successHandler(oAuth2AuthenticationSuccessHandler)
+                )
+                .exceptionHandling(ex ->
+                        // Return 401 JSON instead of redirecting to Google login
+                        // when a JWT-protected endpoint is hit without a token
+                        ex.authenticationEntryPoint(
+                                (request, response, authException) -> {
+                                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                                    response.setContentType("application/json");
+                                    response.getWriter().write("{\"error\": \"Unauthorized\"}");
+                                }
+                        )
                 )
                 .addFilterBefore(
                         jwtAuthenticationFilter,

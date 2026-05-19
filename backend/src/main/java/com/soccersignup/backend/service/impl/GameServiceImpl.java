@@ -6,8 +6,8 @@ import com.soccersignup.backend.dto.GameRequest;
 import com.soccersignup.backend.exception.ResourceNotFoundException;
 import com.soccersignup.backend.model.GameStatus;
 import com.soccersignup.backend.service.GameService;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.soccersignup.backend.model.Game;
 import com.soccersignup.backend.repository.GameRepository;

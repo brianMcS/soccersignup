@@ -29,10 +29,6 @@ public class GameSlot {
     public GameSlot() {
     }
 
-    public GameSlot(LocalDate gameDate, Player player) {
-        this.player = player;
-    }
-
     public static GameSlot create(
             Game game,
             Player player,
