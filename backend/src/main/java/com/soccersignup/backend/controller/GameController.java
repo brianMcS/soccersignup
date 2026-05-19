@@ -42,7 +42,7 @@ public class GameController {
         return ResponseEntity.ok(games.stream().map(GameResponse::from).toList());
     }
 
-    @GetMapping
+    @GetMapping("/{id}")
     public ResponseEntity<GameResponse> getGameById(@RequestParam Long id) {
         return ResponseEntity.ok(GameResponse.from(gameService.getGameById(id)));
     }

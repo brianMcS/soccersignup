@@ -3,8 +3,11 @@ package com.soccersignup.backend.controller;
 import java.util.List;
 
 import com.soccersignup.backend.dto.GameSlotResponse;
+import com.soccersignup.backend.model.Player;
+import com.soccersignup.backend.model.PlayerRole;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import com.soccersignup.backend.model.GameSlot;
@@ -38,24 +41,35 @@ public class GameSlotController {
     // POST /api/gameslots
     // Body: { "gameId": 1, "playerId": 3 }
     @PostMapping
-    public ResponseEntity<GameSlotResponse> signup(@RequestBody SignupRequest request) {
-        GameSlot saved = gameSlotService.addSignup(request.gameId(), request.playerId());
-        GameSlotResponse response = new GameSlotResponse(
-                saved.getId(),
-                saved.getPlayer().getName(),
-                saved.getPlayer().getEmail(),
-                saved.getStatus(),
-                saved.getSignedUpAt()
-        );
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    public ResponseEntity<GameSlotResponse> signup(
+            @RequestBody SignupRequest request,
+            Authentication authentication) {
+
+        Player currentPlayer = (Player) authentication.getPrincipal();
+        GameSlot saved = gameSlotService.addSignup(request.gameId(), currentPlayer.getId());
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(GameSlotResponse.from(saved));
     }
 
     // DELETE /api/gameslots/{gameId}/players/{playerId}
     @DeleteMapping("/{gameId}/players/{playerId}")
-    public ResponseEntity<Void> removeSignup(@PathVariable Long gameId, @PathVariable Long playerId) {
+    public ResponseEntity<Void> removeSignup(
+            @PathVariable Long gameId,
+            @PathVariable Long playerId,
+            Authentication authentication) {
+        Player currentPlayer = (Player) authentication.getPrincipal();
+
+        boolean isAdmin = currentPlayer.hasRole(PlayerRole.ADMIN);
+        boolean isOrganiser = currentPlayer.hasRole(PlayerRole.ORGANIZER);
+        boolean isOwnSignup = currentPlayer.getId().equals(playerId);
+
+        if(!isAdmin && !isOrganiser && isOwnSignup){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
         gameSlotService.removeSignup(gameId, playerId);
         return ResponseEntity.noContent().build();
     }
 
-    record SignupRequest(Long gameId, Long playerId){}
+    record SignupRequest(Long gameId){}
 }

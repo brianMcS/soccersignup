@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { GamesService } from '../../services/games.service';
@@ -74,7 +73,7 @@ export class GameSignupListComponent implements OnInit {
   }
 
   submitJoin(): void{
-    if (!this.game?.id || this.playerEmail.trim()) return;
+    if (!this.game?.id || !this.playerEmail.trim()) return;
 
     this.joining = true;
     this.joinError = '';
