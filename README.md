@@ -13,14 +13,14 @@ A full-stack web application for organizing weekly social soccer games. Replaces
 ## 🧱 Tech Stack
 
 ### 🖥️ Frontend
-- [Next.js](https://nextjs.org/)
+- [Angular](https://angular.io/) (latest version)
 - TypeScript
 - Tailwind CSS
 
 ### 🔧 Backend
 - Java 17
 - Spring Boot
-- Spring Security + JWT
+- OAuth2.0 + JWT
 - PostgreSQL
 
 ### 🧪 Dev Tools & Ops
@@ -36,7 +36,7 @@ A full-stack web application for organizing weekly social soccer games. Replaces
 soccersignup/
 │
 ├── backend/ # Spring Boot REST API
-├── frontend/ # Next.js + Tailwind frontend
+├── frontend/ # Angular + Tailwind frontend
 ├── database/ # SQL scripts or DB-specific tooling
 ├── .github/ # GitHub Actions CI/CD configs
 ├── docker-compose.yml
@@ -55,6 +55,6 @@ soccersignup/
 
 ### Frontend Setup
 ```bash
-cd frontend
+cd frontend/soccer-frontend
 npm install
-npm run dev
+npm start
