@@ -3,8 +3,7 @@ package com.soccersignup.backend.security;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soccersignup.backend.model.OAuthProvider;
 import com.soccersignup.backend.model.Player;
-import com.soccersignup.backend.model.PlayerRole;
-import com.soccersignup.backend.repository.PlayerRepository;
+import com.soccersignup.backend.service.PlayerService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,16 +20,16 @@ import java.util.Optional;
 
 @Component
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
-    private final PlayerRepository playerRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final ObjectMapper objectMapper;
+    private final PlayerService playerService;
 
-    public OAuth2AuthenticationSuccessHandler(PlayerRepository playerRepository,
-                                              JwtTokenProvider jwtTokenProvider,
-                                              ObjectMapper objectMapper) {
-        this.playerRepository = playerRepository;
+    public OAuth2AuthenticationSuccessHandler(JwtTokenProvider jwtTokenProvider,
+                                              ObjectMapper objectMapper,
+                                              PlayerService playerService) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.objectMapper = objectMapper;
+        this.playerService = playerService;
     }
 
     @Override
@@ -68,13 +67,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         try {
             // Find or create player
-            Player player = playerRepository.findByEmail(email)
-                    .orElseGet(() -> {
-                        Player newPlayer = new Player(name, email, null, provider, oauthProviderId);
-                        newPlayer.addRole(PlayerRole.PLAYER);
-                        return playerRepository.save(newPlayer);
-                    });
-
+            Player player = playerService.findOrCreateOAuthPlayer(email, name, provider, oauthProviderId);
             // Generate JWT token
             String token = jwtTokenProvider.generateToken(player);
 
@@ -86,35 +79,34 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         }
     }
 
-    private void sendSuccessResponse(HttpServletResponse response, String token, Player player) throws IOException {
-        // Check if this is a popup request (detect via Accept header or a query param)
-        String acceptHeader = response.getHeader("Accept");
+    private void sendSuccessResponse(HttpServletResponse response,
+                                     String token, Player player) throws IOException {
+        // Build a data object and serialize it safely
+        Map<String, Object> playerData = Map.of(
+                "id", player.getId(),
+                "email", player.getEmail(),
+                "name", player.getName(),
+                "roles", player.getRoles().stream().map(Enum::toString).toList()
+        );
+        Map<String, Object> message = Map.of(
+                "success", true,
+                "token", token,
+                "player", playerData
+        );
+        // Serialize the whole message safely and embed as a single JSON string
+        String safeJson = objectMapper.writeValueAsString(message);
 
-        // Return HTML that postMessages to parent window
-        String html = "<!DOCTYPE html>\n" +
-                "<html>\n" +
-                "<head>\n" +
-                "    <title>OAuth Callback</title>\n" +
-                "</head>\n" +
-                "<body>\n" +
-                "    <p>Authentication successful. Closing...</p>\n" +
-                "    <script>\n" +
-                "        const message = {\n" +
-                "            success: true,\n" +
-                "            token: '" + token + "',\n" +
-                "            player: {\n" +
-                "                id: " + player.getId() + ",\n" +
-                "                email: '" + player.getEmail() + "',\n" +
-                "                name: '" + player.getName() + "',\n" +
-                "                roles: " + objectMapper.writeValueAsString(
-                player.getRoles().stream().map(Enum::toString).toList()) + "\n" +
-                "            }\n" +
-                "        };\n" +
-                "        window.opener.postMessage(message, '*');\n" +
-                "        window.close();\n" +
-                "    </script>\n" +
-                "</body>\n" +
-                "</html>";
+        String html = """
+        <!DOCTYPE html>
+        <html><head><title>OAuth Callback</title></head>
+        <body>
+            <p>Authentication successful. Closing...</p>
+            <script>
+                window.opener.postMessage(%s, '*');
+                window.close();
+            </script>
+        </body></html>
+        """.formatted(safeJson);  // safeJson is Jackson-escaped, safe to embed
 
         response.setContentType("text/html;charset=UTF-8");
         response.setStatus(HttpServletResponse.SC_OK);

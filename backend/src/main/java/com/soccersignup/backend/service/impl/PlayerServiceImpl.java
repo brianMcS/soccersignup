@@ -3,11 +3,15 @@ package com.soccersignup.backend.service.impl;
 import java.util.List;
 import java.util.Optional;
 
+import com.soccersignup.backend.dto.PlayerRequest;
+import com.soccersignup.backend.model.OAuthProvider;
+import com.soccersignup.backend.model.PlayerRole;
 import org.springframework.stereotype.Service;
 
 import com.soccersignup.backend.model.Player;
 import com.soccersignup.backend.repository.PlayerRepository;
 import com.soccersignup.backend.service.PlayerService;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PlayerServiceImpl implements PlayerService {
@@ -46,5 +50,39 @@ public class PlayerServiceImpl implements PlayerService {
             player.setIsActive(false); // Mark as inactive instead of deleting
             playerRepository.save(player);
         }
+    }
+
+    @Override
+    public Player createPlayer(PlayerRequest request) {
+        Player player = new Player();
+        player.setName(request.name());
+        player.setEmail(request.email());
+        player.setPhone(request.phone());
+        player.setIsActive(true); // New players are active by default
+        return playerRepository.save(player);
+    }
+
+    @Override
+    public Player updatePlayer(Long id, PlayerRequest request) {
+        Optional<Player> playerOpt = playerRepository.findById(id);
+        if (playerOpt.isPresent()) {
+            Player player = playerOpt.get();
+            player.setName(request.name());
+            player.setEmail(request.email());
+            player.setPhone(request.phone());
+            return playerRepository.save(player);
+        }
+        throw new RuntimeException("Player not found with id: " + id);
+    }
+
+    @Override
+    @Transactional
+    public Player findOrCreateOAuthPlayer(String email, String name, OAuthProvider provider, String oauthProviderId) {
+        return playerRepository.findByEmail(email)
+                .orElseGet(() -> {
+                    Player newPlayer = new Player(name, email, null, provider, oauthProviderId);
+                    newPlayer.addRole(PlayerRole.PLAYER);
+                    return playerRepository.save(newPlayer);
+                });
     }
 }

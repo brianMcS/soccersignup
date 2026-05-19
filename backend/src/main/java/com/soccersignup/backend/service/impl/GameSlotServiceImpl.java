@@ -12,8 +12,8 @@ import com.soccersignup.backend.repository.GameRepository;
 import com.soccersignup.backend.repository.GameSlotRepository;
 import com.soccersignup.backend.repository.PlayerRepository;
 import com.soccersignup.backend.service.GameSlotService;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -33,6 +33,7 @@ public class GameSlotServiceImpl implements GameSlotService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<GameSlot> getSignupsForGame(Long gameId) {
         Game game = findGameById(gameId);
         return gameSlotRepository.findByGame(game);

@@ -54,7 +54,7 @@ public class GameController {
         updates.setKickOffTime(request.kickOffTime());
         updates.setLocation(request.location());
         updates.setMaxPlayers(request.maxPlayers());
-        return ResponseEntity.ok(GameResponse.from(gameService.updateGame(id, updates)));
+        return ResponseEntity.ok(GameResponse.from(gameService.updateGame(id, request)));
     }
 
     @PostMapping("/{id}/close")

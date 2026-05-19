@@ -2,6 +2,7 @@ package com.soccersignup.backend.service.impl;
 
 import java.util.List;
 
+import com.soccersignup.backend.dto.GameRequest;
 import com.soccersignup.backend.exception.ResourceNotFoundException;
 import com.soccersignup.backend.model.GameStatus;
 import com.soccersignup.backend.service.GameService;
@@ -43,12 +44,12 @@ public class GameServiceImpl  implements GameService {
 
     @Override
     @Transactional
-    public Game updateGame(Long id, Game updates){
+    public Game updateGame(Long id, GameRequest request){
         Game existing = getGameById(id);
-        existing.setGameDate(updates.getGameDate());
-        existing.setKickOffTime(updates.getKickOffTime());
-        existing.setLocation(updates.getLocation());
-        existing.setMaxPlayers(updates.getMaxPlayers());
+        existing.setGameDate(request.gameDate());
+        existing.setKickOffTime(request.kickOffTime());
+        existing.setLocation(request.location());
+        existing.setMaxPlayers(request.maxPlayers());
         return gameRepository.save(existing);
     }
 

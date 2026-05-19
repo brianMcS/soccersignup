@@ -1,5 +1,6 @@
 package com.soccersignup.backend.service;
 
+import com.soccersignup.backend.dto.GameRequest;
 import com.soccersignup.backend.model.Game;
 import com.soccersignup.backend.model.GameStatus;
 
@@ -10,6 +11,6 @@ public interface GameService {
     List<Game> getAllGames();
     List<Game> getGamesByStatus(GameStatus status);
     Game getGameById(Long id);
-    Game updateGame(Long id, Game updates);
+    Game updateGame(Long id, GameRequest updates);
     Game closeSignups(Long id);
 }
