@@ -1,1 +1,361 @@
-/* You can add global styles to this file, and also import other style files */
+/* ============================================================
+   SOCIAL SOCCER — Global Styles
+   Tailwind base + custom CSS variables + component utilities
+   ============================================================ */
+
+/* ─── GOOGLE FONTS ──────────────────────────────────────────
+   Bebas Neue  → display headings, numbers, labels
+   DM Sans     → body, UI text
+   JetBrains Mono → slot numbers, counters
+   ──────────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+/* ─── CSS CUSTOM PROPERTIES ─────────────────────────────────
+   Mirror the Tailwind theme as CSS vars for use in
+   component stylesheets or inline Angular styles
+   ──────────────────────────────────────────────────────────── */
+:root {
+  /* Brand colours */
+  --color-pitch-950:  #080d08;
+  --color-pitch-900:  #0e1a0f;
+  --color-pitch-800:  #162518;
+  --color-pitch-700:  #1e3320;
+  --color-pitch-600:  #275c2a;
+  --color-pitch-500:  #2e7d32;
+  --color-pitch-400:  #43a047;
+  --color-pitch-300:  #66bb6a;
+
+  --color-amber-600:  #c8861a;
+  --color-amber-500:  #e8a820;
+  --color-amber-400:  #f0bc3a;
+  --color-amber-300:  #f5d06a;
+
+  --color-surface-900: #111614;
+  --color-surface-800: #1a1f1b;
+  --color-surface-700: #232a24;
+  --color-surface-600: #2e372f;
+  --color-surface-500: #3d4a3e;
+
+  --color-ink:        #f0f4f0;
+  --color-ink-muted:  #8fa890;
+  --color-ink-faint:  #4a5c4b;
+
+  /* Layout */
+  --nav-height: 4rem;       /* 64px — update if nav changes */
+  --page-max-w: 72rem;      /* max-w-5xl equivalent */
+  --page-px:    1rem;       /* horizontal page padding (mobile) */
+  --page-px-md: 2rem;       /* horizontal page padding (tablet+) */
+
+  /* Radius */
+  --radius-sm:   0.5rem;
+  --radius-md:   0.875rem;
+  --radius-lg:   1.25rem;
+  --radius-full: 9999px;
+
+  /* Transitions */
+  --transition-base: 150ms ease;
+  --transition-slow: 300ms ease;
+}
+
+
+/* ─── BASE RESETS ────────────────────────────────────────────
+   Override browser defaults for a consistent dark base
+   ──────────────────────────────────────────────────────────── */
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-pitch-900 text-ink font-sans antialiased;
+    min-height: 100dvh;       /* dynamic viewport height — mobile safe */
+    overflow-x: hidden;
+  }
+
+  /* Headings default to display font */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display tracking-wide;
+  }
+
+  /* Links */
+  a {
+    @apply text-pitch-300 transition-colors duration-150;
+  }
+  a:hover {
+    @apply text-amber-400;
+  }
+
+  /* Focus rings — visible, branded */
+  :focus-visible {
+    outline: 2px solid var(--color-amber-500);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* Inputs base — override browser defaults */
+  input, textarea, select {
+    @apply bg-surface-700 text-ink font-sans;
+    @apply border border-surface-500 rounded-xl;
+    @apply px-4 py-3 w-full;
+    @apply placeholder:text-ink-faint;
+    @apply transition-colors duration-150;
+    @apply focus:outline-none focus:border-pitch-400 focus:ring-1 focus:ring-pitch-400;
+  }
+
+  /* Remove number input spinners */
+  input[type='number']::-webkit-inner-spin-button,
+  input[type='number']::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
+
+
+/* ─── COMPONENT UTILITIES ────────────────────────────────────
+   Reusable class compositions used across all components
+   ──────────────────────────────────────────────────────────── */
+@layer components {
+
+  /* ── Buttons ── */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2;
+    @apply font-display tracking-widest uppercase;
+    @apply rounded-xl px-6 py-3 text-sm;
+    @apply transition-all duration-150;
+    @apply cursor-pointer select-none;
+    @apply disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    @apply btn bg-pitch-500 text-ink;
+    @apply hover:bg-pitch-400 active:bg-pitch-600;
+    @apply shadow-pitch hover:shadow-glow-green;
+  }
+
+  .btn-accent {
+    @apply btn bg-amber-500 text-pitch-950;
+    @apply hover:bg-amber-400 active:bg-amber-600;
+    @apply font-semibold shadow-pitch hover:shadow-glow-amber;
+  }
+
+  .btn-ghost {
+    @apply btn bg-transparent text-ink-muted border border-surface-500;
+    @apply hover:bg-surface-700 hover:text-ink hover:border-surface-400;
+  }
+
+  .btn-danger {
+    @apply btn bg-red-800 text-ink;
+    @apply hover:bg-red-700 active:bg-red-900;
+  }
+
+  /* ── Cards ── */
+  .card {
+    @apply bg-surface-800 rounded-2xl border border-surface-600;
+    @apply shadow-card;
+  }
+
+  .card-glass {
+    /* Frosted glass feel — use over photo backgrounds */
+    @apply rounded-2xl border border-white/10;
+    background: rgba(26, 31, 27, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  /* ── Page layout ── */
+  .page-container {
+    @apply mx-auto w-full px-4 md:px-8;
+    max-width: var(--page-max-w);
+  }
+
+  .page-section {
+    @apply py-10 md:py-16;
+  }
+
+  /* ── Section headings ── */
+  .section-label {
+    @apply text-xs font-display tracking-[0.2em] uppercase text-ink-muted;
+  }
+
+  .section-title {
+    @apply font-display text-display-md text-ink;
+  }
+
+  /* ── Badges / status pills ── */
+  .badge {
+    @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-sans font-medium tracking-wide;
+  }
+
+  .badge-open {
+    @apply badge bg-pitch-500/20 text-pitch-300 border border-pitch-500/30;
+  }
+
+  .badge-full {
+    @apply badge bg-red-900/30 text-red-400 border border-red-800/40;
+  }
+
+  .badge-completed {
+    @apply badge bg-surface-600 text-ink-muted border border-surface-500;
+  }
+
+  .badge-waitlisted {
+    @apply badge bg-amber-500/20 text-amber-300 border border-amber-500/30;
+  }
+
+  /* ── Player slot ── */
+  .slot {
+    @apply flex items-center gap-3 px-4 py-3;
+    @apply border-b border-surface-600 last:border-0;
+    @apply transition-colors duration-150;
+  }
+
+  .slot-number {
+    @apply font-mono text-sm text-ink-faint w-6 text-right shrink-0;
+  }
+
+  .slot-filled {
+    @apply slot hover:bg-surface-700;
+  }
+
+  .slot-empty {
+    @apply slot text-ink-faint italic;
+  }
+
+  /* ── Avatar initials ── */
+  .avatar {
+    @apply w-8 h-8 rounded-full flex items-center justify-center shrink-0;
+    @apply bg-pitch-700 text-pitch-300 text-xs font-display tracking-wider;
+  }
+
+  /* ── Divider ── */
+  .divider {
+    @apply border-t border-surface-600 my-6;
+  }
+
+  /* ── Hero image overlay ── */
+  .hero-bg {
+    @apply relative overflow-hidden;
+  }
+
+  .hero-bg::before {
+    content: '';
+    @apply absolute inset-0 bg-pitch-overlay-strong z-10;
+  }
+
+  .hero-bg > * {
+    @apply relative z-20;
+  }
+
+  /* ── Nav ── */
+  .nav-link {
+    @apply font-display tracking-widest uppercase text-xs text-ink-muted;
+    @apply px-3 py-2 rounded-lg transition-colors duration-150;
+    @apply hover:text-ink hover:bg-surface-700;
+  }
+
+  .nav-link-active {
+    @apply nav-link text-amber-400 bg-surface-700;
+  }
+
+  /* ── Form group ── */
+  .form-group {
+    @apply flex flex-col gap-1.5;
+  }
+
+  .form-label {
+    @apply text-xs font-display tracking-widest uppercase text-ink-muted;
+  }
+
+  .form-error {
+    @apply text-xs text-red-400 mt-1;
+  }
+
+  /* ── Loading skeleton ── */
+  .skeleton {
+    @apply rounded-lg bg-surface-700 animate-pulse;
+  }
+
+  /* ── Toast / alert ── */
+  .alert-success {
+    @apply flex items-center gap-3 px-4 py-3 rounded-xl;
+    @apply bg-pitch-500/15 border border-pitch-500/30 text-pitch-300 text-sm;
+  }
+
+  .alert-error {
+    @apply flex items-center gap-3 px-4 py-3 rounded-xl;
+    @apply bg-red-900/20 border border-red-800/40 text-red-400 text-sm;
+  }
+
+  .alert-info {
+    @apply flex items-center gap-3 px-4 py-3 rounded-xl;
+    @apply bg-amber-500/10 border border-amber-500/20 text-amber-300 text-sm;
+  }
+}
+
+
+/* ─── ANIMATION DELAYS ───────────────────────────────────────
+   Stagger children on page load using data-delay attribute
+   Usage: <div class="animate-fade-up" style="animation-delay: 100ms">
+   ──────────────────────────────────────────────────────────── */
+@layer utilities {
+  .delay-75  { animation-delay: 75ms; }
+  .delay-150 { animation-delay: 150ms; }
+  .delay-225 { animation-delay: 225ms; }
+  .delay-300 { animation-delay: 300ms; }
+  .delay-400 { animation-delay: 400ms; }
+  .delay-500 { animation-delay: 500ms; }
+
+  /* Prevent FOUC on animated elements */
+  .animate-fade-up,
+  .animate-fade-up-slow,
+  .animate-fade-in {
+    animation-fill-mode: both;
+  }
+
+  /* Scrollbar styling — dark themed */
+  .scrollbar-pitch {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-pitch-600) var(--color-surface-900);
+  }
+
+  .scrollbar-pitch::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-pitch::-webkit-scrollbar-track {
+    background: var(--color-surface-900);
+  }
+
+  .scrollbar-pitch::-webkit-scrollbar-thumb {
+    background: var(--color-pitch-600);
+    border-radius: 3px;
+  }
+
+  /* Text gradient — amber to green */
+  .text-gradient {
+    background: linear-gradient(90deg, var(--color-amber-400) 0%, var(--color-pitch-300) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Safe area padding for mobile notch/nav bar */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+}
