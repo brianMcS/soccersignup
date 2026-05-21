@@ -60,7 +60,7 @@ public class GameSlotController {
         Player currentPlayer = (Player) authentication.getPrincipal();
 
         boolean isAdmin = currentPlayer.hasRole(PlayerRole.ADMIN);
-        boolean isOrganiser = currentPlayer.hasRole(PlayerRole.ORGANIZER);
+        boolean isOrganiser = currentPlayer.hasRole(PlayerRole.ORGANISER);
         boolean isOwnSignup = currentPlayer.getId().equals(playerId);
 
         if(!isAdmin && !isOrganiser && isOwnSignup){
