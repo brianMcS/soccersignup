@@ -1,5 +1,7 @@
 export interface GameSlot {
   id?: number;
+  gameId?: number;
+  playerId?: number;
   playerName?: string;
   playerEmail?: string;
   status?: 'CONFIRMED' | 'WAITLISTED' | 'WITHDRAWN';
