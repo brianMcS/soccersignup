@@ -1,0 +1,5 @@
+/* Push all page content below the fixed nav bar */
+.app-main {
+  padding-top: var(--nav-height, 4rem);
+  min-height: 100dvh;
+}

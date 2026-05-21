@@ -1,7 +1,7 @@
 import {Inject, Injectable, NgZone, PLATFORM_ID} from '@angular/core';
 import { Router } from '@angular/router';
-import {BehaviorSubject} from 'rxjs';
 import {isPlatformBrowser} from '@angular/common';
+import {UserService} from './user.service';
 
 export interface AuthResponse {
   success: boolean;
@@ -15,29 +15,21 @@ export interface AuthResponse {
   error?: string;
 }
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class AuthService {
   private isBrowser: boolean;
-  private isLoggedInSubject = new BehaviorSubject<boolean>(this.hasToken());
-  public isLoggedIn$ = this.isLoggedInSubject.asObservable();
-
   private oauthPopup: Window | null = null;
+
+  public isLoggedIn$!: typeof this.userService.isLoggedIn$;
 
   constructor(
     private router: Router,
     private ngZone: NgZone,
+    private userService: UserService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
+    this.isLoggedIn$ = this.userService.isLoggedIn$;
     this.isBrowser = isPlatformBrowser(this.platformId);
-
-    // initialize BehaviorSubject safely (do not access localStorage on server)
-    const initial = this.isBrowser ? !!localStorage.getItem('auth_token') : false;
-    this.isLoggedInSubject = new BehaviorSubject<boolean>(initial);
-    this.isLoggedIn$ = this.isLoggedInSubject.asObservable();
-
-    // Only set up postMessage listener in browser
     if (this.isBrowser) {
       this.setupOAuthListener();
     }
@@ -52,34 +44,26 @@ export class AuthService {
     return !!this.getToken();
   }
 
-  setToken(token: string) {
-    if (this.isBrowser) {
-      localStorage.setItem('auth_token', token);
-      this.isLoggedInSubject.next(true);
-    } else {
-      // running on server - do nothing
-    }
-  }
-
   isLoggedIn(): boolean {
-    return !!this.getToken();
+    return !!this.userService.isLoggedIn$;
   }
 
-  logout() {
+  setToken(token: string): void {
+    if (!this.isBrowser) return;
+    localStorage.setItem('auth_token', token);
+    this.userService.setFromToken(token);
+  }
+
+  logout(): void {
     if (this.isBrowser) {
       localStorage.removeItem('auth_token');
     }
-    this.isLoggedInSubject.next(false);
-    if (this.isBrowser) {
-      this.router.navigate(['/register']);
-    }
+    this.userService.clear();
+    this.router.navigate(['/']);
   }
 
   loginWithGoogle(): void {
-    if (!this.isBrowser) {
-      console.warn('loginWithGoogle called on non-browser platform');
-      return;
-    }
+    if (!this.isBrowser) return;
 
     const width = 500;
     const height = 650;
@@ -87,7 +71,8 @@ export class AuthService {
     const top = window.screenY + (window.outerHeight - height) / 2;
 
     this.oauthPopup = window.open(
-      'http://localhost:8080/oauth2/authorization/google',
+      // 'http://localhost:8080/oauth2/authorization/google',
+      '/oauth2/authorization/google',   // relative — no hardcoded localhost
       'OAuth2Login',
       `width=${width},height=${height},left=${left},top=${top}`
     );
@@ -97,41 +82,32 @@ export class AuthService {
     }
   }
 
+  handleOAuthCallback(token: string): void {
+    if(this.isBrowser && token) {
+      this.setToken(token);
+      this.router.navigate(['/play']);
+    }
+  }
+
   private setupOAuthListener(): void {
-    // Add event listener in browser only
-    if (!this.isBrowser) return;
-
-    // Use NgZone to ensure Angular change detection runs when needed
     window.addEventListener('message', (event: MessageEvent) => {
-      // IMPORTANT: verify origin in production — don't use '*' in production
-      try {
-        if (event.origin !== 'http://localhost:8080') {
-          // ignore messages from other origins
-          return;
-        }
+      // In production, lock this to your real domain
+      if (event.origin !== window.location.origin &&
+        event.origin !== 'http://localhost:8080') return;
 
+      try {
         const data = event.data as AuthResponse;
-        if (data && data.success && data.token) {
+        if (data?.success && data.token) {
           this.ngZone.run(() => {
             this.setToken(data.token!);
             this.router.navigate(['/play']);
           });
         } else if (data && !data.success && data.error) {
-          this.ngZone.run(() => {
-            alert('Authentication failed: ' + data.error);
-          });
+          this.ngZone.run(() => alert('Authentication failed: ' + data.error));
         }
       } catch (e) {
         console.error('Error handling OAuth message', e);
       }
     }, false);
-  }
-
-  // fallback for non-popup flows: called by OAuth redirect component
-  handleOAuthCallback(token: string) {
-    if (this.isBrowser && token) {
-      this.setToken(token);
-      this.router.navigate(['/play']);
-    }
   }
 }

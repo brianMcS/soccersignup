@@ -1,1 +1,136 @@
-<p>nav works!</p>
+<header class="nav-bar">
+  <div class=" nav-inner">
+
+    <!--Wordmark -->
+    <a routerLink="/" class="nav-wordmark" (click)="closeMenu()">
+      <span class="nav-ball">⚽</span>
+      <span class="nav-title">Social<span class="nav-title-accent">Soccer</span></span>
+    </a>
+
+    <!-- Desktop nav links (hidden on mobile) -->
+    <nav class="nav-links-desktop" aria-label="Main navigation">
+      <a
+        *ngFor="let item of navItems"
+        [routerLink]="item.route"
+        class="nav-link-desktop"
+        [class.nav-link-desktop--active]="isActive(item.route)">
+        {{ item.label }}
+      </a>
+      <a
+        *ngIf="isAdmin"
+        routerLink="/admin"
+        class="nav-link-desktop nav-link-admin"
+        [class.nav-link-desktop--active]="isActive('/admin')"
+        >
+        Admin
+      </a>
+    </nav>
+
+    <!-- Desktop: auth state -->
+    <div class="nav-auth-desktop">
+      <ng-container *ngIf="currentUser; else loginBtn">
+        <div class="nav-user">
+          <div class="nav-avatar">{{ getInitials(currentUser.name) }}</div>
+          <span class="nav-username">{{ currentUser.name.split(' ')[0] }}</span>
+        </div>
+        <button class="btn-ghost nav-logout-btn" (click)="logout()">Sign Out</button>
+      </ng-container>
+      <ng-template #loginBtn>
+        <a routerLink="/register" class="btn-accent nav-signin-btn">Sign In</a>
+      </ng-template>
+    </div>
+
+    <!-- Hamburger (mobile only) -->
+    <button class="nav-hamburger"
+            [class.nav-hamburger--open]="menuOpen"
+            (click)="toggleMenu()"
+            [attr.aria-expanded]="menuOpen"
+            aria-label="Toggle navigation menu"
+    >
+      <span class="bar bar-1"></span>
+      <span class="bar bar-2"></span>
+      <span class="bar bar-3"></span>
+    </button>
+  </div>
+</header>
+
+<!-- ─── BACKDROP ──────────────────────────────────────────────────────────── -->
+<div
+  class="nav-backdrop"
+  [class.nav-backdrop--visible]="menuOpen"
+  (click)="closeMenu()"
+  aria-hidden="true"
+></div>
+
+<!-- ─── SLIDE-OUT DRAWER ──────────────────────────────────────────────────── -->
+<aside
+  class="nav-drawer"
+  [class.nav-drawer--open]="menuOpen"
+  role="dialog"
+  aria-label="Navigation menu"
+  [attr.aria-hidden]="!menuOpen"
+>
+  <!-- Drawer header -->
+  <div class="drawer-header">
+    <span class="nav-ball">⚽</span>
+    <span class="nav-title">Social<span class="nav-title-accent">Soccer</span></span>
+    <button class="drawer-close" (click)="closeMenu()" aria-label="Close menu">✕</button>
+  </div>
+
+  <!-- User identity block -->
+  <div class="drawer-user" *ngIf="currentUser; else drawerGuest">
+    <div class="drawer-avatar">{{ getInitials(currentUser.name) }}</div>
+    <div class="drawer-user-info">
+      <p class="drawer-user-name">{{ currentUser.name }}</p>
+      <p class="drawer-user-email">{{ currentUser.email }}</p>
+    </div>
+  </div>
+  <ng-template #drawerGuest>
+    <div class="drawer-guest">
+      <a routerLink="/register" class="btn-accent drawer-signin" (click)="closeMenu()">
+        Sign In / Register
+      </a>
+    </div>
+  </ng-template>
+
+  <div class="drawer-divider"></div>
+
+  <!-- Nav links -->
+  <nav class="drawer-nav" aria-label="Drawer navigation">
+    <a
+      *ngFor="let item of navItems; let i = index"
+      [routerLink]="item.route"
+      class="drawer-link"
+      [class.drawer-link--active]="isActive(item.route)"
+      [style.animation-delay]="(i * 60) + 'ms'"
+      (click)="closeMenu()"
+    >
+      <span class="drawer-link-icon">{{ item.icon }}</span>
+      <span class="drawer-link-label">{{ item.label }}</span>
+      <span class="drawer-link-arrow">›</span>
+    </a>
+
+    <!-- Admin link — only visible to admins -->
+    <a
+      *ngIf="isAdmin"
+      routerLink="/admin"
+      class="drawer-link drawer-link-admin"
+      [class.drawer-link--active]="isActive('/admin')"
+      (click)="closeMenu()"
+    >
+      <span class="drawer-link-icon">🛡️</span>
+      <span class="drawer-link-label">Admin Panel</span>
+      <span class="drawer-link-arrow">›</span>
+    </a>
+  </nav>
+
+  <div class="drawer-divider"></div>
+
+  <!-- Sign out -->
+  <div class="drawer-footer" *ngIf="currentUser">
+    <button class="drawer-signout" (click)="logout()">
+      <span>Sign Out</span>
+    </button>
+  </div>
+
+</aside>

@@ -151,7 +151,7 @@
 
   .btn-ghost {
     @apply btn bg-transparent text-ink-muted border border-surface-500;
-    @apply hover:bg-surface-700 hover:text-ink hover:border-surface-400;
+    @apply hover:bg-surface-700 hover:text-ink hover:border-surface-500;
   }
 
   .btn-danger {

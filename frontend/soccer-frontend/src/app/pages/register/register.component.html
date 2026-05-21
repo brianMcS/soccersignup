@@ -1,78 +1,217 @@
-<h2>Register as a New Player</h2>
+<!-- ════════════════════════════════════════════════════════════
+     REGISTER / SIGN-IN PAGE
+     Three states:
+       1. currentUser  → Already signed in block
+       2. view=landing → Sign in CTA + "New here?" link
+       3. view=register → Registration form
+     ════════════════════════════════════════════════════════════ -->
 
-<!-- OAuth2 Login Option -->
-<div style="margin-bottom: 20px;">
-  <button type="button" (click)="onGoogleLogin()" style="background-color: #1f2937; color: white; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
-    Sign in with Google
-  </button>
+<div class="reg-page">
+
+  <!-- ─── HERO BACKGROUND ─────────────────────────────────────────────────── -->
+  <div class="reg-hero" aria-hidden="true">
+    <div class="reg-hero-overlay"></div>
+    <div class="reg-hero-glow"></div>
+  </div>
+
+  <!-- ─── PAGE CONTENT ────────────────────────────────────────────────────── -->
+  <div class="reg-content">
+
+    <!-- ── PITCH LINES DECORATION ─────────────────────────────────────────── -->
+    <div class="pitch-lines" aria-hidden="true">
+      <div class="pitch-line"></div>
+      <div class="pitch-line pitch-line--2"></div>
+      <div class="pitch-line pitch-line--3"></div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════
+         STATE 1 — Already signed in
+         ════════════════════════════════════════════════════ -->
+    <div *ngIf="currentUser" class="reg-card reg-card--loggedin animate-fade-up">
+
+      <div class="loggedin-avatar">{{ currentUser.name[0].toUpperCase() }}</div>
+
+      <p class="loggedin-greeting">You're signed in as</p>
+      <h2 class="loggedin-name">{{ currentUser.name }}</h2>
+      <p class="loggedin-email">{{ currentUser.email }}</p>
+
+      <button class="btn-accent loggedin-cta" (click)="goToPlay()">
+        <span>View This Week's Game</span>
+        <span class="btn-arrow">→</span>
+      </button>
+
+      <button class="btn-ghost loggedin-signout" (click)="logout()">
+        Sign out
+      </button>
+
+    </div>
+
+    <!-- ════════════════════════════════════════════════════
+         STATE 2 — Landing (not logged in, default view)
+         ════════════════════════════════════════════════════ -->
+    <div *ngIf="!currentUser && view === 'landing'" class="reg-card animate-fade-up">
+
+      <!-- Header -->
+      <div class="reg-eyebrow">
+        <span class="ball-icon">⚽</span>
+        <span class="eyebrow-text">Social Soccer</span>
+      </div>
+      <h1 class="reg-heading">Ready to<br><span class="heading-accent">Play?</span></h1>
+      <p class="reg-subheading">Sign in with Google to join this week's game, see who's playing, and track your history.</p>
+
+      <!-- Google sign-in — PRIMARY action -->
+      <button
+        class="btn-google"
+        (click)="onGoogleLogin()"
+        [disabled]="googleLoading"
+        [class.btn-google--loading]="googleLoading"
+      >
+        <span class="google-icon" aria-hidden="true">
+          <!-- Google G SVG -->
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+            <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/>
+            <path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+            <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+          </svg>
+        </span>
+        <span>{{ googleLoading ? 'Opening...' : 'Continue with Google' }}</span>
+      </button>
+
+      <!-- Divider -->
+      <div class="reg-divider">
+        <span class="divider-line"></span>
+        <span class="divider-text">New to Social Soccer?</span>
+        <span class="divider-line"></span>
+      </div>
+
+      <!-- Register link — SECONDARY action -->
+      <button class="btn-register-link" (click)="showRegisterForm()">
+        Create a player profile
+        <span class="btn-arrow">→</span>
+      </button>
+
+    </div>
+
+    <!-- ════════════════════════════════════════════════════
+         STATE 3 — Registration form
+         ════════════════════════════════════════════════════ -->
+    <div *ngIf="!currentUser && view === 'register'" class="reg-card animate-fade-up">
+
+      <!-- Back button -->
+      <button class="reg-back" (click)="backToLanding()">
+        <span>←</span> Back
+      </button>
+
+      <!-- ── Success state ──────────────────────────────────────────────── -->
+      <div *ngIf="submitted" class="reg-success">
+        <div class="success-icon">✓</div>
+        <h2 class="success-heading">You're registered!</h2>
+        <p class="success-body">
+          Welcome to Social Soccer. Sign in with Google to join this week's game.
+        </p>
+        <button class="btn-accent" style="width:100%;margin-top:1.25rem" (click)="backToLanding()">
+          <span>Sign In Now</span>
+          <span class="btn-arrow">→</span>
+        </button>
+      </div>
+
+      <!-- ── Form ───────────────────────────────────────────────────────── -->
+      <ng-container *ngIf="!submitted">
+
+        <div class="reg-eyebrow">
+          <span class="ball-icon">⚽</span>
+          <span class="eyebrow-text">Create Profile</span>
+        </div>
+        <h1 class="reg-heading reg-heading--sm">Join the<br><span class="heading-accent">Squad</span></h1>
+        <p class="reg-subheading">Register once, then sign in with Google each week to grab your spot.</p>
+
+        <form (ngSubmit)="onSubmit()" #registerForm="ngForm" novalidate class="reg-form">
+
+          <!-- Name -->
+          <div class="form-group">
+            <label class="form-label" for="name">Full Name</label>
+            <input
+              id="name"
+              type="text"
+              [(ngModel)]="form.name"
+              name="name"
+              placeholder="Jamie Doyle"
+              required
+              minlength="2"
+              #nameField="ngModel"
+              [class.input-error]="nameField.invalid && nameField.touched"
+              [class.input-valid]="nameField.valid && nameField.touched"
+            />
+            <p class="form-error" *ngIf="nameField.invalid && nameField.touched">
+              <span *ngIf="nameField.errors?.['required']">Name is required.</span>
+              <span *ngIf="nameField.errors?.['minlength']">Minimum 2 characters.</span>
+            </p>
+          </div>
+
+          <!-- Email -->
+          <div class="form-group">
+            <label class="form-label" for="email">Email Address</label>
+            <input
+              id="email"
+              type="email"
+              [(ngModel)]="form.email"
+              name="email"
+              placeholder="jamie@example.com"
+              required
+              email
+              #emailField="ngModel"
+              [class.input-error]="emailField.invalid && emailField.touched"
+              [class.input-valid]="emailField.valid && emailField.touched"
+            />
+            <p class="form-error" *ngIf="emailField.invalid && emailField.touched">
+              <span *ngIf="emailField.errors?.['required']">Email is required.</span>
+              <span *ngIf="emailField.errors?.['email']">Enter a valid email address.</span>
+            </p>
+          </div>
+
+          <!-- Phone -->
+          <div class="form-group">
+            <label class="form-label" for="phone">Phone Number</label>
+            <input
+              id="phone"
+              type="tel"
+              [(ngModel)]="form.phone"
+              name="phone"
+              placeholder="0871234567"
+              required
+              pattern="^[0-9]{7,15}$"
+              #phoneField="ngModel"
+              [class.input-error]="phoneField.invalid && phoneField.touched"
+              [class.input-valid]="phoneField.valid && phoneField.touched"
+            />
+            <p class="form-error" *ngIf="phoneField.invalid && phoneField.touched">
+              <span *ngIf="phoneField.errors?.['required']">Phone number is required.</span>
+              <span *ngIf="phoneField.errors?.['pattern']">Enter 7–15 digits only, no spaces.</span>
+            </p>
+          </div>
+
+          <!-- Server error -->
+          <div class="alert-error" *ngIf="errorMessage" role="alert">
+            <span>⚠</span> {{ errorMessage }}
+          </div>
+
+          <!-- Submit -->
+          <button
+            type="submit"
+            class="btn-accent btn-submit"
+            [disabled]="registerForm.invalid || submitting"
+          >
+            <span>{{ submitting ? 'Registering...' : 'Create Profile' }}</span>
+            <span class="btn-arrow" *ngIf="!submitting">→</span>
+            <span class="btn-spinner" *ngIf="submitting" aria-hidden="true"></span>
+          </button>
+
+        </form>
+
+      </ng-container>
+
+    </div>
+
+  </div>
 </div>
-
-<p style="text-align: center;">--- OR ---</p>
-
-<!-- Traditional Registration Form -->
-<form (ngSubmit)="onSubmit()" #registerForm="ngForm" novalidate>
-
-  <!-- Name Field -->
-  <label>
-    Name:
-    <input
-      type="text"
-      [(ngModel)]="form.name"
-      name="name"
-      required
-      minlength="2"
-      #name="ngModel"
-    />
-  </label>
-  <div *ngIf="name.invalid && name.touched" class="error">
-    <small *ngIf="name.errors?.['required']">Name is required.</small>
-    <small *ngIf="name.errors?.['minlength']">Name must be at least 2 characters.</small>
-  </div>
-
-  <br />
-
-  <!-- Email Field -->
-  <label>
-    Email:
-    <input
-      type="email"
-      [(ngModel)]="form.email"
-      name="email"
-      required
-      email
-      #email="ngModel"
-    />
-  </label>
-  <div *ngIf="email.invalid && email.touched" class="error">
-    <small *ngIf="email.errors?.['required']">Email is required.</small>
-    <small *ngIf="email.errors?.['email']">Email format is invalid.</small>
-  </div>
-
-  <br />
-
-  <!-- Phone Field -->
-  <label>
-    Phone:
-    <input
-      type="tel"
-      [(ngModel)]="form.phone"
-      name="phone"
-      required
-      pattern="^[0-9]{7,15}$"
-      #phone="ngModel"
-    />
-  </label>
-  <div *ngIf="phone.invalid && phone.touched" class="error">
-    <small *ngIf="phone.errors?.['required']">Phone number is required.</small>
-    <small *ngIf="phone.errors?.['pattern']">Enter 7–15 digits only.</small>
-  </div>
-
-  <br />
-
-  <button type="submit" [disabled]="registerForm.invalid">Register</button>
-
-</form>
-
-<!-- Feedback Messages -->
-<p style="color: green;" *ngIf="successMessage">{{ successMessage }}</p>
-<p style="color: red;" *ngIf="errorMessage">{{ errorMessage }}</p>
