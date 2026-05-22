@@ -1,58 +1,246 @@
-<div *ngIf="!game">
-  <p>No upcoming game found. Check back soon!</p>
-</div>
+<!-- ════════════════════════════════════════════════════════════
+     GAME SIGNUP PAGE — /play
+     States: loading | no-game | ready
+     ════════════════════════════════════════════════════════════ -->
 
-<div *ngIf="game">
-  <h2>⚽ This Week's Game</h2>
-  <p>
-    <strong>{{ game.gameDate }}</strong>
-    <span *ngIf="game.kickOffTime"> at {{ game.kickOffTime }}</span>
-    <span *ngIf="game.location"> — {{ game.location }}</span>
-  </p>
-  <p>{{ slots.length }} / {{ game.maxPlayers }} players signed up</p>
+<div class="play-page">
 
-  <ul style="list-style:none;padding:0">
-    <li *ngFor="let slot of allSlots; let i = index"
-        style="padding:4px 0;border-bottom:1px solid #eee">
-      <strong>{{ i + 1 }}.</strong>
-      <span *ngIf="slot">{{ slot.playerName }}</span>
-      <span *ngIf="!slot" style="color:#999">— open —</span>
-    </li>
-  </ul>
-
-  <div *ngIf="joinSuccess" style="color:green;margin:.5rem 0">
-    {{ joinSuccess }}
+  <!-- ─── LOADING STATE ─────────────────────────────────────────────────── -->
+  <div *ngIf="pageState === 'loading'" class="play-loading">
+    <div class="skeleton-hero"></div>
+    <div class="skeleton-body">
+      <div class="skeleton skeleton-line skeleton-line--wide"></div>
+      <div class="skeleton skeleton-line skeleton-line--mid"></div>
+      <div class="skeleton skeleton-line skeleton-line--narrow"></div>
+      <div class="skeleton-grid">
+        <div class="skeleton skeleton-slot" *ngFor="let n of [1,2,3,4,5,6,7,8]"></div>
+      </div>
+    </div>
   </div>
 
-  <button
-    *ngIf="!formVisible && slots.length < (game.maxPlayers ?? 18)"
-    (click)="showJoinForm()"
-    style="margin-top:.75rem">
-    Join This Game
-  </button>
-
-  <p *ngIf="slots.length >= (game.maxPlayers ?? 18)" style="color:red">
-    This game is full.
-  </p>
-
-  <div *ngIf="formVisible" style="margin-top:1rem;padding:1rem;border:1px solid #ccc;border-radius:6px">
-    <h3>Join the Game</h3>
-    <p style="font-size:13px;color:#666">Enter the email you registered with</p>
-    <label>
-      Email:
-      <input
-        type="email"
-        [(ngModel)]="playerEmail"
-        name="playerEmail"
-        placeholder="your@email.com"
-        style="margin-left:8px"
-      />
-    </label>
-    <br /><br />
-    <button (click)="submitJoin()" [disabled]="joining">
-      {{ joining ? 'Joining...' : 'Confirm' }}
+  <!-- ─── NO GAME STATE ─────────────────────────────────────────────────── -->
+  <div *ngIf="pageState === 'no-game'" class="play-empty">
+    <div class="empty-icon">⚽</div>
+    <h2 class="empty-body">No Games This Week</h2>
+    <p class="empty-body">
+      There's no open game scheduled right now.<br>Check back soon — the organiser will post the next one shortly.
+    </p>
+    <button class="btn-ghost-play" (click)="loadLatestGame()">
+      Refresh
     </button>
-    <button (click)="cancelJoin()" style="margin-left:8px">Cancel</button>
-    <p *ngIf="joinError" style="color:red;margin-top:.5rem">{{ joinError }}</p>
   </div>
+
+  <!-- ─── GAME READY ────────────────────────────────────────────────────── -->
+  <ng-container *ngIf="pageState === 'ready' && game">
+
+    <!-- HERO BAND -->
+    <div class="play-hero">
+      <div class="play-hero-overlay" aria-hidden="true"></div>
+      <div class="play-hero-content page-container">
+
+        <span class="hero-eyebrow">
+          <span class="eyebrow-dot" [class.eyebrow-dot--full]="isFull"></span>
+          {{ isFull ? 'Game Full' : 'Open Game' }}
+        </span>
+
+        <h1 class="hero-title">This Week's<br><span class="hero-accent">Game</span></h1>
+
+        <div class="hero-meta">
+          <div class="hero-meta-item">
+            <span class="meta-icon">📅</span>
+            <span>{{ formatDate(game.gameDate) }}</span>
+          </div>
+          <div class="hero-meta-item" *ngIf="game.kickOffTime">
+            <span class="meta-icon">⏱</span>
+            <span>{{ formatTime(game.kickOffTime) }}</span>
+          </div>
+          <div class="hero-meta-item" *ngIf="game.location">
+            <span class="meta-icon">📍</span>
+            <span>{{ game.location }}</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="play-body page-container">
+
+      <!-- ── ALERT BANNER ─────────────────────────────────────────────── -->
+      <div
+        *ngIf="actionSuccess"
+        class="alert alert-success animate-fade-up"
+        role="alert"
+      >
+        <span class="alert-icon">✓</span>
+        <span class="alert-text">{{ actionSuccess }}</span>
+        <button class="alert-dismiss" (click)="dismissAlert()" aria-label="Dismiss">✕</button>
+      </div>
+
+      <div
+        *ngIf="actionError"
+        class="alert alert-error animate-fade-up"
+        role="alert"
+      >
+        <span class="alert-icon">⚠</span>
+        <span class="alert-text">{{ actionError }}</span>
+        <button class="alert-dismiss" (click)="dismissAlert()" aria-label="Dismiss">✕</button>
+      </div>
+
+      <!-- ── SIGNUP CARD ───────────────────────────────────────────────── -->
+      <div class="signup-card">
+
+        <!-- Card header: count + progress bar -->
+        <div class="signup-card-header">
+          <div class="signup-counts">
+            <span class="count-confirmed">{{ confirmedCount }}</span>
+            <span class="count-divider">/</span>
+            <span class="count-max">{{ game.maxPlayers }}</span>
+            <span class="count-label">players</span>
+          </div>
+
+          <span class="spots-pill" [class.spots-pill--full]="isFull">
+            {{ isFull ? 'Full' : spotsRemaining + ' spot' + (spotsRemaining !== 1 ? 's' : '') + ' left' }}
+          </span>
+        </div>
+
+        <!-- Progress bar -->
+        <div class="progress-bar" role="progressbar"
+             [attr.aria-valuenow]="confirmedCount"
+             [attr.aria-valuemax]="game.maxPlayers">
+          <div class="progress-fill" [style.width.%]="progressPercent"
+               [class.progress-fill--full]="isFull"></div>
+        </div>
+
+        <!-- ── YOUR STATUS ─────────────────────────────────────────────── -->
+        <div class="your-status" *ngIf="currentUser">
+
+          <!-- Confirmed -->
+          <div *ngIf="isUserSignedUp && !isUserWaitlisted" class="status-confirmed">
+            <div class="status-icon status-icon--green">✓</div>
+            <div class="status-text">
+              <p class="status-label">You're in!</p>
+              <p class="status-sub">Slot #{{ allSlots.indexOf(userSlot!) + 1 }} confirmed</p>
+            </div>
+            <button
+              class="btn-leave"
+              (click)="leave()"
+              [disabled]="leaving"
+            >
+              {{ leaving ? 'Leaving...' : 'Leave' }}
+            </button>
+          </div>
+
+          <!-- Waitlisted -->
+          <div *ngIf="isUserWaitlisted" class="status-waitlisted">
+            <div class="status-icon status-icon--amber">⏳</div>
+            <div class="status-text">
+              <p class="status-label">You're on the waitlist</p>
+              <p class="status-sub">You'll be moved up if a spot opens</p>
+            </div>
+            <button
+              class="btn-leave"
+              (click)="leave()"
+              [disabled]="leaving"
+            >
+              {{ leaving ? 'Leaving...' : 'Leave' }}
+            </button>
+          </div>
+
+          <!-- Not signed up -->
+          <div *ngIf="!isUserSignedUp && !isUserWaitlisted" class="status-open">
+            <button
+              class="btn-join"
+              (click)="join()"
+              [disabled]="joining"
+              [class.btn-join--loading]="joining"
+            >
+              <span class="btn-join-icon" *ngIf="!joining">⚽</span>
+              <span class="btn-spinner" *ngIf="joining" aria-hidden="true"></span>
+              <span>{{ joining ? 'Joining...' : isFull ? 'Join Waitlist' : 'Join This Game' }}</span>
+            </button>
+            <p class="join-subtext" *ngIf="isFull">Game is full — you'll be added to the waitlist</p>
+          </div>
+
+        </div>
+
+        <!-- Not logged in nudge -->
+        <div *ngIf="!currentUser" class="status-guest">
+          <a routerLink="/register" class="btn-join">
+            <span class="btn-join-icon">⚽</span>
+            Sign in to Join
+          </a>
+        </div>
+
+      </div>
+
+      <!-- ── PLAYER LIST ─────────────────────────────────────────────────── -->
+      <div class="players-section">
+
+        <h2 class="section-heading">
+          <span>Squad</span>
+          <span class="section-heading-count">{{ confirmedCount }} playing</span>
+        </h2>
+
+        <div class="slots-grid">
+          <div
+            *ngFor="let slot of allSlots; let i = index; trackBy: trackByIndex"
+            class="slot-card"
+            [class.slot-card--filled]="slot"
+            [class.slot-card--empty]="!slot"
+            [class.slot-card--mine]="slot && (slot.playerId === currentUser?.id || slot.playerEmail === currentUser?.email)"
+          >
+            <span class="slot-num">{{ i + 1 }}</span>
+
+            <ng-container *ngIf="slot; else emptySlot">
+              <div class="slot-avatar"
+                   [class.slot-avatar--mine]="slot.playerId === currentUser?.id || slot.playerEmail === currentUser?.email">
+                {{ getInitials(slot.playerName ?? '?') }}
+              </div>
+              <span class="slot-name">
+                {{ slot.playerName }}
+                <span
+                  *ngIf="slot.playerId === currentUser?.id || slot.playerEmail === currentUser?.email"
+                  class="slot-you">you</span>
+              </span>
+            </ng-container>
+
+            <ng-template #emptySlot>
+              <div class="slot-avatar slot-avatar--empty" aria-hidden="true"></div>
+              <span class="slot-name slot-name--empty">— open —</span>
+            </ng-template>
+
+          </div>
+        </div>
+
+        <!-- ── WAITLIST ───────────────────────────────────────────────── -->
+        <div *ngIf="waitlistedSlots.length > 0" class="waitlist-section">
+          <h3 class="waitlist-heading">
+            <span>Waitlist</span>
+            <span class="section-heading-count">{{ waitlistedSlots.length }}</span>
+          </h3>
+          <div class="slots-grid">
+            <div
+              *ngFor="let slot of waitlistedSlots; let i = index"
+              class="slot-card slot-card--waitlisted"
+              [class.slot-card--mine]="slot.playerId === currentUser?.id || slot.playerEmail === currentUser?.email"
+            >
+              <span class="slot-num slot-num--waitlist">{{ i + 1 }}</span>
+              <div class="slot-avatar slot-avatar--waitlisted">
+                {{ getInitials(slot.playerName ?? '?') }}
+              </div>
+              <span class="slot-name">
+                {{ slot.playerName }}
+                <span
+                  *ngIf="slot.playerId === currentUser?.id || slot.playerEmail === currentUser?.email"
+                  class="slot-you">you</span>
+              </span>
+              <span class="waitlist-badge">waitlist</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </ng-container>
 </div>

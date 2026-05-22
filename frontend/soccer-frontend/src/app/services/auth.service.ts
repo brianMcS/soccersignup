@@ -71,8 +71,8 @@ export class AuthService {
     const top = window.screenY + (window.outerHeight - height) / 2;
 
     this.oauthPopup = window.open(
-      // 'http://localhost:8080/oauth2/authorization/google',
-      '/oauth2/authorization/google',   // relative — no hardcoded localhost
+      'http://localhost:8080/oauth2/authorization/google',
+      // '/oauth2/authorization/google',   // relative — no hardcoded localhost
       'OAuth2Login',
       `width=${width},height=${height},left=${left},top=${top}`
     );
