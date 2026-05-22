@@ -31,7 +31,7 @@ public class JwtTokenProvider {
                 .claim("email", player.getEmail())
                 .claim("name", player.getName())
                 .claim("roles", player.getRoles().stream()
-                        .map(Enum::toString)
+                        .map(r -> "ROLE_" + r.toString())
                         .collect(Collectors.toList()))
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
