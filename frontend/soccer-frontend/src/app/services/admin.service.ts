@@ -1,0 +1,79 @@
+import { Injectable } from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {Observable} from 'rxjs';
+
+export interface GameRequest{
+  gameDate: string;
+  kickOffTime: string;
+  location: string;
+  maxPlayers: number;
+}
+
+export interface GameResponse {
+  id: number;
+  gameDate: string;
+  kickOffTime: string;
+  location: string;
+  maxPlayers: number;
+  status: 'OPEN' | 'CLOSED' | 'CANCELLED' | 'COMPLETED';
+  createdAt?: string;
+}
+
+export interface PlayerResponse {
+  id: number;
+  name: string;
+  email: string;
+  phone?: string;
+  roles: string[];
+  isActive: boolean;
+  createdAt?: string;
+}
+
+@Injectable({providedIn: 'root'})
+export class AdminService {
+
+  constructor(private http: HttpClient) {}
+
+  // Games
+  createGame(request: GameRequest) : Observable<GameResponse>{
+    return this.http.post<GameResponse>('/api/games', request);
+  }
+
+  getAllGames(): Observable<GameResponse[]>{
+    return this.http.get<GameResponse[]>('/api/games');
+  }
+
+  getGamesByStatus(status: string): Observable<GameResponse[]> {
+    return this.http.get<GameResponse[]>(`/api/games?status=${status}`);
+  }
+
+  updateGame(id: number, request: GameRequest) :Observable<GameResponse>{
+    return this.http.put<GameResponse>(`api/games/${id}`, request);
+  }
+
+  closeGame(id: number): Observable<GameResponse>{
+    return this.http.post<GameResponse>(`/api/games/${id}/close`, {});
+  }
+
+  // Players
+  getAllPlayers(): Observable<PlayerResponse[]> {
+    return this.http.get<PlayerResponse[]>('api/players/');
+  }
+
+  deactivatePlayer(id: number): Observable<void> {
+    return this.http.patch<void>(`api/players/${id}/deactivate`, {});
+  }
+
+  updatePlayerRoles(id: number, roles: string[]): Observable<any>{
+    return this.http.put(`api/players/${id}/roles`, { roles });
+  }
+
+  //Signups
+  getSignupsForGame(gameId: number): Observable<any[]> {
+    return this.http.get<any[]>(`/api/gameslots/${gameId}`);
+  }
+
+  removeSignup(gameId: number, playerId: number): Observable<void> {
+    return this.http.delete<void>(`api/gameslots/${gameId}/players/${playerId}`);
+  }
+}
