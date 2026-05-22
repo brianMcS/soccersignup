@@ -41,12 +41,12 @@ export const appRoutes: Routes = [
   },
 
   // ─── Admin-gated ──────────────────────────────────────────────────────────
-  // {
-  //   path: 'admin',
-  //   canActivate: [adminGuard],
-  //   loadComponent: () => import('./pages/admin/admin.component')
-  //     .then(m => m.AdminComponent)
-  // },
+  {
+    path: 'admin',
+    canActivate: [adminGuard],
+    loadComponent: () => import('./pages/admin/admin.component')
+      .then(m => m.AdminComponent)
+  },
 
   // ─── Fallback ─────────────────────────────────────────────────────────────
   // {
