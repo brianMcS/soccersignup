@@ -1,0 +1,105 @@
+/* ─── PAGE ────────────────────────────────────────────────── */
+.admin-page {
+  min-height: calc(100dvh - var(--nav-height, 4rem));
+  background: var(--color-pitch-900, #0e1a0f);
+}
+
+/* ─── HERO BAND ───────────────────────────────────────────── */
+.admin-hero {
+  position: relative;
+  background: var(--color-pitch-800, #162518);
+  border-bottom: 1px solid rgba(46, 125, 50, 0.2);
+  overflow: hidden;
+}
+
+.admin-hero-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 80% 50%, rgba(46,125,50,0.08) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.admin-hero-content {
+  position: relative;
+  padding: 1.75rem 1rem 2rem;
+}
+
+.admin-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  color: var(--color-pitch-300, #66bb6a);
+  margin-bottom: 0.75rem;
+}
+
+.admin-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2.5rem, 9vw, 4rem);
+  line-height: 0.92;
+  letter-spacing: 0.02em;
+  color: var(--color-ink, #f0f4f0);
+}
+
+.admin-title-accent {
+  color: var(--color-amber-500, #e8a820);
+}
+
+/* ─── TAB BAR ─────────────────────────────────────────────── */
+.admin-tabs-wrap {
+  background: var(--color-surface-900, #111614);
+  border-bottom: 1px solid var(--color-surface-700, #232a24);
+  position: sticky;
+  top: var(--nav-height, 4rem);
+  z-index: 10;
+}
+
+.admin-tabs {
+  display: flex;
+  gap: 0;
+  padding: 0 1rem;
+}
+
+.admin-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--color-ink-muted, #8fa890);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.9375rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 150ms, border-color 150ms;
+  margin-bottom: -1px;
+}
+
+.admin-tab:hover {
+  color: var(--color-ink, #f0f4f0);
+}
+
+.admin-tab--active {
+  color: var(--color-amber-400, #f0bc3a);
+  border-bottom-color: var(--color-amber-500, #e8a820);
+}
+
+.tab-icon {
+  font-size: 1rem;
+}
+
+/* ─── CONTENT AREA ────────────────────────────────────────── */
+.admin-content {
+  padding: 1.5rem 1rem 4rem;
+}
+
+@media (min-width: 768px) {
+  .admin-hero-content { padding: 2rem 2rem 2.5rem; }
+  .admin-tabs         { padding: 0 2rem; }
+  .admin-content      { padding: 2rem 2rem 4rem; }
+}

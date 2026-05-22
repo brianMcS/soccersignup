@@ -1,0 +1,40 @@
+<div class="admin-page">
+
+  <!-- ─── ADMIN HERO BAND ──────────────────────────────────────────────── -->
+  <div class="admin-hero">
+    <div class="admin-hero-glow" aria-hidden="true"></div>
+    <div class="admin-hero-content page-container">
+      <span class="admin-badge">🛡️ Admin Panel</span>
+      <h1 class="admin-title">Manage<br><span class="admin-title-accent">Social Soccer</span></h1>
+    </div>
+  </div>
+
+  <!-- ─── TAB BAR ──────────────────────────────────────────────────────── -->
+  <div class="admin-tabs-wrap">
+    <div class="admin-tabs page-container">
+      <button
+        class="admin-tab"
+        [class.admin-tab--active]="activeTab === 'games'"
+        (click)="setTab('games')"
+      >
+        <span class="tab-icon">⚽</span>
+        <span>Games</span>
+      </button>
+      <button
+        class="admin-tab"
+        [class.admin-tab--active]="activeTab === 'players'"
+        (click)="setTab('players')"
+      >
+        <span class="tab-icon">👥</span>
+        <span>Players</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ─── TAB CONTENT ──────────────────────────────────────────────────── -->
+  <div class="admin-content page-container">
+    <app-admin-games   *ngIf="activeTab === 'games'"></app-admin-games>
+    <app-admin-players *ngIf="activeTab === 'players'"></app-admin-players>
+  </div>
+
+</div>
