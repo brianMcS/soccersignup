@@ -27,12 +27,12 @@ export const appRoutes: Routes = [
     loadComponent: () => import('./components/game-signup-list/game-signup-list.component')
       .then(m => m.GameSignupListComponent)
   },
-  // {
-  //   path: 'players',
-  //   canActivate: [authGuard],
-  //   loadComponent: () => import('./pages/players/players.component')
-  //     .then(m => m.PlayersComponent)
-  // },
+  {
+    path: 'players',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/players/players.component')
+      .then(m => m.PlayersComponent)
+  },
   {
     path: 'history',
     canActivate: [authGuard],
