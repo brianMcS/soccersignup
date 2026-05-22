@@ -1,0 +1,182 @@
+<!-- ════════════════════════════════════════════════════════
+     ADMIN — GAMES TAB
+     Views: list | create | edit
+     ════════════════════════════════════════════════════════ -->
+
+<!-- ── ALERTS ─────────────────────────────────────────────── -->
+<div *ngIf="successMessage" class="alert alert-success animate-fade-up" role="status">
+  <span>✓</span>{{ successMessage }}
+</div>
+<div *ngIf="errorMessage && viewMode === 'list'" class="alert alert-error animate-fade-up" role="alert">
+  <span>⚠</span>{{ errorMessage }}
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     LIST VIEW
+     ══════════════════════════════════════════════════════════ -->
+<ng-container *ngIf="viewMode === 'list'">
+
+  <div class="section-toolbar">
+    <h2 class="section-title">All Games</h2>
+    <button class="btn-create" (click)="openCreateForm()">
+      + New Game
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="section-list">
+    <div class="skeleton skeleton-row" *ngFor="let n of [1,2,3]"></div>
+  </div>
+
+  <!-- Empty -->
+  <div *ngIf="!loading && games.length === 0" class="empty-state">
+    <p class="empty-icon">📅</p>
+    <p class="empty-text">No games yet. Create the first one.</p>
+  </div>
+
+  <!-- Game rows -->
+  <div *ngIf="!loading && games.length > 0" class="games-list">
+    <div
+      *ngFor="let game of games"
+      class="game-row"
+      [class.game-row--open]="game.status === 'OPEN'"
+    >
+      <div class="game-row-main">
+        <div class="game-row-info">
+          <div class="game-row-date">{{ formatDate(game.gameDate) }}</div>
+          <div class="game-row-meta">
+            <span *ngIf="game.kickOffTime">{{ formatTime(game.kickOffTime) }}</span>
+            <span class="meta-sep" *ngIf="game.kickOffTime && game.location">·</span>
+            <span *ngIf="game.location">{{ game.location }}</span>
+            <span class="meta-sep">·</span>
+            <span>{{ game.maxPlayers }} players</span>
+          </div>
+        </div>
+        <span class="game-badge" [ngClass]="statusClass(game.status)">
+          {{ statusLabel(game.status) }}
+        </span>
+      </div>
+
+      <div class="game-row-actions" *ngIf="canEdit(game) || canClose(game)">
+        <button
+          *ngIf="canEdit(game)"
+          class="action-btn action-btn--edit"
+          (click)="openEditForm(game)"
+        >
+          Edit
+        </button>
+        <button
+          *ngIf="canClose(game)"
+          class="action-btn action-btn--close"
+          (click)="closeGame(game)"
+          [disabled]="closingId === game.id"
+        >
+          {{ closingId === game.id ? 'Closing...' : 'Close Game' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+</ng-container>
+
+<!-- ══════════════════════════════════════════════════════════
+     CREATE / EDIT FORM
+     ══════════════════════════════════════════════════════════ -->
+<ng-container *ngIf="viewMode === 'create' || viewMode === 'edit'">
+
+  <div class="form-header">
+    <button class="back-btn" (click)="cancel()">← Back</button>
+    <h2 class="section-title">{{ viewMode === 'create' ? 'New Game' : 'Edit Game' }}</h2>
+  </div>
+
+  <div class="form-card">
+    <form (ngSubmit)="submitForm()" #gameForm="ngForm" novalidate class="game-form">
+
+      <!-- Date -->
+      <div class="form-group">
+        <label class="form-label" for="gameDate">Date</label>
+        <input
+          id="gameDate"
+          type="date"
+          [(ngModel)]="form.gameDate"
+          name="gameDate"
+          required
+          #dateField="ngModel"
+          [class.input-error]="dateField.invalid && dateField.touched"
+        />
+        <p class="form-error" *ngIf="dateField.invalid && dateField.touched">Date is required.</p>
+      </div>
+
+      <!-- Kick-off time -->
+      <div class="form-group">
+        <label class="form-label" for="kickOffTime">Kick-off Time</label>
+        <input
+          id="kickOffTime"
+          type="time"
+          [(ngModel)]="form.kickOffTime"
+          name="kickOffTime"
+          required
+          #timeField="ngModel"
+          [class.input-error]="timeField.invalid && timeField.touched"
+        />
+        <p class="form-error" *ngIf="timeField.invalid && timeField.touched">Time is required.</p>
+      </div>
+
+      <!-- Location -->
+      <div class="form-group">
+        <label class="form-label" for="location">Location</label>
+        <input
+          id="location"
+          type="text"
+          [(ngModel)]="form.location"
+          name="location"
+          placeholder="e.g. Iveagh Grounds, Dublin"
+          required
+          #locationField="ngModel"
+          [class.input-error]="locationField.invalid && locationField.touched"
+        />
+        <p class="form-error" *ngIf="locationField.invalid && locationField.touched">Location is required.</p>
+      </div>
+
+      <!-- Max Players -->
+      <div class="form-group">
+        <label class="form-label" for="maxPlayers">Max Players</label>
+        <input
+          id="maxPlayers"
+          type="number"
+          [(ngModel)]="form.maxPlayers"
+          name="maxPlayers"
+          min="2"
+          max="30"
+          required
+          #maxField="ngModel"
+          [class.input-error]="maxField.invalid && maxField.touched"
+        />
+        <p class="form-error" *ngIf="maxField.invalid && maxField.touched">
+          <span *ngIf="maxField.errors?.['required']">Required.</span>
+          <span *ngIf="maxField.errors?.['min'] || maxField.errors?.['max']">Must be 2–30.</span>
+        </p>
+      </div>
+
+      <!-- Server error -->
+      <div class="alert alert-error" *ngIf="errorMessage" role="alert">
+        <span>⚠</span> {{ errorMessage }}
+      </div>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <button type="button" class="btn-cancel" (click)="cancel()">Cancel</button>
+        <button
+          type="submit"
+          class="btn-submit"
+          [disabled]="gameForm.invalid || saving"
+        >
+          <span class="btn-spinner" *ngIf="saving" aria-hidden="true"></span>
+          {{ saving ? 'Saving...' : viewMode === 'create' ? 'Create Game' : 'Save Changes' }}
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+</ng-container>

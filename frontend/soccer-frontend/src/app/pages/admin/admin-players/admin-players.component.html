@@ -1,0 +1,125 @@
+<!-- ════════════════════════════════════════════════════════
+     ADMIN — PLAYERS TAB
+     ════════════════════════════════════════════════════════ -->
+
+<!-- ── ALERTS ─────────────────────────────────────────────── -->
+<div *ngIf="successMessage" class="alert alert-success animate-fade-up" role="status">
+  <span>✓</span> {{ successMessage }}
+</div>
+<div *ngIf="errorMessage" class="alert alert-error animate-fade-up" role="alert">
+  <span>⚠</span> {{ errorMessage }}
+</div>
+
+<!-- ── TOOLBAR ─────────────────────────────────────────────── -->
+<div class="players-toolbar">
+  <h2 class="section-title">
+    All Players
+    <span class="player-count" *ngIf="!loading">{{ players.length }}</span>
+  </h2>
+
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input
+      class="search-input"
+      type="text"
+      placeholder="Search name or email..."
+      [(ngModel)]="searchQuery"
+      (ngModelChange)="onSearch()"
+    />
+    <button class="search-clear" *ngIf="searchQuery" (click)="clearSearch()" aria-label="Clear search">✕</button>
+  </div>
+</div>
+
+<!-- ── LOADING ─────────────────────────────────────────────── -->
+<div *ngIf="loading" class="skeleton-list">
+  <div class="skeleton skeleton-player" *ngFor="let n of [1,2,3,4,5]"></div>
+</div>
+
+<!-- ── EMPTY ───────────────────────────────────────────────── -->
+<div *ngIf="!loading && filtered.length === 0" class="empty-state">
+  <p class="empty-icon">👥</p>
+  <p class="empty-text">
+    {{ searchQuery ? 'No players match "' + searchQuery + '"' : 'No registered players yet.' }}
+  </p>
+</div>
+
+<!-- ── PLAYER LIST ─────────────────────────────────────────── -->
+<div *ngIf="!loading && filtered.length > 0" class="players-list">
+
+  <div
+    *ngFor="let player of filtered"
+    class="player-card"
+    [class.player-card--organiser]="isOrganiser(player)"
+    [class.player-card--inactive]="!player.isActive"
+  >
+
+    <!-- Main row -->
+    <div class="player-main">
+      <div class="player-avatar">{{ getInitials(player.name) }}</div>
+
+      <div class="player-info">
+        <div class="player-name">
+          {{ player.name }}
+          <span class="role-pip role-pip--organiser" *ngIf="isOrganiser(player)">organiser</span>
+          <span class="inactive-pip" *ngIf="!player.isActive">inactive</span>
+        </div>
+        <div class="player-email">{{ player.email }}</div>
+        <div class="player-meta">
+          <span *ngIf="player.phone">📱 {{ player.phone }}</span>
+          <span class="meta-sep" *ngIf="player.phone && player.createdAt">·</span>
+          <span *ngIf="player.createdAt">Joined {{ formatDate(player.createdAt) }}</span>
+        </div>
+      </div>
+
+      <!-- Action menu -->
+      <div class="player-actions" *ngIf="player.isActive">
+        <button
+          class="action-btn action-btn--roles"
+          (click)="openRoleEditor(player)"
+          *ngIf="editingRolesId !== player.id"
+          title="Edit roles"
+        >
+          Roles
+        </button>
+        <button
+          class="action-btn action-btn--remove"
+          (click)="deactivate(player)"
+          [disabled]="deactivatingId === player.id"
+          title="Remove player"
+        >
+          {{ deactivatingId === player.id ? '...' : 'Remove' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Role editor (inline, only for this player) -->
+    <div *ngIf="editingRolesId === player.id" class="role-editor animate-fade-up">
+      <p class="role-editor-label">Edit Roles</p>
+      <div class="role-toggles">
+        <button
+          *ngFor="let role of availableRoles"
+          class="role-toggle"
+          [class.role-toggle--active]="hasRole(role)"
+          [class.role-toggle--locked]="role === 'ROLE_USER'"
+          (click)="toggleRole(role)"
+          [disabled]="role === 'ROLE_USER'"
+          [title]="role === 'ROLE_USER' ? 'Cannot remove base role' : ''"
+        >
+          {{ roleLabel(role) }}
+        </button>
+      </div>
+      <div class="role-editor-actions">
+        <button class="btn-cancel-sm" (click)="cancelRoleEdit()">Cancel</button>
+        <button
+          class="btn-save-sm"
+          (click)="saveRoles(player)"
+          [disabled]="savingRolesId === player.id"
+        >
+          <span class="btn-spinner" *ngIf="savingRolesId === player.id" aria-hidden="true"></span>
+          {{ savingRolesId === player.id ? 'Saving...' : 'Save Roles' }}
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
