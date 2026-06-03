@@ -78,6 +78,29 @@
         <span>{{ googleLoading ? 'Opening...' : 'Continue with Google' }}</span>
       </button>
 
+      <div class="reg-form" *ngIf="showDevLogin">
+        <label class="form-label" for="dev-user">Test as</label>
+        <div class="form-group">
+          <select
+            id="dev-user"
+            [(ngModel)]="selectedDevEmail"
+            name="devUser"
+          >
+            <option *ngFor="let user of devUsers" [value]="user.email">
+              {{ user.label }} - {{ user.email }}
+            </option>
+          </select>
+          <button
+            type="button"
+            class="btn-register-link"
+            (click)="onDevLogin()"
+            [disabled]="devLoginLoading"
+          >
+            {{ devLoginLoading ? 'Signing in...' : 'Use' }}
+          </button>
+        </div>
+      </div>
+
       <!-- Divider -->
       <div class="reg-divider">
         <span class="divider-line"></span>

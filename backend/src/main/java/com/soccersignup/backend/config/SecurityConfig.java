@@ -48,6 +48,7 @@ public class SecurityConfig {
                                 "/api/players/**",
                                 "/api/games/**",
                                 "/api/game-slots/**",
+                                "/api/dev/**",
                                 "/oauth2/**",
                                 "/login/**",
                                 "/health"

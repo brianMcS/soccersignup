@@ -2,6 +2,8 @@ import {Inject, Injectable, NgZone, PLATFORM_ID} from '@angular/core';
 import { Router } from '@angular/router';
 import {isPlatformBrowser} from '@angular/common';
 import {UserService} from './user.service';
+import {HttpClient} from '@angular/common/http';
+import {Observable} from 'rxjs';
 
 export interface AuthResponse {
   success: boolean;
@@ -26,6 +28,7 @@ export class AuthService {
     private router: Router,
     private ngZone: NgZone,
     private userService: UserService,
+    private http: HttpClient,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     this.isLoggedIn$ = this.userService.isLoggedIn$;
@@ -80,6 +83,10 @@ export class AuthService {
     if (!this.oauthPopup) {
       alert('Popup blocked. Please allow popups for this site.');
     }
+  }
+
+  loginAsDevUser(email: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>('/api/dev/login', { email });
   }
 
   handleOAuthCallback(token: string): void {

@@ -22,6 +22,16 @@ export class RegisterComponent implements OnInit, OnDestroy {
   currentUser: CurrentUser | null = null;
   view: View = 'landing';       // 'landing' = sign-in CTA, 'register' = show form
   googleLoading = false;
+  devLoginLoading = false;
+  selectedDevEmail = 'player1@test.local';
+  showDevLogin = false;
+
+  readonly devUsers = [
+    { label: 'Player 1', email: 'player1@test.local' },
+    { label: 'Player 2', email: 'player2@test.local' },
+    { label: 'Organiser', email: 'organiser@test.local' },
+    { label: 'Admin', email: 'admin@test.local' },
+  ];
 
   form = { name: '', email: '', phone: '' };
   submitting  = false;
@@ -38,6 +48,9 @@ export class RegisterComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.showDevLogin = typeof window !== 'undefined'
+      && ['localhost', '127.0.0.1'].includes(window.location.hostname);
+
     this.subs.add(
       this.userService.currentUser$.subscribe(u => {
         this.currentUser = u;
@@ -54,6 +67,27 @@ export class RegisterComponent implements OnInit, OnDestroy {
     this.googleLoading = true;
     this.authService.loginWithGoogle();
     setTimeout(() => this.googleLoading = false, 1500);
+  }
+
+  onDevLogin(): void {
+    this.devLoginLoading = true;
+    this.errorMessage = null;
+
+    this.authService.loginAsDevUser(this.selectedDevEmail).subscribe({
+      next: (response) => {
+        this.devLoginLoading = false;
+        if (response.success && response.token) {
+          this.authService.setToken(response.token);
+          this.router.navigate(['/play']);
+        } else {
+          this.errorMessage = response.error || 'Dev login failed. Please try another test user.';
+        }
+      },
+      error: () => {
+        this.devLoginLoading = false;
+        this.errorMessage = 'Dev login is only available when the backend is running with the dev or local profile.';
+      }
+    });
   }
 
   goToPlay(): void {
