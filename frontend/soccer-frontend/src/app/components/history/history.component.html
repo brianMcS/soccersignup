@@ -1,1 +1,133 @@
-<p>history works!</p>
+<!-- ════════════════════════════════════════════════════════════
+     HISTORY PAGE — /history
+     Shows all completed games, most recent first
+     ════════════════════════════════════════════════════════════ -->
+
+<div class="history-page">
+
+  <!-- ─── HERO ──────────────────────────────────────────────────────────── -->
+  <div class="history-hero">
+    <div class="history-hero-bg" aria-hidden="true">
+      <div class="history-hero-bg-overlay"></div>
+      <div class="history-hero-bg-glow"></div>
+    </div>
+    <div class="history-hero-content page-container">
+      <span class="history-eyebrow">
+        <span class="history-eyebrow-icon">📋</span>
+        Game History
+      </span>
+      <h1 class="history-title">Past<br><span class="history-title-accent">Games</span></h1>
+    </div>
+  </div>
+
+  <!-- ─── CONTENT ───────────────────────────────────────────────────────── -->
+  <div class="history-body page-container">
+
+    <!-- ── ERROR ──────────────────────────────────────────────────────── -->
+    <div *ngIf="errorMessage" class="alert alert-error animate-fade-up" role="alert">
+      <span>⚠</span>
+      <span>{{ errorMessage }}</span>
+      <button class="alert-retry" (click)="loadHistory()">Retry</button>
+    </div>
+
+    <!-- ── LOADING ─────────────────────────────────────────────────────── -->
+    <div *ngIf="loading" class="skeleton-list">
+      <div class="skeleton skeleton-row" *ngFor="let n of [1,2,3,4,5]"></div>
+    </div>
+
+    <!-- ── EMPTY ───────────────────────────────────────────────────────── -->
+    <div *ngIf="!loading && !errorMessage && games.length === 0" class="empty-state">
+      <p class="empty-icon">📋</p>
+      <p class="empty-heading">No completed games yet</p>
+      <p class="empty-body">Completed games will appear here once the organiser marks them as finished.</p>
+    </div>
+
+    <!-- ── TABLE — desktop ────────────────────────────────────────────── -->
+    <div *ngIf="!loading && games.length > 0" class="table-wrap">
+
+      <table class="history-table" aria-label="Completed games history">
+        <thead>
+        <tr>
+          <th scope="col">Date</th>
+          <th scope="col">Location</th>
+          <th scope="col">Kick-off</th>
+          <th scope="col" class="th-center">Players</th>
+          <th scope="col" class="th-center">Waitlist</th>
+          <th scope="col" class="th-center">Attendance</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr
+          *ngFor="let game of games; let i = index"
+          class="history-row animate-fade-up"
+          [style.animation-delay]="(i * 40) + 'ms'"
+        >
+          <td class="td-date">{{ formatDate(game.gameDate) }}</td>
+          <td class="td-location">{{ game.location }}</td>
+          <td class="td-time">{{ formatTime(game.kickOffTime ?? '') }}</td>
+          <td class="td-center">
+              <span class="players-pill">
+                {{ game.confirmedCount ?? 0 }}
+                <span class="players-divider">/</span>
+                {{ game.maxPlayers }}
+              </span>
+          </td>
+          <td class="td-center">
+              <span *ngIf="(game.waitlistedCount ?? 0) > 0" class="waitlist-pill">
+                +{{ game.waitlistedCount }}
+              </span>
+            <span *ngIf="(game.waitlistedCount ?? 0) === 0" class="no-waitlist">—</span>
+          </td>
+          <td class="td-center">
+            <div class="attendance-wrap">
+              <div class="attendance-bar">
+                <div
+                  class="attendance-fill"
+                  [style.width.%]="attendancePercent(game)"
+                  [class.attendance-fill--full]="attendancePercent(game) === 100"
+                ></div>
+              </div>
+              <span class="attendance-label">{{ attendancePercent(game) }}%</span>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+
+    </div>
+
+    <!-- ── CARDS — mobile (same data, card layout) ─────────────────────── -->
+    <div *ngIf="!loading && games.length > 0" class="cards-list">
+      <div
+        *ngFor="let game of games; let i = index"
+        class="history-card animate-fade-up"
+        [style.animation-delay]="(i * 40) + 'ms'"
+      >
+        <div class="history-card-header">
+          <span class="card-date">{{ formatDate(game.gameDate) }}</span>
+          <span class="players-pill">
+            {{ game.confirmedCount ?? 0 }}<span class="players-divider">/</span>{{ game.maxPlayers }}
+          </span>
+        </div>
+        <div class="card-location">📍 {{ game.location }}</div>
+        <div class="card-meta">
+          <span>⏱ {{ formatTime(game.kickOffTime ?? '') }}</span>
+          <span *ngIf="(game.waitlistedCount ?? 0) > 0" class="waitlist-pill">
+            +{{ game.waitlistedCount }} waitlist
+          </span>
+        </div>
+        <div class="card-attendance">
+          <div class="attendance-bar">
+            <div
+              class="attendance-fill"
+              [style.width.%]="attendancePercent(game)"
+              [class.attendance-fill--full]="attendancePercent(game) === 100"
+            ></div>
+          </div>
+          <span class="attendance-label">{{ attendancePercent(game) }}% attendance</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
