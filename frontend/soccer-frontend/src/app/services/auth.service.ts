@@ -45,7 +45,7 @@ export class AuthService {
   }
 
   isLoggedIn(): boolean {
-    return !!this.userService.isLoggedIn$;
+    return this.userService.isLoggedIn;
   }
 
   setToken(token: string): void {
