@@ -19,6 +19,10 @@ export class GamesService {
     return this.http.get<Game[]>(this.gamesUrl);
   }
 
+  getCompletedGames(): Observable<Game[]> {
+    return this.http.get<Game[]>(`${this.gamesUrl}?status=COMPLETED`);
+  }
+
   // POST /api/games — create a game (organiser use)
   createGame(game: Partial<Game>): Observable<Game> {
     return this.http.post<Game>(this.gamesUrl, game);

@@ -4,6 +4,8 @@ export interface Game {
   kickOffTime?: string;
   location: string;
   maxPlayers: number;
+  confirmedCount?: number;
+  waitlistedCount?: number;
   status?: 'OPEN' | 'CANCELLED' | 'COMPLETED';
   createdAt?: string;
 }
