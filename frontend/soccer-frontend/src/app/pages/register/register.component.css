@@ -13,7 +13,6 @@
 .reg-hero {
   position: absolute;
   inset: 0;
-  /*background-image: url('/pitchatdusk.jpg');*/
   background-image: url('../../../../public/assets/pitchatdusk.jpg');
   background-size: cover;
   background-position: center 40%;
@@ -25,9 +24,9 @@
   inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(8, 13, 8, 0.55) 0%,
-    rgba(8, 13, 8, 0.88) 60%,
-    rgba(8, 13, 8, 0.97) 100%
+    rgba(8, 13, 8, 0.35) 0%,
+    rgba(8, 13, 8, 0.6) 60%,
+    rgba(8, 13, 8, 0.92) 100%
   );
 }
 
@@ -282,7 +281,6 @@
   color: var(--color-ink-muted, #8fa890);
 }
 
-/* Override global input styles for the dark card context */
 .reg-form input {
   background: rgba(35, 42, 36, 0.8);
   border: 1px solid var(--color-surface-500, #3d4a3e);

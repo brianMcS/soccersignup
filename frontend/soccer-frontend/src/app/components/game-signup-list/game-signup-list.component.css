@@ -103,15 +103,53 @@
   background: rgba(46, 125, 50, 0.06);
 }
 
-.play-hero-overlay {
+/* ─── HERO BAND ───────────────────────────────────────────── */
+.play-hero {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Background image */
+.play-hero-bg {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at 70% 50%, rgba(232,168,32,0.06) 0%, transparent 70%);
-  pointer-events: none;
+  background-image: url('../../../../public/assets/pitchatdusk.jpg');
+  background-size: cover;
+  background-position: center 55%;
+  z-index: 0;
+}
+
+/* Overlay — bottom-heavy so the content band stays readable
+   but the pitch atmosphere shows through at the top */
+.play-hero-bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(8, 13, 8, 0.3) 0%,
+    rgba(8, 13, 8, 0.55) 60%,
+    rgba(8, 13, 8, 0.88) 100%
+  );
+}
+
+/* Subtle amber glow — ties into the brand */
+.play-hero-bg-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at 60% 20%,
+    rgba(232, 168, 32, 0.06) 0%,
+    transparent 60%
+  );
+}
+
+.play-hero-overlay {
+  display: none;
 }
 
 .play-hero-content {
   position: relative;
+  z-index: 1;
   padding: 2rem 1rem 2.25rem;
 }
 

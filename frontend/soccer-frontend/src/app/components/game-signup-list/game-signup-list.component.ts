@@ -6,13 +6,14 @@ import { Game } from '../../models/game.model';
 import { GameSlot } from '../../models/game-slot.model';
 import {CurrentUser, UserService} from '../../services/user.service';
 import {Subscription} from 'rxjs';
+import {RouterModule} from '@angular/router';
 
 type PageState = 'loading' | 'no-game' | 'ready';
 
 @Component({
   selector: 'app-game-signup-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './game-signup-list.component.html',
   styleUrl: './game-signup-list.component.css'
 })
