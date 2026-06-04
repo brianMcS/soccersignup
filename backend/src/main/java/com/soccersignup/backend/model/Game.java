@@ -29,6 +29,9 @@ public class Game {
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<GameSlot> slots = new ArrayList<>();
 
+    @OneToOne(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
+    private TeamSheet teamSheet;
+
     public Game() {
     }
 
@@ -106,5 +109,13 @@ public class Game {
 
     public void setSlots(List<GameSlot> slots) {
         this.slots = slots;
+    }
+
+    public TeamSheet getTeamSheet() {
+        return teamSheet;
+    }
+
+    public void setTeamSheet(TeamSheet teamSheet) {
+        this.teamSheet = teamSheet;
     }
 }
