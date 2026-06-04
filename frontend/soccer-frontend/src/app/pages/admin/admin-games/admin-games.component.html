@@ -17,8 +17,8 @@
 <ng-container *ngIf="viewMode === 'list'">
 
   <div class="section-toolbar">
-    <h2 class="section-title">All Games</h2>
-    <button class="btn-create" (click)="openCreateForm()">
+    <h2 class="admin-section-title">All Games</h2>
+    <button class="btn-primary btn-create" (click)="openCreateForm()">
       + New Game
     </button>
   </div>
@@ -26,7 +26,7 @@
   <div class="filter-chips" aria-label="Game filters">
     <button
       type="button"
-      class="filter-chip"
+      class="chip chip-muted filter-chip"
       [class.filter-chip--active]="activeFilter === 'next4Weeks'"
       (click)="setFilter('next4Weeks')"
     >
@@ -34,7 +34,7 @@
     </button>
     <button
       type="button"
-      class="filter-chip"
+      class="chip chip-muted filter-chip"
       [class.filter-chip--active]="activeFilter === 'next3Months'"
       (click)="setFilter('next3Months')"
     >
@@ -42,7 +42,7 @@
     </button>
     <button
       type="button"
-      class="filter-chip"
+      class="chip chip-muted filter-chip"
       [class.filter-chip--active]="activeFilter === 'allUpcoming'"
       (click)="setFilter('allUpcoming')"
     >
@@ -50,7 +50,7 @@
     </button>
     <button
       type="button"
-      class="filter-chip"
+      class="chip chip-muted filter-chip"
       [class.filter-chip--active]="activeFilter === 'past'"
       (click)="setFilter('past')"
     >
@@ -78,7 +78,7 @@
   <div *ngIf="!loading && filteredGames.length > 0" class="games-list">
     <div
       *ngFor="let game of filteredGames"
-      class="game-row"
+      class="admin-list-card game-row"
       [class.game-row--open]="game.status === 'OPEN'"
     >
       <div class="game-row-main">
@@ -100,14 +100,14 @@
       <div class="game-row-actions" *ngIf="canEdit(game) || canClose(game)">
         <button
           *ngIf="canEdit(game)"
-          class="action-btn action-btn--edit"
+          class="action-btn action-btn-muted action-btn--edit"
           (click)="openEditForm(game)"
         >
           Edit
         </button>
         <button
           *ngIf="canClose(game)"
-          class="action-btn action-btn--close"
+          class="action-btn action-btn-danger action-btn--close"
           (click)="closeGame(game)"
           [disabled]="closingId === game.id"
         >
@@ -126,7 +126,7 @@
 
   <div class="form-header">
     <button class="back-btn" (click)="cancel()">← Back</button>
-    <h2 class="section-title">{{ viewMode === 'create' ? 'New Game' : 'Edit Game' }}</h2>
+    <h2 class="admin-section-title">{{ viewMode === 'create' ? 'New Game' : 'Edit Game' }}</h2>
   </div>
 
   <div class="form-card">
@@ -238,10 +238,10 @@
 
       <!-- Actions -->
       <div class="form-actions">
-        <button type="button" class="btn-cancel" (click)="cancel()">Cancel</button>
+        <button type="button" class="btn-ghost btn-cancel" (click)="cancel()">Cancel</button>
         <button
           type="submit"
-          class="btn-submit"
+          class="btn-accent btn-submit"
           [disabled]="gameForm.invalid || saving"
         >
           <span class="btn-spinner" *ngIf="saving" aria-hidden="true"></span>

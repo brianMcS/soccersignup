@@ -12,7 +12,7 @@
 
 <!-- ── TOOLBAR ─────────────────────────────────────────────── -->
 <div class="players-toolbar">
-  <h2 class="section-title">
+  <h2 class="admin-section-title">
     All Players
     <span class="player-count" *ngIf="!loading">{{ players.length }}</span>
   </h2>
@@ -48,7 +48,7 @@
 
   <div
     *ngFor="let player of filtered"
-    class="player-card"
+    class="admin-list-card player-card"
     [class.player-card--organiser]="isOrganiser(player)"
     [class.player-card--inactive]="!player.isActive"
   >
@@ -74,7 +74,7 @@
       <!-- Action menu -->
       <div class="player-actions" *ngIf="player.isActive">
         <button
-          class="action-btn action-btn--roles"
+          class="action-btn action-btn-success action-btn--roles"
           (click)="openRoleEditor(player)"
           *ngIf="editingRolesId !== player.id"
           title="Edit roles"
@@ -82,7 +82,7 @@
           Roles
         </button>
         <button
-          class="action-btn action-btn--remove"
+          class="action-btn action-btn-danger action-btn--remove"
           (click)="deactivate(player)"
           [disabled]="deactivatingId === player.id"
           title="Remove player"
@@ -109,9 +109,9 @@
         </button>
       </div>
       <div class="role-editor-actions">
-        <button class="btn-cancel-sm" (click)="cancelRoleEdit()">Cancel</button>
+        <button class="btn-ghost btn-cancel-sm" (click)="cancelRoleEdit()">Cancel</button>
         <button
-          class="btn-save-sm"
+          class="btn-accent btn-save-sm"
           (click)="saveRoles(player)"
           [disabled]="savingRolesId === player.id"
         >

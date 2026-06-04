@@ -7,7 +7,7 @@
 
   <!-- ─── LOADING STATE ─────────────────────────────────────────────────── -->
   <div *ngIf="pageState === 'loading'" class="play-loading">
-    <div class="skeleton-hero"></div>
+    <div class="skeleton skeleton-hero"></div>
     <div class="skeleton-body">
       <div class="skeleton skeleton-line skeleton-line--wide"></div>
       <div class="skeleton skeleton-line skeleton-line--mid"></div>
@@ -19,13 +19,13 @@
   </div>
 
   <!-- ─── NO GAME STATE ─────────────────────────────────────────────────── -->
-  <div *ngIf="pageState === 'no-game'" class="play-empty">
+  <div *ngIf="pageState === 'no-game'" class="empty-state play-empty">
     <div class="empty-icon">⚽</div>
-    <h2 class="empty-body">No Games This Week</h2>
+    <h2 class="empty-heading">No Games This Week</h2>
     <p class="empty-body">
       There's no open game scheduled right now.<br>Check back soon — the organiser will post the next one shortly.
     </p>
-    <button class="btn-ghost-play" (click)="loadLatestGame()">
+    <button class="btn-ghost btn-ghost-play" (click)="loadLatestGame()">
       Refresh
     </button>
   </div>
@@ -129,7 +129,7 @@
               <p class="status-sub">Slot #{{ allSlots.indexOf(userSlot!) + 1 }} confirmed</p>
             </div>
             <button
-              class="btn-leave"
+              class="btn-ghost btn-leave"
               (click)="leave()"
               [disabled]="leaving"
             >
@@ -145,7 +145,7 @@
               <p class="status-sub">You'll be moved up if a spot opens</p>
             </div>
             <button
-              class="btn-leave"
+              class="btn-ghost btn-leave"
               (click)="leave()"
               [disabled]="leaving"
             >
@@ -156,7 +156,7 @@
           <!-- Not signed up -->
           <div *ngIf="!isUserSignedUp && !isUserWaitlisted" class="status-open">
             <button
-              class="btn-join"
+              class="btn-accent btn-join"
               (click)="join()"
               [disabled]="joining"
               [class.btn-join--loading]="joining"
@@ -172,7 +172,7 @@
 
         <!-- Not logged in nudge -->
         <div *ngIf="!currentUser" class="status-guest">
-          <a routerLink="/register" class="btn-join">
+          <a routerLink="/register" class="btn-accent btn-join">
             <span class="btn-join-icon">⚽</span>
             Sign in to Join
           </a>

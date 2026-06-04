@@ -5,7 +5,7 @@
   left: 0;
   right: 0;
   z-index: 100;
-  height: var(--nav-height, 4rem);
+  height: var(--nav-height);
   background: rgba(14, 26, 15, 0.92);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -19,7 +19,7 @@
   justify-content: space-between;
   height: 100%;
   padding: 0 1rem;
-  max-width: var(--page-max-w, 72rem);
+  max-width: var(--page-max-w);
   margin: 0 auto;
 }
 
@@ -41,12 +41,12 @@
   font-family: 'Bebas Neue', sans-serif;
   font-size: 1.5rem;
   letter-spacing: 0.08em;
-  color: var(--color-ink, #f0f4f0);
+  color: var(--color-ink);
   line-height: 1;
 }
 
 .nav-title-accent {
-  color: var(--color-amber-500, #e8a820);
+  color: var(--color-amber-500);
   margin-left: 0.2em;
 }
 
@@ -62,7 +62,7 @@
   font-size: 0.875rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--color-ink-muted, #8fa890);
+  color: var(--color-ink-muted);
   text-decoration: none;
   padding: 0.5rem 0.875rem;
   border-radius: 0.625rem;
@@ -70,17 +70,17 @@
 }
 
 .nav-link-desktop:hover {
-  color: var(--color-ink, #f0f4f0);
+  color: var(--color-ink);
   background: rgba(46, 125, 50, 0.12);
 }
 
 .nav-link-desktop--active {
-  color: var(--color-amber-400, #f0bc3a);
+  color: var(--color-amber-400);
   background: rgba(232, 168, 32, 0.08);
 }
 
 .nav-link-admin {
-  color: var(--color-pitch-300, #66bb6a);
+  color: var(--color-pitch-300);
 }
 
 /* ─── DESKTOP AUTH STATE ──────────────────────────────────── */
@@ -100,9 +100,9 @@
   width: 2rem;
   height: 2rem;
   border-radius: 50%;
-  background: var(--color-pitch-700, #1e3320);
-  border: 1px solid var(--color-pitch-500, #2e7d32);
-  color: var(--color-pitch-300, #66bb6a);
+  background: var(--color-pitch-700);
+  border: 1px solid var(--color-pitch-500);
+  color: var(--color-pitch-300);
   font-family: 'Bebas Neue', sans-serif;
   font-size: 0.75rem;
   display: flex;
@@ -114,7 +114,7 @@
 .nav-username {
   font-family: 'DM Sans', sans-serif;
   font-size: 0.875rem;
-  color: var(--color-ink, #f0f4f0);
+  color: var(--color-ink);
   font-weight: 500;
 }
 
@@ -153,7 +153,7 @@
   display: block;
   width: 100%;
   height: 2px;
-  background: var(--color-ink, #f0f4f0);
+  background: var(--color-ink);
   border-radius: 2px;
   transform-origin: center;
   transition: transform 250ms ease, opacity 200ms ease;
@@ -197,7 +197,7 @@
   bottom: 0;
   z-index: 120;
   width: min(22rem, 90vw);
-  background: var(--color-surface-900, #111614);
+  background: var(--color-surface-900);
   border-left: 1px solid rgba(46, 125, 50, 0.2);
   display: flex;
   flex-direction: column;
@@ -218,15 +218,15 @@
   align-items: center;
   gap: 0.5rem;
   padding: 1rem 1.25rem;
-  border-bottom: 1px solid var(--color-surface-700, #232a24);
-  min-height: var(--nav-height, 4rem);
+  border-bottom: 1px solid var(--color-surface-700);
+  min-height: var(--nav-height);
 }
 
 .drawer-close {
   margin-left: auto;
   background: transparent;
-  border: 1px solid var(--color-surface-600, #2e372f);
-  color: var(--color-ink-muted, #8fa890);
+  border: 1px solid var(--color-surface-600);
+  color: var(--color-ink-muted);
   width: 2rem;
   height: 2rem;
   border-radius: 0.5rem;
@@ -240,8 +240,8 @@
 }
 
 .drawer-close:hover {
-  color: var(--color-ink, #f0f4f0);
-  border-color: var(--color-pitch-500, #2e7d32);
+  color: var(--color-ink);
+  border-color: var(--color-pitch-500);
 }
 
 /* ─── DRAWER USER BLOCK ───────────────────────────────────── */
@@ -256,9 +256,9 @@
   width: 2.75rem;
   height: 2.75rem;
   border-radius: 50%;
-  background: var(--color-pitch-700, #1e3320);
-  border: 2px solid var(--color-pitch-500, #2e7d32);
-  color: var(--color-pitch-300, #66bb6a);
+  background: var(--color-pitch-700);
+  border: 2px solid var(--color-pitch-500);
+  color: var(--color-pitch-300);
   font-family: 'Bebas Neue', sans-serif;
   font-size: 1rem;
   display: flex;
@@ -276,7 +276,7 @@
   font-family: 'DM Sans', sans-serif;
   font-size: 0.9375rem;
   font-weight: 600;
-  color: var(--color-ink, #f0f4f0);
+  color: var(--color-ink);
   margin: 0 0 0.125rem;
   white-space: nowrap;
   overflow: hidden;
@@ -286,7 +286,7 @@
 .drawer-user-email {
   font-family: 'DM Sans', sans-serif;
   font-size: 0.75rem;
-  color: var(--color-ink-muted, #8fa890);
+  color: var(--color-ink-muted);
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
@@ -306,7 +306,7 @@
 /* ─── DRAWER DIVIDER ──────────────────────────────────────── */
 .drawer-divider {
   height: 1px;
-  background: var(--color-surface-700, #232a24);
+  background: var(--color-surface-700);
   margin: 0;
 }
 
@@ -324,7 +324,7 @@
   gap: 0.875rem;
   padding: 0.875rem 1.25rem;
   text-decoration: none;
-  color: var(--color-ink-muted, #8fa890);
+  color: var(--color-ink-muted);
   transition: color 150ms ease, background 150ms ease;
   border-left: 3px solid transparent;
   /* Stagger animation — delay is set inline */
@@ -332,18 +332,18 @@
 }
 
 .drawer-link:hover {
-  color: var(--color-ink, #f0f4f0);
-  background: var(--color-surface-800, #1a1f1b);
+  color: var(--color-ink);
+  background: var(--color-surface-800);
 }
 
 .drawer-link--active {
-  color: var(--color-amber-400, #f0bc3a);
+  color: var(--color-amber-400);
   background: rgba(232, 168, 32, 0.06);
-  border-left-color: var(--color-amber-500, #e8a820);
+  border-left-color: var(--color-amber-500);
 }
 
 .drawer-link-admin {
-  color: var(--color-pitch-300, #66bb6a);
+  color: var(--color-pitch-300);
 }
 
 .drawer-link-icon {
@@ -362,27 +362,27 @@
 
 .drawer-link-arrow {
   font-size: 1.25rem;
-  color: var(--color-ink-faint, #4a5c4b);
+  color: var(--color-ink-faint);
   transition: transform 150ms ease, color 150ms ease;
 }
 
 .drawer-link:hover .drawer-link-arrow,
 .drawer-link--active .drawer-link-arrow {
   transform: translateX(3px);
-  color: var(--color-ink-muted, #8fa890);
+  color: var(--color-ink-muted);
 }
 
 /* ─── DRAWER FOOTER ───────────────────────────────────────── */
 .drawer-footer {
   padding: 1.25rem;
-  border-top: 1px solid var(--color-surface-700, #232a24);
+  border-top: 1px solid var(--color-surface-700);
 }
 
 .drawer-signout {
   width: 100%;
   background: transparent;
-  border: 1px solid var(--color-surface-600, #2e372f);
-  color: var(--color-ink-muted, #8fa890);
+  border: 1px solid var(--color-surface-600);
+  color: var(--color-ink-muted);
   font-family: 'Bebas Neue', sans-serif;
   font-size: 0.875rem;
   letter-spacing: 0.12em;

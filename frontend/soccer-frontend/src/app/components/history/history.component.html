@@ -27,7 +27,7 @@
     <div *ngIf="errorMessage" class="alert alert-error animate-fade-up" role="alert">
       <span>⚠</span>
       <span>{{ errorMessage }}</span>
-      <button class="alert-retry" (click)="loadHistory()">Retry</button>
+      <button class="action-btn action-btn-danger alert-retry" (click)="loadHistory()">Retry</button>
     </div>
 
     <!-- ── LOADING ─────────────────────────────────────────────────────── -->
