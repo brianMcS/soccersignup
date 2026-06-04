@@ -23,6 +23,41 @@
     </button>
   </div>
 
+  <div class="filter-chips" aria-label="Game filters">
+    <button
+      type="button"
+      class="filter-chip"
+      [class.filter-chip--active]="activeFilter === 'next4Weeks'"
+      (click)="setFilter('next4Weeks')"
+    >
+      Next 4 weeks
+    </button>
+    <button
+      type="button"
+      class="filter-chip"
+      [class.filter-chip--active]="activeFilter === 'next3Months'"
+      (click)="setFilter('next3Months')"
+    >
+      Next 3 months
+    </button>
+    <button
+      type="button"
+      class="filter-chip"
+      [class.filter-chip--active]="activeFilter === 'allUpcoming'"
+      (click)="setFilter('allUpcoming')"
+    >
+      All upcoming
+    </button>
+    <button
+      type="button"
+      class="filter-chip"
+      [class.filter-chip--active]="activeFilter === 'past'"
+      (click)="setFilter('past')"
+    >
+      Past
+    </button>
+  </div>
+
   <!-- Loading -->
   <div *ngIf="loading" class="section-list">
     <div class="skeleton skeleton-row" *ngFor="let n of [1,2,3]"></div>
@@ -34,10 +69,15 @@
     <p class="empty-text">No games yet. Create the first one.</p>
   </div>
 
+  <div *ngIf="!loading && games.length > 0 && filteredGames.length === 0" class="empty-state">
+    <p class="empty-icon">📅</p>
+    <p class="empty-text">No games match this filter.</p>
+  </div>
+
   <!-- Game rows -->
-  <div *ngIf="!loading && games.length > 0" class="games-list">
+  <div *ngIf="!loading && filteredGames.length > 0" class="games-list">
     <div
-      *ngFor="let game of games"
+      *ngFor="let game of filteredGames"
       class="game-row"
       [class.game-row--open]="game.status === 'OPEN'"
     >
@@ -158,6 +198,39 @@
         </p>
       </div>
 
+      <!-- Recurring games -->
+      <div class="recurring-panel" *ngIf="viewMode === 'create'">
+        <label class="recurring-toggle">
+          <input
+            type="checkbox"
+            [(ngModel)]="recurring"
+            name="recurring"
+          />
+          <span>
+            <strong>Repeat weekly</strong>
+            <small>Create this game on the same day and time each week.</small>
+          </span>
+        </label>
+
+        <div class="form-group recurring-count" *ngIf="recurring">
+          <label class="form-label" for="recurringCount">Number of Games</label>
+          <input
+            id="recurringCount"
+            type="number"
+            [(ngModel)]="recurringCount"
+            name="recurringCount"
+            min="2"
+            max="52"
+            required
+            #recurringCountField="ngModel"
+            [class.input-error]="recurringCountField.invalid && recurringCountField.touched"
+          />
+          <p class="form-error" *ngIf="recurringCountField.invalid && recurringCountField.touched">
+            Choose between 2 and 52 games.
+          </p>
+        </div>
+      </div>
+
       <!-- Server error -->
       <div class="alert alert-error" *ngIf="errorMessage" role="alert">
         <span>⚠</span> {{ errorMessage }}
@@ -172,7 +245,15 @@
           [disabled]="gameForm.invalid || saving"
         >
           <span class="btn-spinner" *ngIf="saving" aria-hidden="true"></span>
-          {{ saving ? 'Saving...' : viewMode === 'create' ? 'Create Game' : 'Save Changes' }}
+          {{
+            saving
+              ? 'Saving...'
+              : viewMode === 'create'
+                ? recurring
+                  ? 'Create Weekly Games'
+                  : 'Create Game'
+                : 'Save Changes'
+          }}
         </button>
       </div>
 

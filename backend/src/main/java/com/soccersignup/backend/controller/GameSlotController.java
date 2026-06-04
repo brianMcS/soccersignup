@@ -30,6 +30,7 @@ public class GameSlotController {
         List<GameSlotResponse> response = slots.stream()
                 .map(slot -> new GameSlotResponse(
                         slot.getId(),
+                        slot.getPlayer().getId(),
                         slot.getPlayer().getName(),
                         slot.getPlayer().getEmail(),
                         slot.getStatus(),

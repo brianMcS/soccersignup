@@ -35,6 +35,38 @@
   box-shadow: 0 0 16px rgba(46,125,50,0.3);
 }
 
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.filter-chip {
+  padding: 0.5rem 0.875rem;
+  background: var(--color-surface-800, #1a1f1b);
+  color: var(--color-ink-muted, #8fa890);
+  border: 1px solid var(--color-surface-600, #2e372f);
+  border-radius: 999px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.8125rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 150ms;
+}
+
+.filter-chip:hover {
+  color: var(--color-ink, #f0f4f0);
+  border-color: var(--color-surface-400, #4a5c4b);
+}
+
+.filter-chip--active {
+  background: rgba(232,168,32,0.14);
+  color: var(--color-amber-400, #f0bc3a);
+  border-color: rgba(232,168,32,0.36);
+}
+
 /* ─── ALERTS ──────────────────────────────────────────────── */
 .alert {
   display: flex;
@@ -300,6 +332,51 @@
   box-shadow: 0 0 0 3px rgba(248,113,113,0.12);
 }
 
+.recurring-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(46,125,50,0.08);
+  border: 1px solid rgba(46,125,50,0.22);
+  border-radius: 0.875rem;
+}
+
+.recurring-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+
+.recurring-toggle input {
+  width: 1.125rem;
+  min-width: 1.125rem;
+  height: 1.125rem;
+  margin-top: 0.125rem;
+  accent-color: var(--color-pitch-400, #43a047);
+}
+
+.recurring-toggle span {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.recurring-toggle strong {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.9375rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-ink, #f0f4f0);
+}
+
+.recurring-toggle small {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8125rem;
+  color: var(--color-ink-muted, #8fa890);
+}
+
 .form-actions {
   display: flex;
   gap: 0.75rem;
@@ -387,7 +464,8 @@
   /* Location spans full width */
   .game-form .form-group:nth-child(3) { grid-column: 1 / -1; }
 
-  /* Error and actions span full width */
+  /* Recurring controls, error and actions span full width */
+  .recurring-panel { grid-column: 1 / -1; }
   .alert { grid-column: 1 / -1; }
   .form-actions { grid-column: 1 / -1; }
 }

@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 
 public record GameSlotResponse(
         Long id,
+        Long playerId,
         String playerName,
         String playerEmail,
         SlotStatus status,
@@ -14,6 +15,7 @@ public record GameSlotResponse(
     public static GameSlotResponse from(GameSlot gameSlot) {
         return new GameSlotResponse(
                 gameSlot.getId(),
+                gameSlot.getPlayer().getId(),
                 gameSlot.getPlayer().getName(),
                 gameSlot.getPlayer().getEmail(),
                 gameSlot.getStatus(),

@@ -63,8 +63,10 @@ export class UserService {
       const payload = token.split('.')[1];
       const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
 
+      const subjectId = Number(decoded.sub);
+
       return {
-        id:    decoded.id    ?? decoded.playerId ?? 0,
+        id:    decoded.id    ?? decoded.playerId ?? (Number.isFinite(subjectId) ? subjectId : 0),
         name:  decoded.name  ?? decoded.sub      ?? 'Player',
         email: decoded.email ?? decoded.sub      ?? '',
         roles: decoded.roles ?? [],

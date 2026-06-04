@@ -1,10 +1,12 @@
 package com.soccersignup.backend.service.impl;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 import com.soccersignup.backend.exception.ResourceNotFoundException;
 import com.soccersignup.backend.model.Game;
+import com.soccersignup.backend.model.GameStatus;
 import com.soccersignup.backend.model.GameSlot;
 import com.soccersignup.backend.model.Player;
 import com.soccersignup.backend.model.SlotStatus;
@@ -43,6 +45,7 @@ public class GameSlotServiceImpl implements GameSlotService {
     @Transactional
     public GameSlot addSignup(Long gameId, Long playerId) {
         Game game = findWithLockingById(gameId);
+        validateGameOpen(game);
         Player player = findPlayerById(playerId);
         validatePlayerNotAlreadySignedUp(game, player);
         SlotStatus status = determineSlotStatus(game);
@@ -90,6 +93,24 @@ public class GameSlotServiceImpl implements GameSlotService {
         if (exists) {
             throw new IllegalStateException("Player already signed up for this game.");
         }
+    }
+
+    private void validateGameOpen(Game game) {
+        if (isPastGame(game)) {
+            game.setStatus(GameStatus.COMPLETED);
+            gameRepository.save(game);
+        }
+        if (game.getStatus() != GameStatus.OPEN) {
+            throw new IllegalStateException("Only OPEN games can be joined.");
+        }
+    }
+
+    private boolean isPastGame(Game game) {
+        if (game.getGameDate() == null) {
+            return false;
+        }
+        LocalTime kickOff = game.getKickOffTime() != null ? game.getKickOffTime() : LocalTime.MAX;
+        return LocalDateTime.of(game.getGameDate(), kickOff).isBefore(LocalDateTime.now());
     }
 
     private SlotStatus determineSlotStatus(Game game){

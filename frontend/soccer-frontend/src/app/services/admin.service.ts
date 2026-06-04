@@ -48,7 +48,7 @@ export class AdminService {
   }
 
   updateGame(id: number, request: GameRequest) :Observable<GameResponse>{
-    return this.http.put<GameResponse>(`api/games/${id}`, request);
+    return this.http.put<GameResponse>(`/api/games/${id}`, request);
   }
 
   closeGame(id: number): Observable<GameResponse>{
@@ -57,15 +57,15 @@ export class AdminService {
 
   // Players
   getAllPlayers(): Observable<PlayerResponse[]> {
-    return this.http.get<PlayerResponse[]>('api/players/');
+    return this.http.get<PlayerResponse[]>('/api/players');
   }
 
   deactivatePlayer(id: number): Observable<void> {
-    return this.http.patch<void>(`api/players/${id}/deactivate`, {});
+    return this.http.patch<void>(`/api/players/${id}/deactivate`, {});
   }
 
   updatePlayerRoles(id: number, roles: string[]): Observable<any>{
-    return this.http.put(`api/players/${id}/roles`, { roles });
+    return this.http.put(`/api/players/${id}/roles`, { roles });
   }
 
   //Signups
@@ -74,6 +74,6 @@ export class AdminService {
   }
 
   removeSignup(gameId: number, playerId: number): Observable<void> {
-    return this.http.delete<void>(`api/gameslots/${gameId}/players/${playerId}`);
+    return this.http.delete<void>(`/api/gameslots/${gameId}/players/${playerId}`);
   }
 }

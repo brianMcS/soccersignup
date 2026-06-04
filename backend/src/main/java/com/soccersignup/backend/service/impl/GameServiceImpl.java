@@ -1,5 +1,7 @@
 package com.soccersignup.backend.service.impl;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 import com.soccersignup.backend.dto.GameRequest;
@@ -27,19 +29,25 @@ public class GameServiceImpl  implements GameService {
     }
 
     @Override
+    @Transactional
     public List<Game> getAllGames() {
-        return gameRepository.findAll();
+        return completePastGames(gameRepository.findAll());
     }
 
     @Override
+    @Transactional
     public List<Game> getGamesByStatus(GameStatus status){
+        completePastGames(gameRepository.findAll());
         return gameRepository.findByStatus(status);
     }
 
     @Override
+    @Transactional
     public Game getGameById(Long id){
-        return gameRepository.findById(id)
+        Game game = gameRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Game not found with id: " + id));
+        completePastGame(game);
+        return game;
     }
 
     @Override
@@ -62,5 +70,31 @@ public class GameServiceImpl  implements GameService {
         }
         game.setStatus(GameStatus.CLOSED);
         return gameRepository.save(game);
+    }
+
+    private List<Game> completePastGames(List<Game> games) {
+        boolean changed = games.stream()
+                .map(this::completePastGame)
+                .reduce(false, Boolean::logicalOr);
+        if (changed) {
+            gameRepository.saveAll(games);
+        }
+        return games;
+    }
+
+    private boolean completePastGame(Game game) {
+        if ((game.getStatus() != GameStatus.OPEN && game.getStatus() != GameStatus.CLOSED)
+                || game.getGameDate() == null) {
+            return false;
+        }
+
+        LocalTime kickOff = game.getKickOffTime() != null ? game.getKickOffTime() : LocalTime.MAX;
+        LocalDateTime startsAt = LocalDateTime.of(game.getGameDate(), kickOff);
+        if (!startsAt.isBefore(LocalDateTime.now())) {
+            return false;
+        }
+
+        game.setStatus(GameStatus.COMPLETED);
+        return true;
     }
 }
