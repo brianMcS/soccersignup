@@ -10,7 +10,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.soccersignup.backend.model.Game;
 import org.springframework.data.jpa.repository.Lock;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface GameRepository extends JpaRepository<Game, Long> {
     Optional<Game> findByGameDate(LocalDate gameDate);
     List<Game> findByStatus(GameStatus status);
