@@ -1,0 +1,206 @@
+/* ─── BELL WRAPPER ────────────────────────────────────────── */
+.bell-wrap {
+  position: relative;
+}
+
+/* ─── BELL BUTTON ─────────────────────────────────────────── */
+.bell-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  background: transparent;
+  border: 1px solid rgba(46, 125, 50, 0.3);
+  border-radius: 0.5rem;
+  color: var(--color-ink-muted, #8fa890);
+  cursor: pointer;
+  transition: color 150ms, border-color 150ms, background 150ms;
+}
+
+.bell-btn:hover,
+.bell-btn--active {
+  color: var(--color-ink, #f0f4f0);
+  background: rgba(46, 125, 50, 0.1);
+  border-color: rgba(46, 125, 50, 0.5);
+}
+
+.bell-icon {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+/* ─── BADGE ───────────────────────────────────────────────── */
+.bell-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 1.1rem;
+  height: 1.1rem;
+  padding: 0 3px;
+  background: var(--color-amber-500, #e8a820);
+  color: var(--color-pitch-950, #080d08);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 700;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  border: 2px solid var(--color-pitch-900, #0e1a0f);
+}
+
+/* ─── DROPDOWN ────────────────────────────────────────────── */
+.bell-dropdown {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  width: 20rem;
+  background: var(--color-surface-800, #1a1f1b);
+  border: 1px solid var(--color-surface-600, #2e372f);
+  border-radius: 1rem;
+  box-shadow: 0 8px 32px rgba(8, 13, 8, 0.6);
+  z-index: 200;
+  overflow: hidden;
+  animation: fadeDown 0.15s ease both;
+}
+
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── DROPDOWN HEADER ─────────────────────────────────────── */
+.bell-dropdown-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.875rem 1rem 0.75rem;
+  border-bottom: 1px solid var(--color-surface-700, #232a24);
+}
+
+.bell-dropdown-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.9375rem;
+  letter-spacing: 0.1em;
+  color: var(--color-ink, #f0f4f0);
+}
+
+.mark-all-btn {
+  background: transparent;
+  border: none;
+  color: var(--color-pitch-300, #66bb6a);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0;
+  transition: color 150ms;
+}
+
+.mark-all-btn:hover {
+  color: var(--color-pitch-400, #43a047);
+}
+
+/* ─── LOADING SKELETONS ───────────────────────────────────── */
+.bell-loading {
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.skeleton {
+  border-radius: 0.5rem;
+  background-image: linear-gradient(
+    90deg,
+    var(--color-surface-800) 0%,
+    var(--color-surface-700) 50%,
+    var(--color-surface-800) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease infinite;
+}
+
+.skeleton-notif { height: 3rem; }
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+/* ─── EMPTY STATE ─────────────────────────────────────────── */
+.bell-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem;
+  gap: 0.5rem;
+  color: var(--color-ink-muted, #8fa890);
+}
+
+.bell-empty-icon { font-size: 1.5rem; opacity: 0.5; }
+
+.bell-empty p {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+/* ─── NOTIFICATION LIST ───────────────────────────────────── */
+.notif-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 18rem;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-surface-600) transparent;
+}
+
+.notif-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 0.875rem 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid var(--color-surface-700, #232a24);
+  transition: background 150ms;
+}
+
+.notif-item:last-child { border-bottom: none; }
+
+.notif-item:hover {
+  background: var(--color-surface-700, #232a24);
+}
+
+.notif-item--unread {
+  background: rgba(46, 125, 50, 0.05);
+}
+
+/* Unread indicator dot */
+.notif-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-pitch-400, #43a047);
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+
+.notif-body { flex: 1; min-width: 0; }
+
+.notif-message {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8125rem;
+  color: var(--color-ink, #f0f4f0);
+  line-height: 1.5;
+  margin: 0 0 0.25rem;
+}
+
+.notif-time {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.6875rem;
+  color: var(--color-ink-faint, #4a5c4b);
+}

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import {BehaviorSubject, Observable, tap} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
-import {UnreadCount} from '../models/notification.model';
+import { Notification as PlayerNotification, UnreadCount } from '../models/notification.model';
 
 @Injectable({
   providedIn: 'root'
@@ -24,8 +24,8 @@ export class NotificationService {
     });
   }
 
-  getNotifications(): Observable<Notification[]> {
-    return this.http.get<Notification[]>(this.baseUrl);
+  getNotifications(): Observable<PlayerNotification[]> {
+    return this.http.get<PlayerNotification[]>(this.baseUrl);
   }
 
   markAsRead(id: number): Observable<void> {

@@ -4,6 +4,8 @@ import {NavigationEnd, Router, RouterModule} from '@angular/router';
 import {filter, Subscription} from 'rxjs';
 import {AuthService} from '../../services/auth.service';
 import {CurrentUser, UserService} from '../../services/user.service';
+import {NotificationBellComponent} from '../notification-bell/notification-bell.component';
+import {NotificationService} from '../../services/notification.service';
 
 interface NavItem{
   label: string;
@@ -13,7 +15,7 @@ interface NavItem{
 
 @Component({
   selector: 'app-nav',
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, NotificationBellComponent],
   templateUrl: './nav.component.html',
   styleUrl: './nav.component.css'
 })
@@ -34,7 +36,8 @@ export class NavComponent implements OnInit, OnDestroy {
   constructor(
     private authService: AuthService,
     private userService: UserService,
-    private router: Router
+    private router: Router,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -42,6 +45,10 @@ export class NavComponent implements OnInit, OnDestroy {
       this.userService.currentUser$.subscribe(u => {
         this.currentUser = u;
         this.isAdmin = this.userService.isAdmin;
+
+        if(u){
+          this.notificationService.fetchUnreadCount();
+        }
       })
     );
 
