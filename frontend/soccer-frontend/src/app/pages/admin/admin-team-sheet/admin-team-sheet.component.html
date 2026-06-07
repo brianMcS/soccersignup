@@ -1,0 +1,203 @@
+<div class="editor-page">
+
+  <!-- ─── HEADER ───────────────────────────────────────────── -->
+  <div class="editor-header page-container">
+    <button class="back-btn" (click)="goBack()">← Back to Admin</button>
+    <h1 class="editor-title">Team Sheet Editor</h1>
+  </div>
+
+  <!-- ─── ALERTS ───────────────────────────────────────────── -->
+  <div class="page-container">
+    <div *ngIf="successMessage" class="alert alert-success animate-fade-up">
+      <span>✓</span> {{ successMessage }}
+    </div>
+    <div *ngIf="errorMessage" class="alert alert-error animate-fade-up">
+      <span>⚠</span> {{ errorMessage }}
+    </div>
+  </div>
+
+  <!-- ─── LOADING ──────────────────────────────────────────── -->
+  <div *ngIf="loading" class="page-container">
+    <div class="skeleton skeleton-toolbar"></div>
+    <div class="skeleton skeleton-pitch"></div>
+  </div>
+
+  <ng-container *ngIf="!loading">
+
+    <!-- ─── TOOLBAR ────────────────────────────────────────── -->
+    <div class="editor-toolbar page-container">
+
+      <div class="toolbar-left">
+        <!-- Published status badge -->
+        <span class="status-badge" [class.status-badge--published]="teamSheet?.published">
+          {{ teamSheet?.published ? '● Published' : '○ Draft' }}
+        </span>
+        <span *ngIf="isDirty" class="unsaved-indicator">Unsaved changes</span>
+      </div>
+
+      <div class="toolbar-right">
+        <!-- Auto split -->
+        <button
+          class="btn-tool"
+          (click)="autoSplit()"
+          [disabled]="splitting || saving || publishing"
+          title="Randomly split confirmed players into two teams"
+        >
+          <span *ngIf="splitting" class="btn-spinner"></span>
+          {{ splitting ? 'Splitting...' : '⚡ Auto Split' }}
+        </button>
+
+        <!-- Save draft -->
+        <button
+          class="btn-tool btn-tool--save"
+          (click)="saveDraft()"
+          [disabled]="!teamSheet || saving || publishing || !isDirty"
+        >
+          <span *ngIf="saving" class="btn-spinner"></span>
+          {{ saving ? 'Saving...' : 'Save Draft' }}
+        </button>
+
+        <!-- Publish -->
+        <button
+          class="btn-tool btn-tool--publish"
+          (click)="publish()"
+          [disabled]="!teamSheet || publishing || saving"
+        >
+          <span *ngIf="publishing" class="btn-spinner"></span>
+          {{ publishing ? 'Publishing...' : teamSheet?.published ? 'Re-publish' : 'Publish Teams' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- ─── NO SHEET YET ─────────────────────────────────────── -->
+    <div *ngIf="!teamSheet" class="no-sheet page-container">
+      <div class="no-sheet-icon">⚽</div>
+      <h2 class="no-sheet-heading">No Team Sheet Yet</h2>
+      <p class="no-sheet-body">
+        Click <strong>Auto Split</strong> to randomly assign confirmed players,
+        then drag them into position on the pitch.
+      </p>
+    </div>
+
+    <!-- ─── EDITOR ────────────────────────────────────────────── -->
+    <div *ngIf="teamSheet" class="editor-body page-container">
+
+      <!-- Instructions -->
+      <p class="editor-hint">
+        Drag players to reposition · Click <strong>⇄</strong> to switch teams
+      </p>
+
+      <!-- ── THE PITCH ──────────────────────────────────────── -->
+      <div
+        #pitchRef
+        class="pitch"
+        (dragover)="onPitchDragOver($event)"
+        (drop)="onPitchDrop($event)"
+      >
+        <!-- Pitch markings -->
+        <div class="pitch-markings" aria-hidden="true">
+          <div class="pitch-centre-line"></div>
+          <div class="pitch-centre-circle"></div>
+          <div class="pitch-box pitch-box--home"></div>
+          <div class="pitch-box pitch-box--away"></div>
+        </div>
+
+        <!-- Team side labels on pitch -->
+        <div class="pitch-side-label pitch-side-label--home">DARK</div>
+        <div class="pitch-side-label pitch-side-label--away">LIGHT</div>
+
+        <!-- HOME tokens -->
+        <div
+          *ngFor="let entry of homeEntries"
+          class="player-token player-token--home"
+          [class.player-token--dragging]="draggingEntry === entry"
+          [ngStyle]="getTokenStyle(entry)"
+          draggable="true"
+          (dragstart)="onDragStart(entry)"
+          (dragend)="onDragEnd()"
+        >
+          <div class="token-jersey">{{ entry.jerseyNumber }}</div>
+          <div class="token-name">{{ entry.playerName.split(' ')[0] }}</div>
+          <!-- Switch team button -->
+          <button
+            class="token-switch"
+            (click)="switchTeam(entry)"
+            (mousedown)="$event.stopPropagation()"
+            title="Move to other team"
+          >⇄</button>
+        </div>
+
+        <!-- AWAY tokens -->
+        <div
+          *ngFor="let entry of awayEntries"
+          class="player-token player-token--away"
+          [class.player-token--dragging]="draggingEntry === entry"
+          [ngStyle]="getTokenStyle(entry)"
+          draggable="true"
+          (dragstart)="onDragStart(entry)"
+          (dragend)="onDragEnd()"
+        >
+          <div class="token-jersey">{{ entry.jerseyNumber }}</div>
+          <div class="token-name">{{ entry.playerName.split(' ')[0] }}</div>
+          <button
+            class="token-switch"
+            (click)="switchTeam(entry)"
+            (mousedown)="$event.stopPropagation()"
+            title="Move to other team"
+          >⇄</button>
+        </div>
+
+      </div>
+
+      <!-- ── PLAYER DETAIL PANELS ───────────────────────────── -->
+      <!-- Lets organiser edit jersey numbers -->
+      <div class="detail-panels">
+
+        <!-- Home team panel -->
+        <div class="detail-panel">
+          <h3 class="detail-panel-heading detail-panel-heading--home">
+            <span class="team-dot team-dot--home"></span>
+            Dark ({{ homeEntries.length }})
+          </h3>
+          <div class="detail-list">
+            <div *ngFor="let entry of homeEntries" class="detail-row">
+              <span class="detail-name">{{ entry.playerName }}</span>
+              <input
+                class="detail-input detail-input--jersey"
+                type="number"
+                [value]="entry.jerseyNumber"
+                min="1"
+                max="99"
+                (change)="updateJersey(entry, $any($event.target).value)"
+                title="Jersey number"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Away team panel -->
+        <div class="detail-panel">
+          <h3 class="detail-panel-heading detail-panel-heading--away">
+            <span class="team-dot team-dot--away"></span>
+            Light ({{ awayEntries.length }})
+          </h3>
+          <div class="detail-list">
+            <div *ngFor="let entry of awayEntries" class="detail-row">
+              <span class="detail-name">{{ entry.playerName }}</span>
+              <input
+                class="detail-input detail-input--jersey"
+                type="number"
+                [value]="entry.jerseyNumber"
+                min="1"
+                max="99"
+                (change)="updateJersey(entry, $any($event.target).value)"
+                title="Jersey number"
+              />
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </ng-container>
+</div>

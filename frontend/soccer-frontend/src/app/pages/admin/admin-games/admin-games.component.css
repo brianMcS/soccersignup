@@ -266,6 +266,17 @@
   height: 0.875rem;
 }
 
+.action-btn--teams {
+  background: transparent;
+  color: var(--color-amber-400, #f0bc3a);
+  border-color: rgba(232,168,32,0.25);
+}
+
+.action-btn--teams:hover {
+  background: rgba(232,168,32,0.08);
+  border-color: rgba(232,168,32,0.4);
+}
+
 /* ─── ANIMATION ───────────────────────────────────────────── */
 /* ─── RESPONSIVE ──────────────────────────────────────────── */
 @media (min-width: 640px) {

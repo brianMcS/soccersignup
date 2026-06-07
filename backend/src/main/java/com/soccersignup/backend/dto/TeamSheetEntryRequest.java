@@ -16,8 +16,5 @@ public record TeamSheetEntryRequest(
         @Min(0) @Max(100) double positionX,
 
         // Percentage of pitch height (0.0 - 100.0)
-        @Min(0) @Max(100) double positionY,
-
-        // Optional e.g. "GK", "ST" - can be null
-        String positionLabel
+        @Min(0) @Max(100) double positionY
 ) { }

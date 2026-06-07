@@ -46,6 +46,13 @@ export const appRoutes: Routes = [
     loadComponent: () => import('./components/team-sheet-view/team-sheet-view.component')
       .then(m => m.TeamSheetViewComponent)
   },
+  {
+    path: 'admin/games/:gameId/teamsheet',
+    canActivate: [adminGuard],
+    loadComponent: () =>
+      import('./pages/admin/admin-team-sheet/admin-team-sheet.component')
+        .then(m => m.AdminTeamSheetComponent)
+  },
 
   // ─── Admin-gated ──────────────────────────────────────────────────────────
   {

@@ -105,6 +105,14 @@
         >
           Edit
         </button>
+
+        <button
+          class="action-btn action-btn--teams"
+          (click)="manageTeams(game)"
+        >
+          Teams
+        </button>
+
         <button
           *ngIf="canClose(game)"
           class="action-btn action-btn-danger action-btn--close"

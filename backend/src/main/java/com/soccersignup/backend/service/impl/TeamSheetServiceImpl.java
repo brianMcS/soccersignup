@@ -158,7 +158,6 @@ public class TeamSheetServiceImpl implements TeamSheetService {
         entry.setJerseyNumber(request.jerseyNumber());
         entry.setPositionX(request.positionX());
         entry.setPositionY(request.positionY());
-        entry.setPositionLabel(request.positionLabel());
         return entry;
     }
 
@@ -170,6 +169,8 @@ public class TeamSheetServiceImpl implements TeamSheetService {
         List<TeamSheetEntry> entries = new ArrayList<>();
 
         for (TeamSheetEntryRequest entryRequest : request.entries()) {
+            validatePositionOnTeamSide(entryRequest);
+
             if (!playerIds.add(entryRequest.playerId())) {
                 throw new IllegalArgumentException(
                         "Player appears more than once on the team sheet: "
@@ -182,6 +183,17 @@ public class TeamSheetServiceImpl implements TeamSheetService {
         }
 
         return entries;
+    }
+
+    private void validatePositionOnTeamSide(TeamSheetEntryRequest request) {
+        boolean crossesHalfwayLine =
+                request.teamSide() == TeamSide.HOME && request.positionX() > 50
+                || request.teamSide() == TeamSide.AWAY && request.positionX() < 50;
+
+        if (crossesHalfwayLine) {
+            throw new IllegalArgumentException(
+                    "Players must remain on their team's side of the halfway line.");
+        }
     }
 
     private void validateConfirmedPlayer(Game game, Player player) {

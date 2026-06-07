@@ -10,8 +10,7 @@ public record TeamSheetEntryResponse(
         TeamSide teamSide,
         int jerseyNumber,
         double positionX,
-        double positionY,
-        String positionLabel
+        double positionY
 ) {
     public static TeamSheetEntryResponse from (TeamSheetEntry entry){
         return new TeamSheetEntryResponse(
@@ -21,8 +20,7 @@ public record TeamSheetEntryResponse(
                 entry.getTeamSide(),
                 entry.getJerseyNumber(),
                 entry.getPositionX(),
-                entry.getPositionY(),
-                entry.getPositionLabel()
+                entry.getPositionY()
         );
     }
 }

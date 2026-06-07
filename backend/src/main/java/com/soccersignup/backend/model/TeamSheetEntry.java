@@ -36,10 +36,6 @@ public class TeamSheetEntry {
     @Column(nullable = false)
     private double positionY;
 
-    // Optional short label e.g. "GK", "ST" - not required, organiser can leave blank
-    @Column(length = 10)
-    private String positionLabel;
-
     public TeamSheetEntry() {}
 
     // Getters and setters
@@ -63,6 +59,4 @@ public class TeamSheetEntry {
     public double getPositionY() { return positionY; }
     public void setPositionY(double positionY) { this.positionY = positionY; }
 
-    public String getPositionLabel() { return positionLabel; }
-    public void setPositionLabel(String positionLabel) { this.positionLabel = positionLabel; }
 }

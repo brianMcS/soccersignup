@@ -8,7 +8,6 @@ export interface TeamSheetEntry {
   jerseyNumber: number;
   positionX: number;   // 0–100, percentage of pitch width
   positionY: number;   // 0–100, percentage of pitch height
-  positionLabel?: string;
 }
 
 export interface TeamSheet {
@@ -31,5 +30,4 @@ export interface TeamSheetEntryRequest {
   jerseyNumber: number;
   positionX: number;
   positionY: number;
-  positionLabel?: string;
 }

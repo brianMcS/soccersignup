@@ -62,9 +62,6 @@
           <div class="token-jersey">{{ entry.jerseyNumber }}</div>
           <div class="token-initials">{{ getInitials(entry.playerName) }}</div>
           <div class="token-name">{{ entry.playerName.split(' ')[0] }}</div>
-          <div class="token-label" *ngIf="entry.positionLabel">
-            {{ entry.positionLabel }}
-          </div>
         </div>
 
         <!-- AWAY team tokens -->
@@ -76,9 +73,6 @@
           <div class="token-jersey">{{ entry.jerseyNumber }}</div>
           <div class="token-initials">{{ getInitials(entry.playerName) }}</div>
           <div class="token-name">{{ entry.playerName.split(' ')[0] }}</div>
-          <div class="token-label" *ngIf="entry.positionLabel">
-            {{ entry.positionLabel }}
-          </div>
         </div>
 
       </div>
@@ -96,9 +90,6 @@
             <li *ngFor="let entry of homeEntries" class="team-list-player">
               <span class="list-jersey list-jersey--home">{{ entry.jerseyNumber }}</span>
               <span class="list-name">{{ entry.playerName }}</span>
-              <span class="list-label" *ngIf="entry.positionLabel">
-                {{ entry.positionLabel }}
-              </span>
             </li>
           </ul>
         </div>
@@ -113,9 +104,6 @@
             <li *ngFor="let entry of awayEntries" class="team-list-player">
               <span class="list-jersey list-jersey--away">{{ entry.jerseyNumber }}</span>
               <span class="list-name">{{ entry.playerName }}</span>
-              <span class="list-label" *ngIf="entry.positionLabel">
-                {{ entry.positionLabel }}
-              </span>
             </li>
           </ul>
         </div>

@@ -3,6 +3,7 @@ import { CommonModule }  from '@angular/common';
 import { FormsModule }   from '@angular/forms';
 import { forkJoin, Observable } from 'rxjs';
 import { AdminService, GameRequest, GameResponse } from '../../../services/admin.service';
+import { Router } from '@angular/router';
 
 type ViewMode = 'list' | 'create' | 'edit';
 type GameFilter = 'next4Weeks' | 'next3Months' | 'allUpcoming' | 'past';
@@ -39,7 +40,7 @@ export class AdminGamesComponent implements OnInit {
   // Closing state per game id
   closingId: number | null = null;
 
-  constructor(private adminService: AdminService) {}
+  constructor(private adminService: AdminService, private router: Router) {}
 
   ngOnInit(): void {
     this.loadGames();
@@ -258,5 +259,9 @@ export class AdminGamesComponent implements OnInit {
 
   canEdit(game: GameResponse): boolean {
     return game.status === 'OPEN';
+  }
+
+  manageTeams(game: GameResponse): void {
+    this.router.navigate(['/admin/games', game.id, 'teamsheet']);
   }
 }
