@@ -48,13 +48,12 @@ public class SecurityConfig {
                                 "/api/players/**",
                                 "/api/games/**",
                                 "/api/game-slots/**",
+                                "/api/notifications/**",
                                 "/api/dev/**",
                                 "/oauth2/**",
                                 "/login/**",
                                 "/health"
                         ).permitAll()
-                        .requestMatchers("/api/notifications/**").authenticated()
-                        .requestMatchers("/api/games/*/teamsheet/**").authenticated()
                         .requestMatchers(
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",

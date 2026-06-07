@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import {authGuard} from './guards/auth.guard';
 import {adminGuard} from './guards/admin.guard';
+import { TeamSheetViewComponent} from './components/team-sheet-view/team-sheet-view.component';
 
 export const appRoutes: Routes = [
   // ─── Public ──────────────────────────────────────────────────────────────
@@ -38,6 +39,12 @@ export const appRoutes: Routes = [
     canActivate: [authGuard],
     loadComponent: () => import('./components/history/history.component')
       .then(m => m.HistoryComponent)
+  },
+  {
+    path: 'games/:gameId/teams',
+    canActivate: [authGuard],
+    loadComponent: () => import('./components/team-sheet-view/team-sheet-view.component')
+      .then(m => m.TeamSheetViewComponent)
   },
 
   // ─── Admin-gated ──────────────────────────────────────────────────────────

@@ -6,6 +6,7 @@ import { Game } from '../../models/game.model';
 import { GameSlot } from '../../models/game-slot.model';
 import {CurrentUser, UserService} from '../../services/user.service';
 import {Subscription} from 'rxjs';
+import { TeamSheetService } from '../../services/team-sheet.service';
 import {RouterModule} from '@angular/router';
 
 type PageState = 'loading' | 'no-game' | 'ready';
@@ -32,12 +33,14 @@ export class GameSignupListComponent implements OnInit, OnDestroy {
   leaving = false;
   actionError: string | null = null;
   actionSuccess: string | null = null;
+  teamsPublished = false;
 
   private subs = new Subscription();
 
   constructor(
     private gamesService: GamesService,
-    private userService: UserService
+    private userService: UserService,
+    private teamSheetService: TeamSheetService
   ) {}
 
   ngOnInit(): void {
@@ -80,7 +83,8 @@ export class GameSignupListComponent implements OnInit, OnDestroy {
     this.gamesService.getSignups(gameId).subscribe({
       next: (slots) => {
         this.slots = slots;
-        this.pageState = 'ready'
+        this.pageState = 'ready';
+        this.checkTeamSheet(gameId);
       },
       error: () => {
         this.slots = [];
@@ -222,5 +226,16 @@ export class GameSignupListComponent implements OnInit, OnDestroy {
 
   trackByIndex(index: number): number {
     return index;
+  }
+
+  checkTeamSheet(gameId: number): void {
+    this.teamSheetService.getTeamSheet(gameId).subscribe({
+      next: (sheet) => {
+        this.teamsPublished = sheet.published;
+      },
+      error: () => {
+        this.teamsPublished = false;
+      }
+    });
   }
 }
