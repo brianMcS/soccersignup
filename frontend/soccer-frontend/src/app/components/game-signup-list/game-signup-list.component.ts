@@ -158,11 +158,13 @@ export class GameSignupListComponent implements OnInit, OnDestroy {
     this.actionSuccess = null;
 
     this.gamesService.joinGame(this.game!.id!, this.currentUser!.id).subscribe({
-      next: ()=> {
+      next: (slot) => {
         this.joining = false;
-        this.actionSuccess = `You are in! See you on the pitch ${this.formatDate(this.game!.gameDate)}.`;
+        this.actionSuccess = slot.status === 'WAITLISTED'
+          ? 'You have joined the waitlist. If a player leaves, you will be automatically promoted into the game.'
+          : `You are in! See you on the pitch ${this.formatDate(this.game!.gameDate)}.`;
         this.loadSignups(this.game!.id!);
-        },
+      },
       error: (err) => {
         this.joining = false;
         this.actionError = err?.error?.message ?? err?.error ?? 'Could not join. Please try again.';
