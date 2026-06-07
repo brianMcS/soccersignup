@@ -53,6 +53,8 @@ public class SecurityConfig {
                                 "/login/**",
                                 "/health"
                         ).permitAll()
+                        .requestMatchers("/api/notifications/**").authenticated()
+                        .requestMatchers("/api/games/*/teamsheet/**").authenticated()
                         .requestMatchers(
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",

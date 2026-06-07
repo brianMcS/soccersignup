@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface TeamSheetRepository extends JpaRepository<TeamSheet, Long> {
-     Optional<TeamSheet> findByGameId(Game game);
+     Optional<TeamSheet> findByGame(Game game);
 
      boolean existsByGame(Game game);
 }
