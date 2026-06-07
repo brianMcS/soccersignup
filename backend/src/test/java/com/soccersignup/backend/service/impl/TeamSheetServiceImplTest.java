@@ -7,6 +7,7 @@ import com.soccersignup.backend.model.Game;
 import com.soccersignup.backend.model.GameSlot;
 import com.soccersignup.backend.model.Notification;
 import com.soccersignup.backend.model.Player;
+import com.soccersignup.backend.model.PlayerRole;
 import com.soccersignup.backend.model.SlotStatus;
 import com.soccersignup.backend.model.TeamSheet;
 import com.soccersignup.backend.model.TeamSheetEntry;
@@ -203,6 +204,77 @@ class TeamSheetServiceImplTest {
                 .containsExactly(firstPlayer, secondPlayer);
         assertThat(sheet.isPublished()).isTrue();
         assertThat(sheet.getPublishedAt()).isNotNull();
+    }
+
+    @Test
+    void departureFromPublishedSheetReplacesPlayerAndNotifiesUniqueRecipients() {
+        Game game = createGame(1L);
+        game.setGameDate(LocalDate.of(2026, 6, 12));
+        TeamSheet sheet = createSheet(game);
+        sheet.setPublished(true);
+
+        Player leavingPlayer = createPlayer(1L, "Alex");
+        Player organiserPlayer = createPlayer(2L, "Sam");
+        organiserPlayer.addRole(PlayerRole.ORGANISER);
+        Player promotedPlayer = createPlayer(3L, "Jordan");
+
+        TeamSheetEntry vacatedEntry = createEntry(sheet, leavingPlayer);
+        vacatedEntry.setTeamSide(TeamSide.AWAY);
+        vacatedEntry.setJerseyNumber(9);
+        vacatedEntry.setPositionX(72);
+        vacatedEntry.setPositionY(40);
+        sheet.getEntries().add(vacatedEntry);
+
+        when(teamSheetRepository.findByGame(game)).thenReturn(Optional.of(sheet));
+        when(gameSlotRepository.findByGameAndStatus(game, SlotStatus.CONFIRMED))
+                .thenReturn(List.of(
+                        createSlot(game, organiserPlayer),
+                        createSlot(game, promotedPlayer)));
+        when(playerRepository.findAll()).thenReturn(List.of(organiserPlayer));
+
+        service.handlePublishedSheetDeparture(game, leavingPlayer, promotedPlayer);
+
+        assertThat(sheet.isPublished()).isTrue();
+        assertThat(sheet.getEntries()).singleElement().satisfies(entry -> {
+            assertThat(entry.getPlayer()).isSameAs(promotedPlayer);
+            assertThat(entry.getTeamSide()).isEqualTo(TeamSide.AWAY);
+            assertThat(entry.getJerseyNumber()).isEqualTo(9);
+            assertThat(entry.getPositionX()).isEqualTo(72);
+            assertThat(entry.getPositionY()).isEqualTo(40);
+        });
+        verify(teamSheetRepository).save(sheet);
+
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<List<Notification>> notificationsCaptor =
+                ArgumentCaptor.forClass(List.class);
+        verify(notificationRepository).saveAll(notificationsCaptor.capture());
+
+        assertThat(notificationsCaptor.getValue())
+                .extracting(notification -> notification.getPlayer().getId())
+                .containsExactlyInAnyOrder(1L, 2L, 3L);
+        assertThat(notificationsCaptor.getValue())
+                .filteredOn(notification ->
+                        notification.getPlayer().getId().equals(2L))
+                .singleElement()
+                .extracting(Notification::getMessage)
+                .asString()
+                .contains("Alex left", "Jordan was promoted");
+    }
+
+    @Test
+    void departureDoesNotChangeDraftSheet() {
+        Game game = createGame(1L);
+        TeamSheet sheet = createSheet(game);
+        Player leavingPlayer = createPlayer(1L, "Alex");
+        sheet.getEntries().add(createEntry(sheet, leavingPlayer));
+
+        when(teamSheetRepository.findByGame(game)).thenReturn(Optional.of(sheet));
+
+        service.handlePublishedSheetDeparture(game, leavingPlayer, null);
+
+        assertThat(sheet.getEntries()).hasSize(1);
+        verify(teamSheetRepository, never()).save(any());
+        verify(notificationRepository, never()).saveAll(any());
     }
 
     private Game createGame(Long id) {

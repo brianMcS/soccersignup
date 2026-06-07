@@ -14,6 +14,7 @@ import com.soccersignup.backend.repository.GameRepository;
 import com.soccersignup.backend.repository.GameSlotRepository;
 import com.soccersignup.backend.repository.PlayerRepository;
 import com.soccersignup.backend.service.GameSlotService;
+import com.soccersignup.backend.service.TeamSheetService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,14 +25,17 @@ public class GameSlotServiceImpl implements GameSlotService {
     private final GameSlotRepository gameSlotRepository;
     private final PlayerRepository playerRepository;
     private final GameRepository gameRepository;
+    private final TeamSheetService teamSheetService;
 
     public GameSlotServiceImpl(
             GameSlotRepository gameSlotRepository,
             PlayerRepository playerRepository,
-            GameRepository gameRepository) {
+            GameRepository gameRepository,
+            TeamSheetService teamSheetService) {
         this.gameSlotRepository = gameSlotRepository;
         this.playerRepository = playerRepository;
         this.gameRepository = gameRepository;
+        this.teamSheetService = teamSheetService;
     }
 
     @Override
@@ -63,7 +67,9 @@ public class GameSlotServiceImpl implements GameSlotService {
         gameSlotRepository.delete(removedSlot);
 
         if (removedSlot.getStatus() == SlotStatus.CONFIRMED){
-             promoteNextWaitlistedPlayer(game);
+            Player promotedPlayer = promoteNextWaitlistedPlayer(game);
+            teamSheetService.handlePublishedSheetDeparture(
+                    game, removedSlot.getPlayer(), promotedPlayer);
         }
     }
 
@@ -122,12 +128,14 @@ public class GameSlotServiceImpl implements GameSlotService {
         return GameSlot.create(game, player, status, LocalDateTime.now());
     }
 
-    private void promoteNextWaitlistedPlayer(Game game){
-            gameSlotRepository
-                    .findFirstByGameAndStatusOrderBySignedUpAtAsc(game, SlotStatus.WAITLISTED)
-                    .ifPresent(slot ->{
-                        slot.setStatus(SlotStatus.CONFIRMED);
-                        gameSlotRepository.save(slot);
-                    });
+    private Player promoteNextWaitlistedPlayer(Game game){
+        return gameSlotRepository
+                .findFirstByGameAndStatusOrderBySignedUpAtAsc(game, SlotStatus.WAITLISTED)
+                .map(slot -> {
+                    slot.setStatus(SlotStatus.CONFIRMED);
+                    gameSlotRepository.save(slot);
+                    return slot.getPlayer();
+                })
+                .orElse(null);
     }
 }

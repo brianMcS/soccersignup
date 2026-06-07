@@ -64,7 +64,7 @@ public class GameSlotController {
         boolean isOrganiser = currentPlayer.hasRole(PlayerRole.ORGANISER);
         boolean isOwnSignup = currentPlayer.getId().equals(playerId);
 
-        if(!isAdmin && !isOrganiser && isOwnSignup){
+        if (!isAdmin && !isOrganiser && !isOwnSignup) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 

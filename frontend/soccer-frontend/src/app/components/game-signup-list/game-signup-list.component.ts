@@ -8,6 +8,7 @@ import {CurrentUser, UserService} from '../../services/user.service';
 import {Subscription} from 'rxjs';
 import { TeamSheetService } from '../../services/team-sheet.service';
 import {RouterModule} from '@angular/router';
+import {NotificationService} from '../../services/notification.service';
 
 type PageState = 'loading' | 'no-game' | 'ready';
 
@@ -40,7 +41,8 @@ export class GameSignupListComponent implements OnInit, OnDestroy {
   constructor(
     private gamesService: GamesService,
     private userService: UserService,
-    private teamSheetService: TeamSheetService
+    private teamSheetService: TeamSheetService,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -177,8 +179,11 @@ export class GameSignupListComponent implements OnInit, OnDestroy {
     this.gamesService.leaveGame(this.game.id, this.currentUser.id).subscribe({
       next: () => {
         this.leaving = false;
-        this.actionSuccess = "You've left the game. You can rejoin if spots are available.";
+        this.actionSuccess = this.teamsPublished
+          ? "You've left the game. The published teams have been updated."
+          : "You've left the game. You can rejoin if spots are available.";
         this.loadSignups(this.game!.id!);
+        this.notificationService.fetchUnreadCount();
       }, error: (err) => {
         this.leaving = false;
         this.actionError = err?.error?.message ?? err?.error ?? 'Could not leave. Please try again';

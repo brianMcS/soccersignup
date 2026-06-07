@@ -8,6 +8,7 @@ import com.soccersignup.backend.model.Game;
 import com.soccersignup.backend.model.GameSlot;
 import com.soccersignup.backend.model.Notification;
 import com.soccersignup.backend.model.Player;
+import com.soccersignup.backend.model.PlayerRole;
 import com.soccersignup.backend.model.SlotStatus;
 import com.soccersignup.backend.model.TeamSheet;
 import com.soccersignup.backend.model.TeamSheetEntry;
@@ -26,7 +27,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Service
@@ -114,6 +117,36 @@ public class TeamSheetServiceImpl implements TeamSheetService {
         return toResponse(sheet);
     }
 
+    @Override
+    @Transactional
+    public void handlePublishedSheetDeparture(
+            Game game,
+            Player leavingPlayer,
+            Player promotedPlayer) {
+        teamSheetRepository.findByGame(game)
+                .filter(TeamSheet::isPublished)
+                .ifPresent(sheet -> {
+                    TeamSheetEntry vacatedEntry = sheet.getEntries().stream()
+                            .filter(entry -> entry.getPlayer().getId()
+                                    .equals(leavingPlayer.getId()))
+                            .findFirst()
+                            .orElse(null);
+
+                    if (vacatedEntry == null) {
+                        return;
+                    }
+
+                    sheet.getEntries().remove(vacatedEntry);
+                    if (promotedPlayer != null) {
+                        sheet.getEntries().add(createReplacementEntry(
+                                sheet, promotedPlayer, vacatedEntry));
+                    }
+                    teamSheetRepository.save(sheet);
+                    notificationRepository.saveAll(createDepartureNotifications(
+                            game, leavingPlayer, promotedPlayer));
+                });
+    }
+
     private Game findGameById(Long gameId) {
         return gameRepository.findById(gameId)
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -159,6 +192,20 @@ public class TeamSheetServiceImpl implements TeamSheetService {
         entry.setPositionX(request.positionX());
         entry.setPositionY(request.positionY());
         return entry;
+    }
+
+    private TeamSheetEntry createReplacementEntry(
+            TeamSheet sheet,
+            Player promotedPlayer,
+            TeamSheetEntry vacatedEntry) {
+        TeamSheetEntry replacement = new TeamSheetEntry();
+        replacement.setTeamSheet(sheet);
+        replacement.setPlayer(promotedPlayer);
+        replacement.setTeamSide(vacatedEntry.getTeamSide());
+        replacement.setJerseyNumber(vacatedEntry.getJerseyNumber());
+        replacement.setPositionX(vacatedEntry.getPositionX());
+        replacement.setPositionY(vacatedEntry.getPositionY());
+        return replacement;
     }
 
     private List<TeamSheetEntry> createEntries(
@@ -231,6 +278,60 @@ public class TeamSheetServiceImpl implements TeamSheetService {
         notification.setMessage(message);
         notification.setLink(NOTIFICATION_LINK);
         return notification;
+    }
+
+    private List<Notification> createDepartureNotifications(
+            Game game,
+            Player leavingPlayer,
+            Player promotedPlayer) {
+        Map<Long, Player> recipients = new LinkedHashMap<>();
+        recipients.put(leavingPlayer.getId(), leavingPlayer);
+        findConfirmedSlots(game).stream()
+                .map(GameSlot::getPlayer)
+                .forEach(player -> recipients.put(player.getId(), player));
+        playerRepository.findAll().stream()
+                .filter(player -> Boolean.TRUE.equals(player.getIsActive()))
+                .filter(player -> player.hasRole(PlayerRole.ORGANISER)
+                        || player.hasRole(PlayerRole.ADMIN))
+                .forEach(player -> recipients.put(player.getId(), player));
+
+        return recipients.values().stream()
+                .map(player -> createNotification(
+                        player,
+                        game,
+                        departureMessageFor(
+                                player, game, leavingPlayer, promotedPlayer)))
+                .toList();
+    }
+
+    private String departureMessageFor(
+            Player recipient,
+            Game game,
+            Player leavingPlayer,
+            Player promotedPlayer) {
+        if (recipient.getId().equals(leavingPlayer.getId())) {
+            return "You left the game on " + game.getGameDate()
+                    + ". The published team sheet has been updated.";
+        }
+
+        if (recipient.hasRole(PlayerRole.ORGANISER)
+                || recipient.hasRole(PlayerRole.ADMIN)) {
+            String promotion = promotedPlayer == null
+                    ? ""
+                    : " " + promotedPlayer.getName()
+                            + " was promoted from the waitlist.";
+            return leavingPlayer.getName() + " left the game on "
+                    + game.getGameDate()
+                    + " after teams were published. The team sheet was updated."
+                    + promotion;
+        }
+
+        String promotion = promotedPlayer == null
+                ? ""
+                : " " + promotedPlayer.getName() + " has joined the teams.";
+        return "The published team sheet for " + game.getGameDate()
+                + " was updated after " + leavingPlayer.getName() + " left."
+                + promotion;
     }
 
     private TeamSheetResponse saveAndConvert(TeamSheet sheet) {
