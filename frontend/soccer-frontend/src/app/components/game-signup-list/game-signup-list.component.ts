@@ -6,7 +6,9 @@ import { Game } from '../../models/game.model';
 import { GameSlot } from '../../models/game-slot.model';
 import {CurrentUser, UserService} from '../../services/user.service';
 import {Subscription} from 'rxjs';
+import { TeamSheetService } from '../../services/team-sheet.service';
 import {RouterModule} from '@angular/router';
+import {NotificationService} from '../../services/notification.service';
 
 type PageState = 'loading' | 'no-game' | 'ready';
 
@@ -32,12 +34,15 @@ export class GameSignupListComponent implements OnInit, OnDestroy {
   leaving = false;
   actionError: string | null = null;
   actionSuccess: string | null = null;
+  teamsPublished = false;
 
   private subs = new Subscription();
 
   constructor(
     private gamesService: GamesService,
-    private userService: UserService
+    private userService: UserService,
+    private teamSheetService: TeamSheetService,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -80,7 +85,8 @@ export class GameSignupListComponent implements OnInit, OnDestroy {
     this.gamesService.getSignups(gameId).subscribe({
       next: (slots) => {
         this.slots = slots;
-        this.pageState = 'ready'
+        this.pageState = 'ready';
+        this.checkTeamSheet(gameId);
       },
       error: () => {
         this.slots = [];
@@ -152,11 +158,13 @@ export class GameSignupListComponent implements OnInit, OnDestroy {
     this.actionSuccess = null;
 
     this.gamesService.joinGame(this.game!.id!, this.currentUser!.id).subscribe({
-      next: ()=> {
+      next: (slot) => {
         this.joining = false;
-        this.actionSuccess = `You are in! See you on the pitch ${this.formatDate(this.game!.gameDate)}.`;
+        this.actionSuccess = slot.status === 'WAITLISTED'
+          ? 'You have joined the waitlist. If a player leaves, you will be automatically promoted into the game.'
+          : `You are in! See you on the pitch ${this.formatDate(this.game!.gameDate)}.`;
         this.loadSignups(this.game!.id!);
-        },
+      },
       error: (err) => {
         this.joining = false;
         this.actionError = err?.error?.message ?? err?.error ?? 'Could not join. Please try again.';
@@ -173,8 +181,11 @@ export class GameSignupListComponent implements OnInit, OnDestroy {
     this.gamesService.leaveGame(this.game.id, this.currentUser.id).subscribe({
       next: () => {
         this.leaving = false;
-        this.actionSuccess = "You've left the game. You can rejoin if spots are available.";
+        this.actionSuccess = this.teamsPublished
+          ? "You've left the game. The published teams have been updated."
+          : "You've left the game. You can rejoin if spots are available.";
         this.loadSignups(this.game!.id!);
+        this.notificationService.fetchUnreadCount();
       }, error: (err) => {
         this.leaving = false;
         this.actionError = err?.error?.message ?? err?.error ?? 'Could not leave. Please try again';
@@ -222,5 +233,16 @@ export class GameSignupListComponent implements OnInit, OnDestroy {
 
   trackByIndex(index: number): number {
     return index;
+  }
+
+  checkTeamSheet(gameId: number): void {
+    this.teamSheetService.getTeamSheet(gameId).subscribe({
+      next: (sheet) => {
+        this.teamsPublished = sheet.published;
+      },
+      error: () => {
+        this.teamsPublished = false;
+      }
+    });
   }
 }

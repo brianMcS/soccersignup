@@ -93,6 +93,19 @@
         <button class="alert-dismiss" (click)="dismissAlert()" aria-label="Dismiss">✕</button>
       </div>
 
+      <!-- ── TEAMS ANNOUNCED BANNER ──────────────────────────────── -->
+      <div *ngIf="teamsPublished && game" class="teams-banner animate-fade-up">
+        <span class="teams-banner-icon">⚽</span>
+        <div class="teams-banner-text">
+          <p class="teams-banner-heading">Teams have been announced!</p>
+          <p class="teams-banner-sub">Find out which team you're on.</p>
+        </div>
+
+        <a [routerLink]="['/games', game.id, 'teams']" class="teams-banner-btn">
+        View Teams →
+        </a>
+      </div>
+
       <!-- ── SIGNUP CARD ───────────────────────────────────────────────── -->
       <div class="signup-card">
 

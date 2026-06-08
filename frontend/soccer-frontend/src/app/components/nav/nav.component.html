@@ -29,6 +29,9 @@
     <!-- Desktop: auth state -->
     <div class="nav-auth-desktop">
       <ng-container *ngIf="currentUser; else loginBtn">
+
+        <app-notification-bell></app-notification-bell>
+
         <div class="nav-user">
           <div class="nav-avatar">{{ getInitials(currentUser.name) }}</div>
           <span class="nav-username">{{ currentUser.name.split(' ')[0] }}</span>
@@ -74,6 +77,9 @@
   <div class="drawer-header">
     <span class="nav-ball">⚽</span>
     <span class="nav-title">Social<span class="nav-title-accent">Soccer</span></span>
+
+    <app-notification-bell *ngIf="currentUser"></app-notification-bell>
+
     <button class="drawer-close" (click)="closeMenu()" aria-label="Close menu">✕</button>
   </div>
 

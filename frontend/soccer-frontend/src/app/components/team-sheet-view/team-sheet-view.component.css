@@ -1,0 +1,369 @@
+/* ─── PAGE ────────────────────────────────────────────────── */
+.teams-page {
+  min-height: calc(100dvh - var(--nav-height, 4rem));
+  background: var(--color-pitch-900, #0e1a0f);
+}
+
+/* ─── LOADING ─────────────────────────────────────────────── */
+.teams-loading {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  max-width: 48rem;
+  margin: 0 auto;
+}
+
+.skeleton {
+  border-radius: 1rem;
+  background-image: linear-gradient(
+    90deg,
+    var(--color-surface-800) 0%,
+    var(--color-surface-700) 50%,
+    var(--color-surface-800) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease infinite;
+}
+
+.skeleton-hero  { height: 160px; }
+.skeleton-pitch { height: 480px; }
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+/* ─── EMPTY / ERROR ───────────────────────────────────────── */
+.teams-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 60dvh;
+  padding: 3rem 1.5rem;
+}
+
+.empty-icon    { font-size: 3rem; opacity: 0.4; margin-bottom: 1rem; }
+
+.empty-heading {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2rem;
+  color: var(--color-ink, #f0f4f0);
+  margin-bottom: 0.75rem;
+}
+
+.empty-body {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9375rem;
+  color: var(--color-ink-muted, #8fa890);
+  max-width: 22rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+/* ─── HERO ────────────────────────────────────────────────── */
+.teams-hero {
+  position: relative;
+  background: var(--color-pitch-800, #162518);
+  border-bottom: 1px solid rgba(46,125,50,0.2);
+  overflow: hidden;
+}
+
+.teams-hero-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 60% 50%,
+  rgba(46,125,50,0.1) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.teams-hero-content {
+  position: relative;
+  padding: 1.75rem 1rem 2rem;
+}
+
+.hero-eyebrow {
+  display: block;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  color: var(--color-pitch-300, #66bb6a);
+  margin-bottom: 0.5rem;
+}
+
+.hero-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2.5rem, 9vw, 4rem);
+  line-height: 0.92;
+  color: var(--color-ink, #f0f4f0);
+  margin-bottom: 0.75rem;
+}
+
+.hero-accent { color: var(--color-amber-500, #e8a820); }
+
+.hero-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.875rem;
+  color: var(--color-ink-muted, #8fa890);
+}
+
+/* ─── PITCH WRAP ──────────────────────────────────────────── */
+.pitch-wrap {
+  padding: 1.5rem 1rem 3rem;
+  max-width: 48rem;
+}
+
+/* ─── TEAM LABELS ─────────────────────────────────────────── */
+.team-labels {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.875rem;
+}
+
+.team-label {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.12em;
+  color: var(--color-ink-muted, #8fa890);
+}
+
+.team-colour {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.team-colour--home { background: var(--color-pitch-500, #2e7d32); }
+.team-colour--away { background: var(--color-amber-500, #e8a820); }
+
+/* ─── PITCH ───────────────────────────────────────────────── */
+.pitch {
+  position: relative;
+  width: 100%;
+  /* 3:2 landscape aspect ratio — standard football pitch proportions */
+  aspect-ratio: 3 / 2;
+  background: linear-gradient(
+    180deg,
+    #2d5a27 0%, #336b2e 8.33%,
+    #2d5a27 8.33%, #2d5a27 16.66%,
+    #336b2e 16.66%, #336b2e 25%,
+    #2d5a27 25%, #2d5a27 33.33%,
+    #336b2e 33.33%, #336b2e 41.66%,
+    #2d5a27 41.66%, #2d5a27 50%,
+    #336b2e 50%, #336b2e 58.33%,
+    #2d5a27 58.33%, #2d5a27 66.66%,
+    #336b2e 66.66%, #336b2e 75%,
+    #2d5a27 75%, #2d5a27 83.33%,
+    #336b2e 83.33%, #336b2e 91.66%,
+    #2d5a27 91.66%, #2d5a27 100%
+  );
+  border-radius: 0.75rem;
+  border: 2px solid rgba(255,255,255,0.15);
+  overflow: hidden;
+}
+
+/* ─── PITCH MARKINGS ──────────────────────────────────────── */
+.pitch-markings {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.pitch-centre-line {
+  position: absolute;
+  left: 50%;
+  top: 5%;
+  bottom: 5%;
+  width: 1px;
+  background: rgba(255,255,255,0.3);
+  transform: translateX(-50%);
+}
+
+.pitch-centre-circle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 18%;
+  aspect-ratio: 1;
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.pitch-box {
+  position: absolute;
+  top: 25%;
+  height: 50%;
+  width: 12%;
+  border: 1px solid rgba(255,255,255,0.3);
+}
+
+.pitch-box--home {
+  left: 0;
+  border-left: none;
+}
+
+.pitch-box--away {
+  right: 0;
+  border-right: none;
+}
+
+/* ─── PLAYER TOKENS ───────────────────────────────────────── */
+.player-token {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  cursor: default;
+  /* transform: translate(-50%, -50%) is applied inline via getTokenStyle() */
+}
+
+.token-jersey {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 700;
+  border: 2px solid rgba(255,255,255,0.4);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  transition: transform 150ms;
+}
+
+.player-token--home .token-jersey {
+  background: var(--color-pitch-600, #275c2a);
+  color: #fff;
+}
+
+.player-token--away .token-jersey {
+  background: var(--color-amber-500, #e8a820);
+  color: var(--color-pitch-950, #080d08);
+}
+
+.token-initials {
+  display: none; /* Hidden — name shown instead */
+}
+
+.token-name {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.5rem;
+  font-weight: 600;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+  white-space: nowrap;
+  max-width: 3.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+}
+
+/* ─── TEAM LISTS ──────────────────────────────────────────── */
+.team-lists {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.team-list {
+  background: var(--color-surface-800, #1a1f1b);
+  border: 1px solid var(--color-surface-600, #2e372f);
+  border-radius: 1rem;
+  padding: 1rem;
+}
+
+.team-list-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.75rem;
+}
+
+.team-list-heading--home { color: var(--color-pitch-300, #66bb6a); }
+.team-list-heading--away { color: var(--color-amber-400, #f0bc3a); }
+
+.team-list-players {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.team-list-player {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8125rem;
+  color: var(--color-ink, #f0f4f0);
+}
+
+.list-jersey {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.6875rem;
+  flex-shrink: 0;
+}
+
+.list-jersey--home {
+  background: rgba(46,125,50,0.2);
+  color: var(--color-pitch-300, #66bb6a);
+  border: 1px solid rgba(46,125,50,0.3);
+}
+
+.list-jersey--away {
+  background: rgba(232,168,32,0.15);
+  color: var(--color-amber-400, #f0bc3a);
+  border: 1px solid rgba(232,168,32,0.25);
+}
+
+.list-name { flex: 1; }
+
+/* ─── BACK BUTTON ─────────────────────────────────────────── */
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 1.5rem;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.875rem;
+  letter-spacing: 0.1em;
+  color: var(--color-ink-muted, #8fa890);
+  text-decoration: none;
+  transition: color 150ms;
+}
+
+.btn-back:hover { color: var(--color-ink, #f0f4f0); }
+
+/* ─── RESPONSIVE ──────────────────────────────────────────── */
+@media (min-width: 640px) {
+  .teams-hero-content { padding: 2rem 2rem 2.5rem; }
+  .pitch-wrap         { padding: 2rem 2rem 3rem; }
+
+  .token-jersey {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1rem;
+  }
+
+  .token-name { font-size: 0.625rem; }
+}

@@ -15,6 +15,8 @@ import com.soccersignup.backend.model.Player;
 public interface GameSlotRepository extends JpaRepository<GameSlot, Long> {
     List<GameSlot> findByGame(Game game);
 
+    List<GameSlot> findByGameAndStatus(Game game, SlotStatus status);
+
     Optional<GameSlot> findByGameAndPlayer(Game game, Player player);
 
     long countByGameAndStatus(Game game, SlotStatus status);
@@ -22,4 +24,6 @@ public interface GameSlotRepository extends JpaRepository<GameSlot, Long> {
     Optional<GameSlot> findFirstByGameAndStatusOrderBySignedUpAtAsc(Game game, SlotStatus status);
 
     boolean existsByGameAndPlayer(Game game, Player player);
+
+    boolean existsByGameAndPlayerAndStatus(Game game, Player player, SlotStatus status);
 }

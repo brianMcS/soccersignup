@@ -27,10 +27,29 @@ export class RegisterComponent implements OnInit, OnDestroy {
   showDevLogin = false;
 
   readonly devUsers = [
-    { label: 'Player 1', email: 'player1@test.local' },
-    { label: 'Player 2', email: 'player2@test.local' },
-    { label: 'Organiser', email: 'organiser@test.local' },
-    { label: 'Admin', email: 'admin@test.local' },
+    { label: 'Player 1 - Sanju Baskaran', email: 'player1@test.local' },
+    { label: 'Player 2 - Sylwester Swed', email: 'player2@test.local' },
+    { label: 'Player 3 - Peter Parker', email: 'player3@test.local' },
+    { label: 'Player 4 - John Doe', email: 'player4@test.local' },
+    { label: 'Player 5 - Jane Smith', email: 'player5@test.local' },
+    { label: 'Player 6 - Bruce Wayne', email: 'player6@test.local' },
+    { label: 'Player 7 - Clark Kent', email: 'player7@test.local' },
+    { label: 'Player 8 - Diana Prince', email: 'player8@test.local' },
+    { label: 'Player 9 - Tony Stark', email: 'player9@test.local' },
+    { label: 'Player 10 - Steve Rogers', email: 'player10@test.local' },
+    { label: 'Player 11 - Natasha Romanoff', email: 'player11@test.local' },
+    { label: 'Player 12 - Clint Barton', email: 'player12@test.local' },
+    { label: 'Player 13 - Bruce Banner', email: 'player13@test.local' },
+    { label: 'Player 14 - Thor Odinson', email: 'player14@test.local' },
+    { label: 'Player 15 - Scott Lang', email: 'player15@test.local' },
+    { label: 'Player 16 - Sam Wilson', email: 'player16@test.local' },
+    { label: 'Player 17 - Bucky Barnes', email: 'player17@test.local' },
+    { label: 'Player 18 - Stephen Strange', email: 'player18@test.local' },
+    { label: 'Player 19 - Wanda Maximoff', email: 'player19@test.local' },
+    { label: 'Player 20 - Vision', email: 'player20@test.local' },
+
+    { label: 'Organiser - Test Organiser', email: 'organiser@test.local' },
+    { label: 'Admin - Test Admin', email: 'admin@test.local' },
   ];
 
   form = { name: '', email: '', phone: '' };

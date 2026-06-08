@@ -1,0 +1,118 @@
+<div class="teams-page">
+
+  <!-- ─── LOADING ──────────────────────────────────────────── -->
+  <div *ngIf="loading" class="teams-loading">
+    <div class="skeleton skeleton-hero"></div>
+    <div class="skeleton skeleton-pitch"></div>
+  </div>
+
+  <!-- ─── ERROR / NOT PUBLISHED ────────────────────────────── -->
+  <div *ngIf="!loading && error" class="teams-empty">
+    <div class="empty-icon">⚽</div>
+    <h2 class="empty-heading">Teams Not Yet Announced</h2>
+    <p class="empty-body">{{ error }}</p>
+    <a routerLink="/play" class="btn-back">← Back to Game</a>
+  </div>
+
+  <!-- ─── TEAM SHEET ────────────────────────────────────────── -->
+  <ng-container *ngIf="!loading && teamSheet && !error">
+
+    <!-- Hero band -->
+    <div class="teams-hero">
+      <div class="teams-hero-glow" aria-hidden="true"></div>
+      <div class="teams-hero-content page-container">
+        <span class="hero-eyebrow">⚽ Team Announcement</span>
+        <h1 class="hero-title">This Week's<br><span class="hero-accent">Teams</span></h1>
+        <p class="hero-sub" *ngIf="teamSheet.publishedAt">
+          Published {{ teamSheet.publishedAt | date:'EEE d MMM, h:mm a' }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Pitch container -->
+    <div class="pitch-wrap page-container">
+
+      <!-- Team labels -->
+      <div class="team-labels">
+        <span class="team-label team-label--home">
+          <span class="team-colour team-colour--home"></span>
+          Dark {{ homeEntries.length }}v{{ awayEntries.length }} Light
+          <span class="team-colour team-colour--away"></span>
+        </span>
+      </div>
+
+      <!-- The pitch itself -->
+      <!-- Both teams are on the same pitch, side by side -->
+      <div class="pitch">
+
+        <!-- Pitch markings -->
+        <div class="pitch-markings" aria-hidden="true">
+          <div class="pitch-centre-line"></div>
+          <div class="pitch-centre-circle"></div>
+          <div class="pitch-box pitch-box--home"></div>
+          <div class="pitch-box pitch-box--away"></div>
+        </div>
+
+        <!-- HOME team tokens -->
+        <div
+          *ngFor="let entry of homeEntries"
+          class="player-token player-token--home"
+          [ngStyle]="getTokenStyle(entry)"
+        >
+          <div class="token-jersey">{{ entry.jerseyNumber }}</div>
+          <div class="token-initials">{{ getInitials(entry.playerName) }}</div>
+          <div class="token-name">{{ entry.playerName.split(' ')[0] }}</div>
+        </div>
+
+        <!-- AWAY team tokens -->
+        <div
+          *ngFor="let entry of awayEntries"
+          class="player-token player-token--away"
+          [ngStyle]="getTokenStyle(entry)"
+        >
+          <div class="token-jersey">{{ entry.jerseyNumber }}</div>
+          <div class="token-initials">{{ getInitials(entry.playerName) }}</div>
+          <div class="token-name">{{ entry.playerName.split(' ')[0] }}</div>
+        </div>
+
+      </div>
+
+      <!-- Player lists below pitch -->
+      <div class="team-lists">
+
+        <!-- Home team list -->
+        <div class="team-list">
+          <h3 class="team-list-heading team-list-heading--home">
+            <span class="team-colour team-colour--home"></span>
+            Dark
+          </h3>
+          <ul class="team-list-players">
+            <li *ngFor="let entry of homeEntries" class="team-list-player">
+              <span class="list-jersey list-jersey--home">{{ entry.jerseyNumber }}</span>
+              <span class="list-name">{{ entry.playerName }}</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Away team list -->
+        <div class="team-list">
+          <h3 class="team-list-heading team-list-heading--away">
+            <span class="team-colour team-colour--away"></span>
+            Light
+          </h3>
+          <ul class="team-list-players">
+            <li *ngFor="let entry of awayEntries" class="team-list-player">
+              <span class="list-jersey list-jersey--away">{{ entry.jerseyNumber }}</span>
+              <span class="list-name">{{ entry.playerName }}</span>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+
+      <a routerLink="/play" class="btn-back">← Back to Game</a>
+
+    </div>
+  </ng-container>
+
+</div>
