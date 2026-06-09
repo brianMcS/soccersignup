@@ -66,7 +66,9 @@ export class GameSignupListComponent implements OnInit, OnDestroy {
 
     this.gamesService.getAllGames().subscribe({
       next: (games) =>{
-        const open =games.find(g => g.status === 'OPEN');
+        const open = games
+          .filter(g => g.status === 'OPEN')
+          .sort((first, second) => first.gameDate.localeCompare(second.gameDate))[0];
         if(open?.id){
           this.game = open;
           this.loadSignups(open.id);
