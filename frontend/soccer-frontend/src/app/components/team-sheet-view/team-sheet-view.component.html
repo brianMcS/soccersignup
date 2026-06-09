@@ -61,7 +61,10 @@
         >
           <div class="token-jersey">{{ entry.jerseyNumber }}</div>
           <div class="token-initials">{{ getInitials(entry.playerName) }}</div>
-          <div class="token-name">{{ entry.playerName.split(' ')[0] }}</div>
+          <div class="token-name">
+            <span>{{ getFirstName(entry.playerName) }}</span>
+            <span *ngIf="getLastName(entry.playerName)">{{ getLastName(entry.playerName) }}</span>
+          </div>
         </div>
 
         <!-- AWAY team tokens -->
@@ -72,7 +75,10 @@
         >
           <div class="token-jersey">{{ entry.jerseyNumber }}</div>
           <div class="token-initials">{{ getInitials(entry.playerName) }}</div>
-          <div class="token-name">{{ entry.playerName.split(' ')[0] }}</div>
+          <div class="token-name">
+            <span>{{ getFirstName(entry.playerName) }}</span>
+            <span *ngIf="getLastName(entry.playerName)">{{ getLastName(entry.playerName) }}</span>
+          </div>
         </div>
 
       </div>

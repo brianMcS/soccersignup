@@ -1,6 +1,7 @@
 package com.soccersignup.backend.dto;
 
 import com.soccersignup.backend.model.Player;
+import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -10,7 +11,8 @@ public record PlayerResponse(
         String email,
         String phone,
         Set<String> roles,
-        Boolean isActive
+        Boolean isActive,
+        LocalDateTime createdAt
 ) {
     public static PlayerResponse from(Player player) {
         return new PlayerResponse(
@@ -21,7 +23,8 @@ public record PlayerResponse(
                 player.getRoles().stream()
                         .map(Enum::toString)
                         .collect(Collectors.toSet()),
-                player.getIsActive()
+                player.getIsActive(),
+                player.getCreatedAt()
         );
     }
 }

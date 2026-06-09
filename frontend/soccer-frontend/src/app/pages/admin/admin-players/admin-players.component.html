@@ -1,16 +1,10 @@
-<!-- ════════════════════════════════════════════════════════
-     ADMIN — PLAYERS TAB
-     ════════════════════════════════════════════════════════ -->
-
-<!-- ── ALERTS ─────────────────────────────────────────────── -->
 <div *ngIf="successMessage" class="alert alert-success animate-fade-up" role="status">
-  <span>✓</span> {{ successMessage }}
+  {{ successMessage }}
 </div>
 <div *ngIf="errorMessage" class="alert alert-error animate-fade-up" role="alert">
-  <span>⚠</span> {{ errorMessage }}
+  {{ errorMessage }}
 </div>
 
-<!-- ── TOOLBAR ─────────────────────────────────────────────── -->
 <div class="players-toolbar">
   <h2 class="admin-section-title">
     All Players
@@ -18,108 +12,189 @@
   </h2>
 
   <div class="search-wrap">
-    <span class="search-icon">🔍</span>
+    <span class="search-icon" aria-hidden="true">Search</span>
     <input
       class="search-input"
-      type="text"
-      placeholder="Search name or email..."
+      type="search"
+      placeholder="Search name, email or phone..."
       [(ngModel)]="searchQuery"
       (ngModelChange)="onSearch()"
     />
-    <button class="search-clear" *ngIf="searchQuery" (click)="clearSearch()" aria-label="Clear search">✕</button>
+    <button
+      class="search-clear"
+      *ngIf="searchQuery"
+      type="button"
+      (click)="clearSearch()"
+      aria-label="Clear search"
+    >
+      Clear
+    </button>
   </div>
 </div>
 
-<!-- ── LOADING ─────────────────────────────────────────────── -->
 <div *ngIf="loading" class="skeleton-list">
   <div class="skeleton skeleton-player" *ngFor="let n of [1,2,3,4,5]"></div>
 </div>
 
-<!-- ── EMPTY ───────────────────────────────────────────────── -->
 <div *ngIf="!loading && filtered.length === 0" class="empty-state">
-  <p class="empty-icon">👥</p>
   <p class="empty-text">
     {{ searchQuery ? 'No players match "' + searchQuery + '"' : 'No registered players yet.' }}
   </p>
 </div>
 
-<!-- ── PLAYER LIST ─────────────────────────────────────────── -->
-<div *ngIf="!loading && filtered.length > 0" class="players-list">
+<div *ngIf="!loading && filtered.length > 0" class="players-table-wrap">
+  <table class="players-table">
+    <thead>
+      <tr>
+        <th scope="col">Player</th>
+        <th scope="col">Email</th>
+        <th scope="col">Phone</th>
+        <th scope="col">Roles</th>
+        <th scope="col">Status</th>
+        <th scope="col" class="actions-heading">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <ng-container *ngFor="let player of filtered">
+        <tr [class.inactive-row]="!player.isActive">
+          <td data-label="Player">
+            <span class="player-name">{{ player.name }}</span>
+          </td>
+          <td data-label="Email" class="email-cell">{{ player.email }}</td>
+          <td data-label="Phone">{{ player.phone || '-' }}</td>
+          <td data-label="Roles">
+            <div class="role-list">
+              <span
+                *ngFor="let role of player.roles"
+                class="role-pip"
+                [class.role-pip--organiser]="role === 'ORGANISER'"
+                [class.role-pip--admin]="role === 'ADMIN'"
+              >
+                {{ roleLabel(role) }}
+              </span>
+            </div>
+          </td>
+          <td data-label="Status">
+            <span class="status-pip" [class.status-pip--inactive]="!player.isActive">
+              {{ player.isActive ? 'Active' : 'Inactive' }}
+            </span>
+          </td>
+          <td data-label="Actions" class="actions-cell">
+            <div class="player-actions" *ngIf="player.isActive">
+              <button
+                class="action-btn action-btn-muted"
+                type="button"
+                (click)="openPlayerEditor(player)"
+                [disabled]="editingPlayerId === player.id"
+              >
+                Edit
+              </button>
+              <button
+                class="action-btn action-btn-success"
+                type="button"
+                (click)="openRoleEditor(player)"
+                [disabled]="editingRolesId === player.id"
+              >
+                Roles
+              </button>
+              <button
+                class="action-btn action-btn-danger"
+                type="button"
+                (click)="deactivate(player)"
+                [disabled]="deactivatingId === player.id"
+              >
+                {{ deactivatingId === player.id ? 'Removing...' : 'Remove' }}
+              </button>
+            </div>
+          </td>
+        </tr>
 
-  <div
-    *ngFor="let player of filtered"
-    class="admin-list-card player-card"
-    [class.player-card--organiser]="isOrganiser(player)"
-    [class.player-card--inactive]="!player.isActive"
-  >
+        <tr *ngIf="editingPlayerId === player.id" class="editor-row">
+          <td colspan="6">
+            <form class="player-editor" (ngSubmit)="savePlayer(player)">
+              <div class="editor-field">
+                <label [for]="'player-name-' + player.id">Full name</label>
+                <input
+                  [id]="'player-name-' + player.id"
+                  name="playerName"
+                  [(ngModel)]="editingPlayer.name"
+                  minlength="2"
+                  maxlength="100"
+                  required
+                />
+              </div>
+              <div class="editor-field">
+                <label [for]="'player-email-' + player.id">Email</label>
+                <input
+                  [id]="'player-email-' + player.id"
+                  name="playerEmail"
+                  type="email"
+                  [(ngModel)]="editingPlayer.email"
+                  required
+                />
+              </div>
+              <div class="editor-field">
+                <label [for]="'player-phone-' + player.id">Phone</label>
+                <input
+                  [id]="'player-phone-' + player.id"
+                  name="playerPhone"
+                  type="tel"
+                  [(ngModel)]="editingPlayer.phone"
+                />
+              </div>
+              <div class="editor-actions">
+                <button class="btn-ghost btn-cancel-sm" type="button" (click)="cancelPlayerEdit()">
+                  Cancel
+                </button>
+                <button
+                  class="btn-accent btn-save-sm"
+                  type="submit"
+                  [disabled]="savingPlayerId === player.id || !isPlayerFormValid()"
+                >
+                  {{ savingPlayerId === player.id ? 'Saving...' : 'Save player' }}
+                </button>
+              </div>
+            </form>
+          </td>
+        </tr>
 
-    <!-- Main row -->
-    <div class="player-main">
-      <div class="player-avatar">{{ getInitials(player.name) }}</div>
-
-      <div class="player-info">
-        <div class="player-name">
-          {{ player.name }}
-          <span class="role-pip role-pip--organiser" *ngIf="isOrganiser(player)">organiser</span>
-          <span class="inactive-pip" *ngIf="!player.isActive">inactive</span>
-        </div>
-        <div class="player-email">{{ player.email }}</div>
-        <div class="player-meta">
-          <span *ngIf="player.phone">📱 {{ player.phone }}</span>
-          <span class="meta-sep" *ngIf="player.phone && player.createdAt">·</span>
-          <span *ngIf="player.createdAt">Joined {{ formatDate(player.createdAt) }}</span>
-        </div>
-      </div>
-
-      <!-- Action menu -->
-      <div class="player-actions" *ngIf="player.isActive">
-        <button
-          class="action-btn action-btn-success action-btn--roles"
-          (click)="openRoleEditor(player)"
-          *ngIf="editingRolesId !== player.id"
-          title="Edit roles"
-        >
-          Roles
-        </button>
-        <button
-          class="action-btn action-btn-danger action-btn--remove"
-          (click)="deactivate(player)"
-          [disabled]="deactivatingId === player.id"
-          title="Remove player"
-        >
-          {{ deactivatingId === player.id ? '...' : 'Remove' }}
-        </button>
-      </div>
-    </div>
-
-    <!-- Role editor (inline, only for this player) -->
-    <div *ngIf="editingRolesId === player.id" class="role-editor animate-fade-up">
-      <p class="role-editor-label">Edit Roles</p>
-      <div class="role-toggles">
-        <button
-          *ngFor="let role of availableRoles"
-          class="role-toggle"
-          [class.role-toggle--active]="hasRole(role)"
-          [class.role-toggle--locked]="role === 'ROLE_USER'"
-          (click)="toggleRole(role)"
-          [disabled]="role === 'ROLE_USER'"
-          [title]="role === 'ROLE_USER' ? 'Cannot remove base role' : ''"
-        >
-          {{ roleLabel(role) }}
-        </button>
-      </div>
-      <div class="role-editor-actions">
-        <button class="btn-ghost btn-cancel-sm" (click)="cancelRoleEdit()">Cancel</button>
-        <button
-          class="btn-accent btn-save-sm"
-          (click)="saveRoles(player)"
-          [disabled]="savingRolesId === player.id"
-        >
-          <span class="btn-spinner" *ngIf="savingRolesId === player.id" aria-hidden="true"></span>
-          {{ savingRolesId === player.id ? 'Saving...' : 'Save Roles' }}
-        </button>
-      </div>
-    </div>
-
-  </div>
+        <tr *ngIf="editingRolesId === player.id" class="editor-row">
+          <td colspan="6">
+            <div class="role-editor">
+              <div>
+                <p class="editor-title">Edit roles for {{ player.name }}</p>
+                <p class="editor-help">Every account keeps the Player role.</p>
+              </div>
+              <div class="role-toggles">
+                <button
+                  *ngFor="let role of availableRoles"
+                  class="role-toggle"
+                  type="button"
+                  [class.role-toggle--active]="hasRole(role)"
+                  [class.role-toggle--locked]="role === 'PLAYER'"
+                  (click)="toggleRole(role)"
+                  [disabled]="role === 'PLAYER'"
+                >
+                  {{ roleLabel(role) }}
+                </button>
+              </div>
+              <div class="editor-actions">
+                <button class="btn-ghost btn-cancel-sm" type="button" (click)="cancelRoleEdit()">
+                  Cancel
+                </button>
+                <button
+                  class="btn-accent btn-save-sm"
+                  type="button"
+                  (click)="saveRoles(player)"
+                  [disabled]="savingRolesId === player.id"
+                >
+                  {{ savingRolesId === player.id ? 'Saving...' : 'Save roles' }}
+                </button>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </ng-container>
+    </tbody>
+  </table>
 </div>

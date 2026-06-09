@@ -117,7 +117,10 @@
           (dragend)="onDragEnd()"
         >
           <div class="token-jersey">{{ entry.jerseyNumber }}</div>
-          <div class="token-name">{{ entry.playerName.split(' ')[0] }}</div>
+          <div class="token-name">
+            <span>{{ getFirstName(entry.playerName) }}</span>
+            <span *ngIf="getLastName(entry.playerName)">{{ getLastName(entry.playerName) }}</span>
+          </div>
           <!-- Switch team button -->
           <button
             class="token-switch"
@@ -138,7 +141,10 @@
           (dragend)="onDragEnd()"
         >
           <div class="token-jersey">{{ entry.jerseyNumber }}</div>
-          <div class="token-name">{{ entry.playerName.split(' ')[0] }}</div>
+          <div class="token-name">
+            <span>{{ getFirstName(entry.playerName) }}</span>
+            <span *ngIf="getLastName(entry.playerName)">{{ getLastName(entry.playerName) }}</span>
+          </div>
           <button
             class="token-switch"
             (click)="switchTeam(entry)"

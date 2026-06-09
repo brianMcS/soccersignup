@@ -1,6 +1,7 @@
 package com.soccersignup.backend.service.impl;
 
 import java.util.List;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -67,15 +68,12 @@ public class PlayerServiceImpl implements PlayerService {
 
     @Override
     public Player updatePlayer(Long id, PlayerRequest request) {
-        Optional<Player> playerOpt = playerRepository.findById(id);
-        if (playerOpt.isPresent()) {
-            Player player = playerOpt.get();
-            player.setName(request.name());
-            player.setEmail(request.email());
-            player.setPhone(request.phone());
-            return playerRepository.save(player);
-        }
-        throw new RuntimeException("Player not found with id: " + id);
+        Player player = playerRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Player not found: " + id));
+        player.setName(request.name());
+        player.setEmail(request.email());
+        player.setPhone(request.phone());
+        return playerRepository.save(player);
     }
 
     @Override
@@ -93,7 +91,9 @@ public class PlayerServiceImpl implements PlayerService {
     public PlayerResponse updateRoles(Long id, Set<PlayerRole> roles){
         Player player = playerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Player not found: " + id));
-        player.setRoles(roles);
+        Set<PlayerRole> updatedRoles = new HashSet<>(roles);
+        updatedRoles.add(PlayerRole.PLAYER);
+        player.setRoles(updatedRoles);
         return PlayerResponse.from(playerRepository.save(player));
     }
 }

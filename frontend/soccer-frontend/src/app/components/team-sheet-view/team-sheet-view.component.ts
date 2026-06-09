@@ -62,6 +62,14 @@ export class TeamSheetViewComponent implements OnInit {
       .toUpperCase();
   }
 
+  getFirstName(name: string): string {
+    return name.trim().split(/\s+/)[0] ?? '';
+  }
+
+  getLastName(name: string): string {
+    return name.trim().split(/\s+/).slice(1).join(' ');
+  }
+
   // Convert percentage position to CSS style
   // Called for each player token on the pitch
   getTokenStyle(entry: TeamSheetEntry): object {

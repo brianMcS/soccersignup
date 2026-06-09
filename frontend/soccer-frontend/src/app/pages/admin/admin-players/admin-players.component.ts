@@ -1,7 +1,11 @@
-import {Component, OnInit} from '@angular/core';
-import {AdminService, PlayerResponse} from '../../../services/admin.service';
-import {CommonModule} from '@angular/common';
-import {FormsModule} from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import {
+  AdminService,
+  PlayerResponse,
+  PlayerUpdateRequest
+} from '../../../services/admin.service';
 
 @Component({
   selector: 'app-admin-players',
@@ -10,7 +14,6 @@ import {FormsModule} from '@angular/forms';
   styleUrl: './admin-players.component.css'
 })
 export class AdminPlayersComponent implements OnInit {
-  // State
   loading = false;
   players: PlayerResponse[] = [];
   filtered: PlayerResponse[] = [];
@@ -19,17 +22,18 @@ export class AdminPlayersComponent implements OnInit {
   errorMessage: string | null = null;
   successMessage: string | null = null;
 
-  // Per-player action state
   deactivatingId: number | null = null;
   editingRolesId: number | null = null;
   savingRolesId: number | null = null;
+  editingPlayerId: number | null = null;
+  savingPlayerId: number | null = null;
 
-  // role editing - working copy
   editingRoles: string[] = [];
+  editingPlayer: PlayerUpdateRequest = this.emptyPlayerForm();
 
-  readonly  availableRoles = ['ROLE_USER', 'ROLE_ORGANISER', 'ROLE_ADMIN'];
+  readonly availableRoles = ['PLAYER', 'ORGANISER', 'ADMIN'];
 
-  constructor(private adminService: AdminService) { }
+  constructor(private adminService: AdminService) {}
 
   ngOnInit(): void {
     this.loadPlayers();
@@ -50,18 +54,18 @@ export class AdminPlayersComponent implements OnInit {
     });
   }
 
-  // Search
   onSearch(): void {
     this.applyFilter();
   }
 
   applyFilter(): void {
-    const q = this.searchQuery.trim().toLowerCase();
-    this.filtered = q
-      ? this.players.filter(p =>
-        p.name.toLowerCase().includes(q) ||
-        p.email.toLowerCase().includes(q)
-      )
+    const query = this.searchQuery.trim().toLowerCase();
+    this.filtered = query
+      ? this.players.filter(player =>
+          player.name.toLowerCase().includes(query)
+          || player.email.toLowerCase().includes(query)
+          || (player.phone ?? '').toLowerCase().includes(query)
+        )
       : [...this.players];
   }
 
@@ -70,16 +74,18 @@ export class AdminPlayersComponent implements OnInit {
     this.applyFilter();
   }
 
-  // Deactivate
   deactivate(player: PlayerResponse): void {
-    if (!confirm(`Really ${player.name} fromt the squad? They will no longer be able to join games.`)) return;
+    if (!confirm(`Remove ${player.name} from the squad? They will no longer be able to join games.`)) {
+      return;
+    }
+
     this.deactivatingId = player.id;
     this.errorMessage = null;
 
     this.adminService.deactivatePlayer(player.id).subscribe({
       next: () => {
         this.deactivatingId = null;
-        this.successMessage = `${player.name} has been removed`;
+        this.successMessage = `${player.name} has been removed.`;
         this.loadPlayers();
         setTimeout(() => this.successMessage = null, 3000);
       },
@@ -90,22 +96,69 @@ export class AdminPlayersComponent implements OnInit {
     });
   }
 
-  // Role editing
+  openPlayerEditor(player: PlayerResponse): void {
+    this.cancelRoleEdit();
+    this.editingPlayerId = player.id;
+    this.editingPlayer = {
+      name: player.name,
+      email: player.email,
+      phone: player.phone ?? ''
+    };
+  }
+
+  cancelPlayerEdit(): void {
+    this.editingPlayerId = null;
+    this.editingPlayer = this.emptyPlayerForm();
+  }
+
+  savePlayer(player: PlayerResponse): void {
+    if (!this.isPlayerFormValid()) return;
+
+    const request: PlayerUpdateRequest = {
+      name: this.editingPlayer.name.trim(),
+      email: this.editingPlayer.email.trim(),
+      phone: this.editingPlayer.phone.trim()
+    };
+
+    this.savingPlayerId = player.id;
+    this.errorMessage = null;
+
+    this.adminService.updatePlayer(player.id, request).subscribe({
+      next: () => {
+        this.savingPlayerId = null;
+        this.cancelPlayerEdit();
+        this.successMessage = `${request.name} has been updated.`;
+        this.loadPlayers();
+        setTimeout(() => this.successMessage = null, 3000);
+      },
+      error: (err) => {
+        this.savingPlayerId = null;
+        this.errorMessage = err?.error?.message ?? 'Could not update player.';
+      }
+    });
+  }
+
+  isPlayerFormValid(): boolean {
+    return this.editingPlayer.name.trim().length >= 2
+      && this.editingPlayer.email.trim().length > 0;
+  }
+
   openRoleEditor(player: PlayerResponse): void {
+    this.cancelPlayerEdit();
     this.editingRolesId = player.id;
-    this.editingRoles = [...(player.roles ?? [])];
+    this.editingRoles = [...new Set(['PLAYER', ...(player.roles ?? [])])];
   }
 
   cancelRoleEdit(): void {
     this.editingRolesId = null;
-    this.editingRoles   = [];
+    this.editingRoles = [];
   }
 
   toggleRole(role: string): void {
-    const idx = this.editingRoles.indexOf(role);
-    if (idx > -1){
-      if (role === 'ROLE_PLAYER') return; // always keep ROLE_PLAYER
-      this.editingRoles.splice(idx, 1);
+    const index = this.editingRoles.indexOf(role);
+    if (index > -1) {
+      if (role === 'PLAYER') return;
+      this.editingRoles.splice(index, 1);
     } else {
       this.editingRoles.push(role);
     }
@@ -122,7 +175,7 @@ export class AdminPlayersComponent implements OnInit {
     this.adminService.updatePlayerRoles(player.id, this.editingRoles).subscribe({
       next: () => {
         this.savingRolesId = null;
-        this.editingRolesId = null;
+        this.cancelRoleEdit();
         this.successMessage = `Roles updated for ${player.name}.`;
         this.loadPlayers();
         setTimeout(() => this.successMessage = null, 3000);
@@ -134,30 +187,20 @@ export class AdminPlayersComponent implements OnInit {
     });
   }
 
-  // Helpers
-  getInitials(name: string): string {
-    return (name ?? '?')
-      .split(' ')
-      .map(n => n[0])
-      .slice(0, 2)
-      .join('')
-      .toUpperCase();
-  }
-
-  formatDate(dateStr?: string): string {
-    if (!dateStr) return '—';
-    try {
-      return new Date(dateStr).toLocaleDateString('en-IE', {
-        day: 'numeric', month: 'short', year: 'numeric'
-      });
-    } catch { return dateStr; }
-  }
-
   roleLabel(role: string): string {
-    return ({ ROLE_USER: 'Player', ROLE_ORGANISER: 'Organiser', ROLE_ADMIN: 'Admin' } as any)[role] ?? role;
+    const labels: Record<string, string> = {
+      PLAYER: 'Player',
+      ORGANISER: 'Organiser',
+      ADMIN: 'Admin'
+    };
+    return labels[role] ?? role;
   }
 
   isOrganiser(player: PlayerResponse): boolean {
-    return player.roles?.includes('ROLE_ORGANISER') || player.roles?.includes('ROLE_ADMIN');
+    return player.roles?.includes('ORGANISER') || player.roles?.includes('ADMIN');
+  }
+
+  private emptyPlayerForm(): PlayerUpdateRequest {
+    return { name: '', email: '', phone: '' };
   }
 }

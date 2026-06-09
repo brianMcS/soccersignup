@@ -29,6 +29,12 @@ export interface PlayerResponse {
   createdAt?: string;
 }
 
+export interface PlayerUpdateRequest {
+  name: string;
+  email: string;
+  phone: string;
+}
+
 @Injectable({providedIn: 'root'})
 export class AdminService {
 
@@ -64,8 +70,12 @@ export class AdminService {
     return this.http.patch<void>(`/api/players/${id}/deactivate`, {});
   }
 
-  updatePlayerRoles(id: number, roles: string[]): Observable<any>{
-    return this.http.put(`/api/players/${id}/roles`, { roles });
+  updatePlayer(id: number, request: PlayerUpdateRequest): Observable<PlayerResponse> {
+    return this.http.put<PlayerResponse>(`/api/players/${id}`, request);
+  }
+
+  updatePlayerRoles(id: number, roles: string[]): Observable<PlayerResponse>{
+    return this.http.put<PlayerResponse>(`/api/players/${id}/roles`, { roles });
   }
 
   //Signups

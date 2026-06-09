@@ -235,6 +235,14 @@ export class AdminTeamSheetComponent implements OnInit {
       .toUpperCase();
   }
 
+  getFirstName(name: string): string {
+    return name.trim().split(/\s+/)[0] ?? '';
+  }
+
+  getLastName(name: string): string {
+    return name.trim().split(/\s+/).slice(1).join(' ');
+  }
+
   private buildRequest() {
     const entries: TeamSheetEntryRequest[] = this.teamSheet!.entries.map(e => ({
       playerId: e.playerId,
