@@ -45,4 +45,25 @@ export class GamesService {
       `${this.slotsUrl}/${gameId}/players/${playerId}`
     );
   }
+
+  reportPayment(gameId: number, playerId: number): Observable<GameSlot> {
+    return this.http.patch<GameSlot>(
+      `${this.slotsUrl}/${gameId}/players/${playerId}/pay`,
+      {}
+    );
+  }
+
+  confirmPayment(gameId: number, playerId: number): Observable<GameSlot> {
+    return this.http.patch<GameSlot>(
+      `${this.slotsUrl}/${gameId}/players/${playerId}/confirm`,
+      {}
+    );
+  }
+
+  rejectPayment(gameId: number, playerId: number): Observable<GameSlot> {
+    return this.http.patch<GameSlot>(
+      `${this.slotsUrl}/${gameId}/players/${playerId}/reject`,
+      {}
+    );
+  }
 }

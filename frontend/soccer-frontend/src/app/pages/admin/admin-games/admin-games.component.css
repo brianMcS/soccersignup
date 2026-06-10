@@ -72,6 +72,27 @@
 
 .meta-sep { color: var(--color-ink-faint); }
 
+.payment-link-summary {
+  display: flex;
+  gap: 0.375rem;
+  margin-top: 0.4rem;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.75rem;
+  color: var(--color-ink-faint);
+  min-width: 0;
+}
+
+.payment-link-summary a {
+  color: var(--color-amber-400);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.payment-link-missing {
+  color: var(--color-ink-muted);
+}
+
 /* Status badges */
 .game-badge {
   font-family: 'DM Sans', sans-serif;
@@ -169,6 +190,13 @@
   font-size: 0.75rem;
   color: #f87171;
   margin: 0;
+}
+
+.form-hint {
+  margin: 0;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.75rem;
+  color: var(--color-ink-faint);
 }
 
 .game-form input {
@@ -277,6 +305,67 @@
   border-color: rgba(232,168,32,0.4);
 }
 
+.action-btn--payments,
+.action-btn--confirm {
+  background: transparent;
+  color: var(--color-pitch-300);
+  border-color: rgba(46,125,50,0.3);
+}
+
+.payments-panel {
+  margin-top: 0.75rem;
+  padding-top: 0.875rem;
+  border-top: 1px solid var(--color-surface-700);
+}
+
+.payments-header,
+.payment-row,
+.payment-player,
+.payment-row-actions {
+  display: flex;
+  align-items: center;
+}
+
+.payments-header {
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.payments-header h3,
+.payments-header p {
+  margin: 0;
+}
+
+.payments-header h3 {
+  color: var(--color-ink);
+  font-size: 0.9375rem;
+}
+
+.payments-header p,
+.payments-header > span,
+.payments-empty {
+  color: var(--color-ink-muted);
+  font-size: 0.75rem;
+}
+
+.payment-row {
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.625rem 0;
+  border-top: 1px solid var(--color-surface-700);
+}
+
+.payment-player,
+.payment-row-actions {
+  gap: 0.5rem;
+}
+
+.payment-player strong {
+  color: var(--color-ink);
+  font-size: 0.8125rem;
+}
+
 /* ─── ANIMATION ───────────────────────────────────────────── */
 /* ─── RESPONSIVE ──────────────────────────────────────────── */
 @media (min-width: 640px) {
@@ -288,6 +377,7 @@
 
   /* Location spans full width */
   .game-form .form-group:nth-child(3) { grid-column: 1 / -1; }
+  .form-group--wide { grid-column: 1 / -1; }
 
   /* Recurring controls, error and actions span full width */
   .recurring-panel { grid-column: 1 / -1; }

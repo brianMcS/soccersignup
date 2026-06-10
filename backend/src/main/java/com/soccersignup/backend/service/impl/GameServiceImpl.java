@@ -2,6 +2,7 @@ package com.soccersignup.backend.service.impl;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.math.BigDecimal;
 import java.util.List;
 
 import com.soccersignup.backend.dto.GameRequest;
@@ -58,6 +59,8 @@ public class GameServiceImpl  implements GameService {
         existing.setKickOffTime(request.kickOffTime());
         existing.setLocation(request.location());
         existing.setMaxPlayers(request.maxPlayers());
+        existing.setFeeAmount(defaultFee(request.feeAmount()));
+        existing.setRevolutLink(normalizeLink(request.revolutLink()));
         return gameRepository.save(existing);
     }
 
@@ -96,5 +99,13 @@ public class GameServiceImpl  implements GameService {
 
         game.setStatus(GameStatus.COMPLETED);
         return true;
+    }
+
+    private BigDecimal defaultFee(BigDecimal feeAmount) {
+        return feeAmount != null ? feeAmount : new BigDecimal("5.00");
+    }
+
+    private String normalizeLink(String revolutLink) {
+        return revolutLink == null || revolutLink.isBlank() ? null : revolutLink.trim();
     }
 }

@@ -90,6 +90,22 @@
             <span *ngIf="game.location">{{ game.location }}</span>
             <span class="meta-sep">·</span>
             <span>{{ game.maxPlayers }} players</span>
+            <span class="meta-sep">·</span>
+            <span>€{{ game.feeAmount | number:'1.2-2' }}</span>
+          </div>
+          <div class="payment-link-summary">
+            <span>Revolut:</span>
+            <a
+              *ngIf="game.revolutLink; else noRevolutLink"
+              [href]="game.revolutLink"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {{ game.revolutLink }}
+            </a>
+            <ng-template #noRevolutLink>
+              <span class="payment-link-missing">Not set</span>
+            </ng-template>
           </div>
         </div>
         <span class="game-badge" [ngClass]="statusClass(game.status)">
@@ -97,7 +113,7 @@
         </span>
       </div>
 
-      <div class="game-row-actions" *ngIf="canEdit(game) || canClose(game)">
+      <div class="game-row-actions">
         <button
           *ngIf="canEdit(game)"
           class="action-btn action-btn-muted action-btn--edit"
@@ -114,6 +130,13 @@
         </button>
 
         <button
+          class="action-btn action-btn--payments"
+          (click)="togglePayments(game)"
+        >
+          {{ paymentGameId === game.id ? 'Hide Payments' : 'Payments' }}
+        </button>
+
+        <button
           *ngIf="canClose(game)"
           class="action-btn action-btn-danger action-btn--close"
           (click)="closeGame(game)"
@@ -121,6 +144,48 @@
         >
           {{ closingId === game.id ? 'Closing...' : 'Close Game' }}
         </button>
+      </div>
+
+      <div *ngIf="paymentGameId === game.id" class="payments-panel">
+        <div class="payments-header">
+          <div>
+            <h3>Payment Review</h3>
+            <p>{{ paidCount(game.id) }} / {{ paymentSlots(game.id).length }} reported or confirmed</p>
+          </div>
+          <span>€{{ game.feeAmount | number:'1.2-2' }} each</span>
+        </div>
+
+        <div *ngIf="paymentSlots(game.id).length === 0" class="payments-empty">
+          No confirmed players are signed up yet.
+        </div>
+
+        <div *ngFor="let slot of paymentSlots(game.id)" class="payment-row">
+          <div class="payment-player">
+            <strong>{{ slot.playerName }}</strong>
+            <span class="game-badge" [ngClass]="paymentBadgeClass(slot)">
+              {{ paymentLabel(slot) }}
+            </span>
+          </div>
+
+          <div class="payment-row-actions">
+            <button
+              *ngIf="slot.paymentStatus === 'SELF_REPORTED'"
+              class="action-btn action-btn--confirm"
+              (click)="confirmPayment(game.id, slot)"
+              [disabled]="paymentActionPlayerId === slot.playerId"
+            >
+              Confirm
+            </button>
+            <button
+              *ngIf="slot.paymentStatus === 'SELF_REPORTED' || slot.paymentStatus === 'CONFIRMED'"
+              class="action-btn action-btn-danger"
+              (click)="resetPayment(game.id, slot)"
+              [disabled]="paymentActionPlayerId === slot.playerId"
+            >
+              Reset
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -203,6 +268,45 @@
         <p class="form-error" *ngIf="maxField.invalid && maxField.touched">
           <span *ngIf="maxField.errors?.['required']">Required.</span>
           <span *ngIf="maxField.errors?.['min'] || maxField.errors?.['max']">Must be 2–30.</span>
+        </p>
+      </div>
+
+      <!-- Weekly fee -->
+      <div class="form-group">
+        <label class="form-label" for="feeAmount">Fee Amount (€)</label>
+        <input
+          id="feeAmount"
+          type="number"
+          [(ngModel)]="form.feeAmount"
+          name="feeAmount"
+          min="0"
+          step="0.01"
+          required
+          #feeField="ngModel"
+          [class.input-error]="feeField.invalid && feeField.touched"
+        />
+        <p class="form-error" *ngIf="feeField.invalid && feeField.touched">
+          Enter a fee of €0 or more.
+        </p>
+      </div>
+
+      <!-- Revolut payment link -->
+      <div class="form-group form-group--wide">
+        <label class="form-label" for="revolutLink">Revolut Payment Link</label>
+        <input
+          id="revolutLink"
+          type="url"
+          [(ngModel)]="form.revolutLink"
+          name="revolutLink"
+          placeholder="https://revolut.me/organiser"
+          #revolutField="ngModel"
+          [class.input-error]="revolutField.invalid && revolutField.touched"
+        />
+        <p class="form-hint">
+          Update this whenever the organiser or payment account changes. Leave blank to hide the payment link.
+        </p>
+        <p class="form-error" *ngIf="revolutField.invalid && revolutField.touched">
+          Enter a complete URL, including https://.
         </p>
       </div>
 

@@ -181,6 +181,36 @@
             <p class="join-subtext" *ngIf="isFull">Game is full — you'll be added to the waitlist</p>
           </div>
 
+          <div *ngIf="userSlot && !isUserWaitlisted" class="payment-actions">
+            <div class="payment-copy">
+              <span>Fee: €{{ (userSlot.feeAmount ?? game.feeAmount) | number:'1.2-2' }}</span>
+              <a
+                *ngIf="game.revolutLink"
+                [href]="game.revolutLink"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Pay with Revolut
+              </a>
+            </div>
+            <button
+              type="button"
+              class="btn-accent payment-report-btn"
+              (click)="reportPayment()"
+              [disabled]="!canReportPayment || reportingPayment"
+            >
+              {{
+                reportingPayment
+                  ? 'Reporting...'
+                  : userSlot.paymentStatus === 'CONFIRMED'
+                    ? 'Payment confirmed'
+                    : userSlot.paymentStatus === 'SELF_REPORTED'
+                      ? 'Payment reported'
+                      : "I've paid"
+              }}
+            </button>
+          </div>
+
         </div>
 
         <!-- Not logged in nudge -->
@@ -222,6 +252,9 @@
                   *ngIf="slot.playerId === currentUser?.id || slot.playerEmail === currentUser?.email"
                   class="slot-you">you</span>
               </span>
+              <span class="payment-badge" [ngClass]="paymentBadgeClass(slot)">
+                {{ paymentLabel(slot) }}
+              </span>
             </ng-container>
 
             <ng-template #emptySlot>
@@ -254,7 +287,9 @@
                   *ngIf="slot.playerId === currentUser?.id || slot.playerEmail === currentUser?.email"
                   class="slot-you">you</span>
               </span>
-              <span class="waitlist-badge">waitlist</span>
+              <span class="payment-badge" [ngClass]="paymentBadgeClass(slot)">
+                {{ paymentLabel(slot) }}
+              </span>
             </div>
           </div>
         </div>

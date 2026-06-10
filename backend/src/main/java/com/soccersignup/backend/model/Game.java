@@ -1,5 +1,6 @@
 package com.soccersignup.backend.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -21,6 +22,14 @@ public class Game {
     private LocalTime kickOffTime;
     private String location;
     private int maxPlayers = 18;
+    @Column(
+            nullable = false,
+            precision = 10,
+            scale = 2,
+            columnDefinition = "numeric(10,2) default 5.00"
+    )
+    private BigDecimal feeAmount = new BigDecimal("5.00");
+    private String revolutLink;
     private LocalDateTime createdAt;
 
     @Enumerated(EnumType.STRING)
@@ -85,6 +94,22 @@ public class Game {
 
     public void setMaxPlayers(int maxPlayers) {
         this.maxPlayers = maxPlayers;
+    }
+
+    public BigDecimal getFeeAmount() {
+        return feeAmount;
+    }
+
+    public void setFeeAmount(BigDecimal feeAmount) {
+        this.feeAmount = feeAmount;
+    }
+
+    public String getRevolutLink() {
+        return revolutLink;
+    }
+
+    public void setRevolutLink(String revolutLink) {
+        this.revolutLink = revolutLink;
     }
 
     public LocalDateTime getCreatedAt() {

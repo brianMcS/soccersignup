@@ -7,6 +7,7 @@ import com.soccersignup.backend.model.Player;
 import com.soccersignup.backend.model.PlayerRole;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,14 +29,8 @@ public class GameSlotController {
     public ResponseEntity<List<GameSlotResponse>> getSignups(@PathVariable Long gameId) {
         List<GameSlot> slots = gameSlotService.getSignupsForGame(gameId);
         List<GameSlotResponse> response = slots.stream()
-                .map(slot -> new GameSlotResponse(
-                        slot.getId(),
-                        slot.getPlayer().getId(),
-                        slot.getPlayer().getName(),
-                        slot.getPlayer().getEmail(),
-                        slot.getStatus(),
-                        slot.getSignedUpAt()
-                )).toList();
+                .map(GameSlotResponse::from)
+                .toList();
         return ResponseEntity.ok(response);
     }
 
@@ -70,6 +65,39 @@ public class GameSlotController {
 
         gameSlotService.removeSignup(gameId, playerId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{gameId}/players/{playerId}/pay")
+    public ResponseEntity<GameSlotResponse> reportPayment(
+            @PathVariable Long gameId,
+            @PathVariable Long playerId,
+            Authentication authentication) {
+        Player currentPlayer = (Player) authentication.getPrincipal();
+        if (!currentPlayer.getId().equals(playerId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        return ResponseEntity.ok(GameSlotResponse.from(
+                gameSlotService.reportPayment(gameId, playerId)));
+    }
+
+    @PatchMapping("/{gameId}/players/{playerId}/confirm")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ORGANISER')")
+    public ResponseEntity<GameSlotResponse> confirmPayment(
+            @PathVariable Long gameId,
+            @PathVariable Long playerId,
+            Authentication authentication) {
+        Player currentPlayer = (Player) authentication.getPrincipal();
+        return ResponseEntity.ok(GameSlotResponse.from(
+                gameSlotService.confirmPayment(gameId, playerId, currentPlayer)));
+    }
+
+    @PatchMapping("/{gameId}/players/{playerId}/reject")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ORGANISER')")
+    public ResponseEntity<GameSlotResponse> rejectPayment(
+            @PathVariable Long gameId,
+            @PathVariable Long playerId) {
+        return ResponseEntity.ok(GameSlotResponse.from(
+                gameSlotService.rejectPayment(gameId, playerId)));
     }
 
     record SignupRequest(Long gameId){}

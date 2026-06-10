@@ -1,6 +1,6 @@
 package com.soccersignup.backend.model;
 
-import java.time.LocalDate;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
@@ -26,6 +26,29 @@ public class GameSlot {
     @Column(nullable = false)
     private LocalDateTime signedUpAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(
+            nullable = false,
+            columnDefinition = "varchar(255) default 'UNPAID'"
+    )
+    private PaymentStatus paymentStatus = PaymentStatus.UNPAID;
+
+    @Column(
+            nullable = false,
+            precision = 10,
+            scale = 2,
+            columnDefinition = "numeric(10,2) default 5.00"
+    )
+    private BigDecimal feeAmount;
+
+    private LocalDateTime paidAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "confirmed_by_id")
+    private Player confirmedBy;
+
+    private LocalDateTime confirmedAt;
+
     public GameSlot() {
     }
 
@@ -40,6 +63,8 @@ public class GameSlot {
         slot.player = player;
         slot.status = status;
         slot.signedUpAt = signedUpAt;
+        slot.paymentStatus = PaymentStatus.UNPAID;
+        slot.feeAmount = game.getFeeAmount();
 
         return slot;
     }
@@ -83,5 +108,45 @@ public class GameSlot {
 
     public void setSignedUpAt(LocalDateTime signedUpAt) {
         this.signedUpAt = signedUpAt;
+    }
+
+    public PaymentStatus getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(PaymentStatus paymentStatus) {
+        this.paymentStatus = paymentStatus;
+    }
+
+    public BigDecimal getFeeAmount() {
+        return feeAmount;
+    }
+
+    public void setFeeAmount(BigDecimal feeAmount) {
+        this.feeAmount = feeAmount;
+    }
+
+    public LocalDateTime getPaidAt() {
+        return paidAt;
+    }
+
+    public void setPaidAt(LocalDateTime paidAt) {
+        this.paidAt = paidAt;
+    }
+
+    public Player getConfirmedBy() {
+        return confirmedBy;
+    }
+
+    public void setConfirmedBy(Player confirmedBy) {
+        this.confirmedBy = confirmedBy;
+    }
+
+    public LocalDateTime getConfirmedAt() {
+        return confirmedAt;
+    }
+
+    public void setConfirmedAt(LocalDateTime confirmedAt) {
+        this.confirmedAt = confirmedAt;
     }
 }

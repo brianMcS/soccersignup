@@ -261,6 +261,33 @@
   padding-top: 1.125rem;
 }
 
+.payment-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-surface-600);
+}
+
+.payment-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  color: var(--color-ink-muted);
+  font-size: 0.8125rem;
+}
+
+.payment-copy a {
+  color: var(--color-amber-400);
+}
+
+.payment-report-btn {
+  padding: 0.625rem 1rem;
+  white-space: nowrap;
+}
+
 .status-confirmed,
 .status-waitlisted {
   display: flex;
@@ -491,6 +518,11 @@
   border-radius: 999px;
   padding: 1px 5px;
   flex-shrink: 0;
+}
+
+.payment-badge {
+  font-size: 0.625rem;
+  white-space: nowrap;
 }
 
 /* ─── WAITLIST SECTION ────────────────────────────────────── */

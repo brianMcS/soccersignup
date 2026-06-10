@@ -1,12 +1,15 @@
 import { Injectable } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
+import {GameSlot} from '../models/game-slot.model';
 
 export interface GameRequest{
   gameDate: string;
   kickOffTime: string;
   location: string;
   maxPlayers: number;
+  feeAmount: number;
+  revolutLink?: string;
 }
 
 export interface GameResponse {
@@ -15,6 +18,8 @@ export interface GameResponse {
   kickOffTime: string;
   location: string;
   maxPlayers: number;
+  feeAmount: number;
+  revolutLink?: string;
   status: 'OPEN' | 'CLOSED' | 'CANCELLED' | 'COMPLETED';
   createdAt?: string;
 }
@@ -79,11 +84,25 @@ export class AdminService {
   }
 
   //Signups
-  getSignupsForGame(gameId: number): Observable<any[]> {
-    return this.http.get<any[]>(`/api/gameslots/${gameId}`);
+  getSignupsForGame(gameId: number): Observable<GameSlot[]> {
+    return this.http.get<GameSlot[]>(`/api/gameslots/${gameId}`);
   }
 
   removeSignup(gameId: number, playerId: number): Observable<void> {
     return this.http.delete<void>(`/api/gameslots/${gameId}/players/${playerId}`);
+  }
+
+  confirmPayment(gameId: number, playerId: number): Observable<GameSlot> {
+    return this.http.patch<GameSlot>(
+      `/api/gameslots/${gameId}/players/${playerId}/confirm`,
+      {}
+    );
+  }
+
+  rejectPayment(gameId: number, playerId: number): Observable<GameSlot> {
+    return this.http.patch<GameSlot>(
+      `/api/gameslots/${gameId}/players/${playerId}/reject`,
+      {}
+    );
   }
 }

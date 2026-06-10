@@ -8,6 +8,7 @@ import com.soccersignup.backend.exception.ResourceNotFoundException;
 import com.soccersignup.backend.model.Game;
 import com.soccersignup.backend.model.GameStatus;
 import com.soccersignup.backend.model.GameSlot;
+import com.soccersignup.backend.model.PaymentStatus;
 import com.soccersignup.backend.model.Player;
 import com.soccersignup.backend.model.SlotStatus;
 import com.soccersignup.backend.repository.GameRepository;
@@ -71,6 +72,51 @@ public class GameSlotServiceImpl implements GameSlotService {
             teamSheetService.handlePublishedSheetDeparture(
                     game, removedSlot.getPlayer(), promotedPlayer);
         }
+    }
+
+    @Override
+    @Transactional
+    public GameSlot reportPayment(Long gameId, Long playerId) {
+        GameSlot slot = findSignup(findGameById(gameId), findPlayerById(playerId));
+        if (slot.getStatus() == SlotStatus.WAITLISTED) {
+            throw new IllegalStateException("Waitlisted players cannot report payment.");
+        }
+        if (slot.getPaymentStatus() != PaymentStatus.UNPAID) {
+            throw new IllegalStateException("Only unpaid signups can report payment.");
+        }
+        slot.setPaymentStatus(PaymentStatus.SELF_REPORTED);
+        slot.setPaidAt(LocalDateTime.now());
+        return gameSlotRepository.save(slot);
+    }
+
+    @Override
+    @Transactional
+    public GameSlot confirmPayment(Long gameId, Long playerId, Player confirmedBy) {
+        GameSlot slot = findSignup(findGameById(gameId), findPlayerById(playerId));
+        if (slot.getStatus() == SlotStatus.WAITLISTED) {
+            throw new IllegalStateException("Waitlisted players cannot have payments confirmed.");
+        }
+        if (slot.getPaymentStatus() != PaymentStatus.SELF_REPORTED) {
+            throw new IllegalStateException("Only self-reported payments can be confirmed.");
+        }
+        slot.setPaymentStatus(PaymentStatus.CONFIRMED);
+        slot.setConfirmedBy(confirmedBy);
+        slot.setConfirmedAt(LocalDateTime.now());
+        return gameSlotRepository.save(slot);
+    }
+
+    @Override
+    @Transactional
+    public GameSlot rejectPayment(Long gameId, Long playerId) {
+        GameSlot slot = findSignup(findGameById(gameId), findPlayerById(playerId));
+        if (slot.getPaymentStatus() == PaymentStatus.UNPAID) {
+            throw new IllegalStateException("Payment is already unpaid.");
+        }
+        slot.setPaymentStatus(PaymentStatus.UNPAID);
+        slot.setPaidAt(null);
+        slot.setConfirmedBy(null);
+        slot.setConfirmedAt(null);
+        return gameSlotRepository.save(slot);
     }
 
 

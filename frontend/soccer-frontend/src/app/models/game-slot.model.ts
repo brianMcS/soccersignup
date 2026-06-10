@@ -6,6 +6,10 @@ export interface GameSlot {
   playerEmail?: string;
   status?: 'CONFIRMED' | 'WAITLISTED' | 'WITHDRAWN';
   signedUpAt?: string;
+  paymentStatus?: 'UNPAID' | 'SELF_REPORTED' | 'CONFIRMED';
+  feeAmount?: number;
+  paidAt?: string;
+  confirmedAt?: string;
 }
 
 // Used when sending a signup request to POST /api/gameslots

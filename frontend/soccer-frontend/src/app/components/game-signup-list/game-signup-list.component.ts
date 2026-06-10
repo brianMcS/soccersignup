@@ -32,6 +32,7 @@ export class GameSignupListComponent implements OnInit, OnDestroy {
   // Action state
   joining = false;
   leaving = false;
+  reportingPayment = false;
   actionError: string | null = null;
   actionSuccess: string | null = null;
   teamsPublished = false;
@@ -152,6 +153,11 @@ export class GameSignupListComponent implements OnInit, OnDestroy {
     return  Math.round((this.confirmedCount / max) * 100);
   }
 
+  get canReportPayment(): boolean {
+    return this.userSlot?.status !== 'WAITLISTED'
+      && (this.userSlot?.paymentStatus === 'UNPAID' || !this.userSlot?.paymentStatus);
+  }
+
   // Actions
   join(): void{
     if (!this.game?.id || !this.currentUser?.id) return;
@@ -193,6 +199,41 @@ export class GameSignupListComponent implements OnInit, OnDestroy {
         this.actionError = err?.error?.message ?? err?.error ?? 'Could not leave. Please try again';
       }
     });
+  }
+
+  reportPayment(): void {
+    if (!this.game?.id || !this.currentUser?.id || !this.canReportPayment) return;
+    this.reportingPayment = true;
+    this.actionError = null;
+    this.actionSuccess = null;
+
+    this.gamesService.reportPayment(this.game.id, this.currentUser.id).subscribe({
+      next: () => {
+        this.reportingPayment = false;
+        this.actionSuccess = 'Payment reported. The organiser can now confirm it.';
+        this.loadSignups(this.game!.id!);
+      },
+      error: (err) => {
+        this.reportingPayment = false;
+        this.actionError = err?.error?.message ?? 'Could not report payment. Please try again.';
+      }
+    });
+  }
+
+  paymentLabel(slot: GameSlot): string {
+    return ({
+      UNPAID: 'unpaid',
+      SELF_REPORTED: 'paid',
+      CONFIRMED: 'confirmed'
+    } as const)[slot.paymentStatus ?? 'UNPAID'];
+  }
+
+  paymentBadgeClass(slot: GameSlot): string {
+    return ({
+      UNPAID: 'badge-completed',
+      SELF_REPORTED: 'badge-waitlisted',
+      CONFIRMED: 'badge-open'
+    } as const)[slot.paymentStatus ?? 'UNPAID'];
   }
 
   dismissAlert(): void {

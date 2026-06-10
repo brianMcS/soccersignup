@@ -1,5 +1,6 @@
 package com.soccersignup.backend.controller;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import com.soccersignup.backend.dto.GameRequest;
@@ -9,6 +10,7 @@ import com.soccersignup.backend.service.GameService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.soccersignup.backend.model.Game;
@@ -24,12 +26,15 @@ public class GameController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'ORGANISER')")
     public ResponseEntity<GameResponse> createGame(@Valid @RequestBody GameRequest request) {
         Game game = new Game();
         game.setGameDate(request.gameDate());
         game.setKickOffTime(request.kickOffTime());
         game.setLocation(request.location());
         game.setMaxPlayers(request.maxPlayers());
+        game.setFeeAmount(request.feeAmount() != null ? request.feeAmount() : new BigDecimal("5.00"));
+        game.setRevolutLink(normalizeLink(request.revolutLink()));
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(GameResponse.from(gameService.createGame(game)));
     }
@@ -48,17 +53,18 @@ public class GameController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ORGANISER')")
     public ResponseEntity<GameResponse> updateGame(@PathVariable Long id, @Valid @RequestBody GameRequest request) {
-        Game updates = new Game();
-        updates.setGameDate(request.gameDate());
-        updates.setKickOffTime(request.kickOffTime());
-        updates.setLocation(request.location());
-        updates.setMaxPlayers(request.maxPlayers());
         return ResponseEntity.ok(GameResponse.from(gameService.updateGame(id, request)));
     }
 
     @PostMapping("/{id}/close")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ORGANISER')")
     public ResponseEntity<GameResponse> closeSignups(@PathVariable Long id) {
         return ResponseEntity.ok(GameResponse.from(gameService.closeSignups(id)));
+    }
+
+    private String normalizeLink(String revolutLink) {
+        return revolutLink == null || revolutLink.isBlank() ? null : revolutLink.trim();
     }
 }

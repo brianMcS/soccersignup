@@ -4,6 +4,7 @@ import { FormsModule }   from '@angular/forms';
 import { forkJoin, Observable } from 'rxjs';
 import { AdminService, GameRequest, GameResponse } from '../../../services/admin.service';
 import { Router } from '@angular/router';
+import { GameSlot } from '../../../models/game-slot.model';
 
 type ViewMode = 'list' | 'create' | 'edit';
 type GameFilter = 'next4Weeks' | 'next3Months' | 'allUpcoming' | 'past';
@@ -32,13 +33,18 @@ export class AdminGamesComponent implements OnInit {
     gameDate:   '',
     kickOffTime: '19:00',
     location:   '',
-    maxPlayers: 14
+    maxPlayers: 14,
+    feeAmount: 5,
+    revolutLink: ''
   };
   recurring = false;
   recurringCount = 4;
 
   // Closing state per game id
   closingId: number | null = null;
+  paymentGameId: number | null = null;
+  paymentActionPlayerId: number | null = null;
+  signupsByGame: Record<number, GameSlot[]> = {};
 
   constructor(private adminService: AdminService, private router: Router) {}
 
@@ -64,7 +70,14 @@ export class AdminGamesComponent implements OnInit {
   // ─── Views ────────────────────────────────────────────────────────────────
   openCreateForm(): void {
     this.editingGame = null;
-    this.form = { gameDate: '', kickOffTime: '19:00', location: '', maxPlayers: 14 };
+    this.form = {
+      gameDate: '',
+      kickOffTime: '19:00',
+      location: '',
+      maxPlayers: 14,
+      feeAmount: 5,
+      revolutLink: ''
+    };
     this.recurring = false;
     this.recurringCount = 4;
     this.errorMessage = null;
@@ -77,7 +90,9 @@ export class AdminGamesComponent implements OnInit {
       gameDate:    game.gameDate,
       kickOffTime: game.kickOffTime,
       location:    game.location,
-      maxPlayers:  game.maxPlayers
+      maxPlayers:  game.maxPlayers,
+      feeAmount:   game.feeAmount ?? 5,
+      revolutLink: game.revolutLink ?? ''
     };
     this.recurring = false;
     this.recurringCount = 4;
@@ -199,6 +214,84 @@ export class AdminGamesComponent implements OnInit {
   }
 
   // ─── Helpers ──────────────────────────────────────────────────────────────
+  togglePayments(game: GameResponse): void {
+    if (this.paymentGameId === game.id) {
+      this.paymentGameId = null;
+      return;
+    }
+    this.paymentGameId = game.id;
+    this.loadPayments(game.id);
+  }
+
+  loadPayments(gameId: number): void {
+    this.adminService.getSignupsForGame(gameId).subscribe({
+      next: slots => this.signupsByGame[gameId] = slots,
+      error: () => this.errorMessage = 'Could not load payment details.'
+    });
+  }
+
+  paymentSlots(gameId: number): GameSlot[] {
+    return (this.signupsByGame[gameId] ?? [])
+      .filter(slot => slot.status !== 'WAITLISTED');
+  }
+
+  paidCount(gameId: number): number {
+    return this.paymentSlots(gameId)
+      .filter(slot => slot.paymentStatus === 'SELF_REPORTED' || slot.paymentStatus === 'CONFIRMED')
+      .length;
+  }
+
+  confirmPayment(gameId: number, slot: GameSlot): void {
+    if (!slot.playerId) return;
+    this.paymentActionPlayerId = slot.playerId;
+    this.adminService.confirmPayment(gameId, slot.playerId).subscribe({
+      next: updated => {
+        this.replacePaymentSlot(gameId, updated);
+        this.paymentActionPlayerId = null;
+      },
+      error: err => {
+        this.paymentActionPlayerId = null;
+        this.errorMessage = err?.error?.message ?? 'Could not confirm payment.';
+      }
+    });
+  }
+
+  resetPayment(gameId: number, slot: GameSlot): void {
+    if (!slot.playerId) return;
+    this.paymentActionPlayerId = slot.playerId;
+    this.adminService.rejectPayment(gameId, slot.playerId).subscribe({
+      next: updated => {
+        this.replacePaymentSlot(gameId, updated);
+        this.paymentActionPlayerId = null;
+      },
+      error: err => {
+        this.paymentActionPlayerId = null;
+        this.errorMessage = err?.error?.message ?? 'Could not reset payment.';
+      }
+    });
+  }
+
+  paymentLabel(slot: GameSlot): string {
+    return ({
+      UNPAID: 'Unpaid',
+      SELF_REPORTED: 'Awaiting confirmation',
+      CONFIRMED: 'Confirmed'
+    } as const)[slot.paymentStatus ?? 'UNPAID'];
+  }
+
+  paymentBadgeClass(slot: GameSlot): string {
+    return ({
+      UNPAID: 'badge-completed',
+      SELF_REPORTED: 'badge-waitlisted',
+      CONFIRMED: 'badge-open'
+    } as const)[slot.paymentStatus ?? 'UNPAID'];
+  }
+
+  private replacePaymentSlot(gameId: number, updated: GameSlot): void {
+    this.signupsByGame[gameId] = (this.signupsByGame[gameId] ?? [])
+      .map(slot => slot.id === updated.id ? updated : slot);
+  }
+
   formatDate(dateStr: string): string {
     if (!dateStr) return '';
     try {
@@ -258,7 +351,7 @@ export class AdminGamesComponent implements OnInit {
   }
 
   canEdit(game: GameResponse): boolean {
-    return game.status === 'OPEN';
+    return game.status === 'OPEN' || game.status === 'CLOSED';
   }
 
   manageTeams(game: GameResponse): void {
