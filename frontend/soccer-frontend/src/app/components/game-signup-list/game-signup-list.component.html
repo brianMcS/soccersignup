@@ -19,6 +19,14 @@
   </div>
 
   <!-- ─── NO GAME STATE ─────────────────────────────────────────────────── -->
+  <div *ngIf="pageState === 'error'" class="empty-state play-empty" role="alert">
+    <h2 class="empty-heading">We Couldn't Load the Game</h2>
+    <p class="empty-body">{{ actionError }}</p>
+    <button class="btn-ghost btn-ghost-play" (click)="loadLatestGame()">
+      Try Again
+    </button>
+  </div>
+
   <div *ngIf="pageState === 'no-game'" class="empty-state play-empty">
     <div class="empty-icon">⚽</div>
     <h2 class="empty-heading">No Games This Week</h2>

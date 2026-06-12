@@ -6,6 +6,7 @@ import {
   PlayerResponse,
   PlayerUpdateRequest
 } from '../../../services/admin.service';
+import { getApiErrorMessage } from '../../../utils/api-error';
 
 @Component({
   selector: 'app-admin-players',
@@ -47,8 +48,8 @@ export class AdminPlayersComponent implements OnInit {
         this.applyFilter();
         this.loading = false;
       },
-      error: () => {
-        this.errorMessage = 'Could not load players.';
+      error: (error) => {
+        this.errorMessage = getApiErrorMessage(error, 'Could not load players.');
         this.loading = false;
       }
     });
@@ -91,7 +92,7 @@ export class AdminPlayersComponent implements OnInit {
       },
       error: (err) => {
         this.deactivatingId = null;
-        this.errorMessage = err?.error?.message ?? 'Could not remove player.';
+        this.errorMessage = getApiErrorMessage(err, 'Could not remove player.');
       }
     });
   }
@@ -133,7 +134,7 @@ export class AdminPlayersComponent implements OnInit {
       },
       error: (err) => {
         this.savingPlayerId = null;
-        this.errorMessage = err?.error?.message ?? 'Could not update player.';
+        this.errorMessage = getApiErrorMessage(err, 'Could not update player.');
       }
     });
   }
@@ -182,7 +183,7 @@ export class AdminPlayersComponent implements OnInit {
       },
       error: (err) => {
         this.savingRolesId = null;
-        this.errorMessage = err?.error?.message ?? 'Could not update roles.';
+        this.errorMessage = getApiErrorMessage(err, 'Could not update roles.');
       }
     });
   }

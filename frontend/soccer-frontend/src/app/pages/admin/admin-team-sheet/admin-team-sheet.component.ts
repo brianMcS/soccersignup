@@ -9,6 +9,7 @@ import {
   TeamSheetEntryRequest,
   TeamSide
 } from '../../../models/team-sheet.model';
+import { getApiErrorMessage } from '../../../utils/api-error';
 
 @Component({
   selector: 'app-admin-team-sheet',
@@ -63,9 +64,15 @@ export class AdminTeamSheetComponent implements OnInit {
         this.teamSheet = sheet;
         this.loading = false;
       },
-      error: () => {
+      error: (error) => {
         // 404 just means no sheet exists yet — that's fine
-        this.teamSheet = null;
+        if (error?.status === 404) {
+          this.teamSheet = null;
+        } else {
+          this.errorMessage = getApiErrorMessage(
+            error,
+            'Could not load the team sheet.');
+        }
         this.loading = false;
       }
     });
@@ -87,7 +94,7 @@ export class AdminTeamSheetComponent implements OnInit {
       },
       error: (err) => {
         this.splitting = false;
-        this.errorMessage = err?.error?.message ?? 'Could not auto-split players.';
+        this.errorMessage = getApiErrorMessage(err, 'Could not auto-split players.');
       }
     });
   }
@@ -171,7 +178,7 @@ export class AdminTeamSheetComponent implements OnInit {
       },
       error: (err) => {
         this.saving = false;
-        this.errorMessage = this.apiError(err, 'Could not save draft.');
+        this.errorMessage = getApiErrorMessage(err, 'Could not save draft.');
       }
     });
   }
@@ -197,13 +204,13 @@ export class AdminTeamSheetComponent implements OnInit {
           },
           error: (err) => {
             this.publishing = false;
-            this.errorMessage = this.apiError(err, 'Could not publish.');
+            this.errorMessage = getApiErrorMessage(err, 'Could not publish.');
           }
         });
       },
       error: (err) => {
         this.publishing = false;
-        this.errorMessage = this.apiError(err, 'Could not save before publishing.');
+        this.errorMessage = getApiErrorMessage(err, 'Could not save before publishing.');
       }
     });
   }
@@ -233,10 +240,6 @@ export class AdminTeamSheetComponent implements OnInit {
       .slice(0, 2)
       .join('')
       .toUpperCase();
-  }
-
-  private apiError(error: any, fallback: string): string {
-    return error?.error?.error ?? error?.error?.message ?? fallback;
   }
 
   getFirstName(name: string): string {

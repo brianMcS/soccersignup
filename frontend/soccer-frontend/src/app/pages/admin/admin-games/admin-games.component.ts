@@ -5,6 +5,7 @@ import { forkJoin, Observable } from 'rxjs';
 import { AdminService, GameRequest, GameResponse } from '../../../services/admin.service';
 import { Router } from '@angular/router';
 import { GameSlot } from '../../../models/game-slot.model';
+import { getApiErrorMessage } from '../../../utils/api-error';
 
 type ViewMode = 'list' | 'create' | 'edit';
 type GameFilter = 'next4Weeks' | 'next3Months' | 'allUpcoming' | 'past';
@@ -60,8 +61,8 @@ export class AdminGamesComponent implements OnInit {
         this.games = games;
         this.loading = false;
       },
-      error: () => {
-        this.errorMessage = 'Could not load games.';
+      error: (error) => {
+        this.errorMessage = getApiErrorMessage(error, 'Could not load games.');
         this.loading = false;
       }
     });
@@ -132,7 +133,7 @@ export class AdminGamesComponent implements OnInit {
       },
       error: (err: any) => {
         this.saving       = false;
-        this.errorMessage = err?.error?.message ?? err?.error ?? 'Could not save game.';
+        this.errorMessage = getApiErrorMessage(err, 'Could not save game.');
       }
     });
   }
@@ -208,7 +209,7 @@ export class AdminGamesComponent implements OnInit {
       },
       error: (err) => {
         this.closingId    = null;
-        this.errorMessage = err?.error?.message ?? 'Could not close game.';
+        this.errorMessage = getApiErrorMessage(err, 'Could not close game.');
       }
     });
   }
@@ -226,7 +227,11 @@ export class AdminGamesComponent implements OnInit {
   loadPayments(gameId: number): void {
     this.adminService.getSignupsForGame(gameId).subscribe({
       next: slots => this.signupsByGame[gameId] = slots,
-      error: () => this.errorMessage = 'Could not load payment details.'
+      error: (error) => {
+        this.errorMessage = getApiErrorMessage(
+          error,
+          'Could not load payment details.');
+      }
     });
   }
 
@@ -251,7 +256,7 @@ export class AdminGamesComponent implements OnInit {
       },
       error: err => {
         this.paymentActionPlayerId = null;
-        this.errorMessage = err?.error?.message ?? 'Could not confirm payment.';
+        this.errorMessage = getApiErrorMessage(err, 'Could not confirm payment.');
       }
     });
   }
@@ -266,7 +271,7 @@ export class AdminGamesComponent implements OnInit {
       },
       error: err => {
         this.paymentActionPlayerId = null;
-        this.errorMessage = err?.error?.message ?? 'Could not reset payment.';
+        this.errorMessage = getApiErrorMessage(err, 'Could not reset payment.');
       }
     });
   }

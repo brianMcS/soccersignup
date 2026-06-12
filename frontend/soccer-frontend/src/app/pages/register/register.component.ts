@@ -5,6 +5,7 @@ import {AuthService} from '../../services/auth.service';
 import {CurrentUser, UserService} from '../../services/user.service';
 import {Subscription} from 'rxjs';
 import {Router} from '@angular/router';
+import { getApiErrorMessage } from '../../utils/api-error';
 
 type View = 'landing' | 'register';
 
@@ -101,7 +102,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.passwordLoginLoading = false;
-        this.errorMessage = this.getErrorMessage(
+        this.errorMessage = getApiErrorMessage(
           err,
           'Sign in failed. Check your email and password.');
       }
@@ -171,7 +172,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.submitting = false;
-        this.errorMessage = this.getErrorMessage(
+        this.errorMessage = getApiErrorMessage(
           err,
           'Registration failed. Please try again.');
       }
@@ -185,23 +186,6 @@ export class RegisterComponent implements OnInit, OnDestroy {
       return;
     }
     this.errorMessage = response.error ?? 'Authentication failed. Please try again.';
-  }
-
-  private getErrorMessage(error: any, fallback: string): string {
-    if (typeof error?.error?.error === 'string') {
-      return error.error.error;
-    }
-    if (error?.error && typeof error.error === 'object') {
-      const validationMessages = Object.values(error.error)
-        .filter(value => typeof value === 'string') as string[];
-      if (validationMessages.length > 0) {
-        return validationMessages[0];
-      }
-    }
-    if (typeof error?.error === 'string') {
-      return error.error;
-    }
-    return fallback;
   }
 
   // Re-used in template: check if a form field has a specific error

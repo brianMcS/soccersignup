@@ -64,7 +64,10 @@ class SecurityAuthorizationIntegrationTest {
     @Test
     void gamesAndNotificationsRejectAnonymousRequests() throws Exception {
         mockMvc.perform(get("/api/games"))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value("Authentication is required"))
+                .andExpect(jsonPath("$.status").value(401))
+                .andExpect(jsonPath("$.fieldErrors").isMap());
 
         mockMvc.perform(get("/api/notifications"))
                 .andExpect(status().isUnauthorized());
@@ -84,7 +87,10 @@ class SecurityAuthorizationIntegrationTest {
 
         mockMvc.perform(get("/api/players")
                         .header("Authorization", "Bearer " + playerToken))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message")
+                        .value("You do not have permission to perform this action"))
+                .andExpect(jsonPath("$.status").value(403));
 
         mockMvc.perform(get("/api/players")
                         .header("Authorization", "Bearer " + organiserToken))

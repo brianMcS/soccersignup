@@ -9,8 +9,9 @@ import {Subscription} from 'rxjs';
 import { TeamSheetService } from '../../services/team-sheet.service';
 import {RouterModule} from '@angular/router';
 import {NotificationService} from '../../services/notification.service';
+import { getApiErrorMessage } from '../../utils/api-error';
 
-type PageState = 'loading' | 'no-game' | 'ready';
+type PageState = 'loading' | 'no-game' | 'ready' | 'error';
 
 @Component({
   selector: 'app-game-signup-list',
@@ -77,9 +78,11 @@ export class GameSignupListComponent implements OnInit, OnDestroy {
           this.pageState = 'no-game';
         }
       },
-      error: () => {
-        this.pageState = 'no-game';
-        this.actionError = 'Could not load games, err';
+      error: (error) => {
+        this.pageState = 'error';
+        this.actionError = getApiErrorMessage(
+          error,
+          'Could not load games. Please try again.');
       }
     });
   }
@@ -91,9 +94,12 @@ export class GameSignupListComponent implements OnInit, OnDestroy {
         this.pageState = 'ready';
         this.checkTeamSheet(gameId);
       },
-      error: () => {
+      error: (error) => {
         this.slots = [];
-        this.pageState = 'ready';
+        this.pageState = 'error';
+        this.actionError = getApiErrorMessage(
+          error,
+          'Could not load the player list. Please try again.');
       }
     });
   }
@@ -175,7 +181,7 @@ export class GameSignupListComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.joining = false;
-        this.actionError = err?.error?.message ?? err?.error ?? 'Could not join. Please try again.';
+        this.actionError = getApiErrorMessage(err, 'Could not join. Please try again.');
       }
     });
   }
@@ -196,7 +202,7 @@ export class GameSignupListComponent implements OnInit, OnDestroy {
         this.notificationService.fetchUnreadCount();
       }, error: (err) => {
         this.leaving = false;
-        this.actionError = err?.error?.message ?? err?.error ?? 'Could not leave. Please try again';
+        this.actionError = getApiErrorMessage(err, 'Could not leave. Please try again.');
       }
     });
   }
@@ -215,7 +221,9 @@ export class GameSignupListComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.reportingPayment = false;
-        this.actionError = err?.error?.message ?? 'Could not report payment. Please try again.';
+        this.actionError = getApiErrorMessage(
+          err,
+          'Could not report payment. Please try again.');
       }
     });
   }

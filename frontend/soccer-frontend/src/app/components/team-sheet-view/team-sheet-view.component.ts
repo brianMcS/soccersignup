@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { TeamSheetService } from '../../services/team-sheet.service';
 import { TeamSheet, TeamSheetEntry } from '../../models/team-sheet.model';
+import { getApiErrorMessage } from '../../utils/api-error';
 
 @Component({
   selector: 'app-team-sheet-view',
@@ -16,6 +17,7 @@ export class TeamSheetViewComponent implements OnInit {
   teamSheet: TeamSheet | null = null;
   loading = true;
   error: string | null = null;
+  notPublished = false;
 
   // Derived from teamSheet.entries for easy template access
   homeEntries: TeamSheetEntry[] = [];
@@ -39,6 +41,8 @@ export class TeamSheetViewComponent implements OnInit {
 
   loadTeamSheet(gameId: number): void {
     this.loading = true;
+    this.error = null;
+    this.notPublished = false;
     this.teamSheetService.getTeamSheet(gameId).subscribe({
       next: (sheet) => {
         this.teamSheet = sheet;
@@ -46,8 +50,11 @@ export class TeamSheetViewComponent implements OnInit {
         this.awayEntries = sheet.entries.filter(e => e.teamSide === 'AWAY');
         this.loading = false;
       },
-      error: () => {
-        this.error = 'Teams have not been announced yet. Check back closer to kick-off.';
+      error: (error) => {
+        this.notPublished = error?.status === 404;
+        this.error = this.notPublished
+          ? 'Teams have not been announced yet. Check back closer to kick-off.'
+          : getApiErrorMessage(error, 'Could not load the teams. Please try again.');
         this.loading = false;
       }
     });

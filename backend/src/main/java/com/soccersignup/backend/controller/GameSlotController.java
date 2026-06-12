@@ -7,6 +7,7 @@ import com.soccersignup.backend.model.Player;
 import com.soccersignup.backend.model.PlayerRole;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -63,7 +64,7 @@ public class GameSlotController {
         boolean isOwnSignup = currentPlayer.getId().equals(playerId);
 
         if (!isAdmin && !isOrganiser && !isOwnSignup) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            throw new AccessDeniedException("You cannot remove another player's signup.");
         }
 
         gameSlotService.removeSignup(gameId, playerId);
@@ -74,10 +75,10 @@ public class GameSlotController {
     public ResponseEntity<GameSlotResponse> reportPayment(
             @PathVariable Long gameId,
             @PathVariable Long playerId,
-            Authentication authentication) {
+        Authentication authentication) {
         Player currentPlayer = (Player) authentication.getPrincipal();
         if (!currentPlayer.getId().equals(playerId)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            throw new AccessDeniedException("You cannot report payment for another player.");
         }
         return ResponseEntity.ok(GameSlotResponse.from(
                 gameSlotService.reportPayment(gameId, playerId)));

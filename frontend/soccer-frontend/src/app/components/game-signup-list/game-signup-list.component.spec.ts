@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { BehaviorSubject, of } from 'rxjs';
+import { BehaviorSubject, of, throwError } from 'rxjs';
 
 import { GameSignupListComponent } from './game-signup-list.component';
 import { GamesService } from '../../services/games.service';
@@ -56,6 +56,7 @@ describe('GameSignupListComponent', () => {
         gameDate: '2026-07-09',
         location: 'Pitch',
         maxPlayers: 18,
+        feeAmount: 5,
         status: 'OPEN'
       },
       {
@@ -63,6 +64,7 @@ describe('GameSignupListComponent', () => {
         gameDate: '2026-06-11',
         location: 'Pitch',
         maxPlayers: 18,
+        feeAmount: 5,
         status: 'OPEN'
       }
     ]));
@@ -72,5 +74,16 @@ describe('GameSignupListComponent', () => {
 
     expect(component.game?.gameDate).toBe('2026-06-11');
     expect(component.loadSignups).toHaveBeenCalledOnceWith(1);
+  });
+
+  it('shows an error state when games cannot be loaded', () => {
+    gamesService.getAllGames.and.returnValue(throwError(() => ({
+      error: { message: 'Service unavailable' }
+    })));
+
+    component.loadLatestGame();
+
+    expect(component.pageState).toBe('error');
+    expect(component.actionError).toBe('Service unavailable');
   });
 });

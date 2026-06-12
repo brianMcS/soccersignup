@@ -9,7 +9,9 @@
   <!-- ─── ERROR / NOT PUBLISHED ────────────────────────────── -->
   <div *ngIf="!loading && error" class="teams-empty">
     <div class="empty-icon">⚽</div>
-    <h2 class="empty-heading">Teams Not Yet Announced</h2>
+    <h2 class="empty-heading">
+      {{ notPublished ? 'Teams Not Yet Announced' : 'Teams Unavailable' }}
+    </h2>
     <p class="empty-body">{{ error }}</p>
     <a routerLink="/play" class="btn-back">← Back to Game</a>
   </div>

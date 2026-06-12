@@ -1,5 +1,7 @@
 package com.soccersignup.backend.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.soccersignup.backend.dto.ErrorResponse;
 import com.soccersignup.backend.security.JwtAuthenticationFilter;
 import com.soccersignup.backend.security.OAuth2AuthenticationSuccessHandler;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,6 +17,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.io.IOException;
+import java.time.LocalDateTime;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(
@@ -26,11 +31,14 @@ public class SecurityConfig {
 
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final ObjectMapper objectMapper;
 
     public SecurityConfig(OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler,
-                           JwtAuthenticationFilter jwtAuthenticationFilter) {
+                           JwtAuthenticationFilter jwtAuthenticationFilter,
+                           ObjectMapper objectMapper) {
         this.oAuth2AuthenticationSuccessHandler = oAuth2AuthenticationSuccessHandler;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.objectMapper = objectMapper;
     }
 
     @Bean
@@ -74,15 +82,17 @@ public class SecurityConfig {
                         oauth.successHandler(oAuth2AuthenticationSuccessHandler)
                 )
                 .exceptionHandling(ex ->
-                        // Return 401 JSON instead of redirecting to Google login
-                        // when a JWT-protected endpoint is hit without a token
-                        ex.authenticationEntryPoint(
-                                (request, response, authException) -> {
-                                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                                    response.setContentType("application/json");
-                                    response.getWriter().write("{\"error\": \"Unauthorized\"}");
-                                }
-                        )
+                        ex
+                                .authenticationEntryPoint((request, response, exception) ->
+                                        writeError(
+                                                response,
+                                                HttpServletResponse.SC_UNAUTHORIZED,
+                                                "Authentication is required"))
+                                .accessDeniedHandler((request, response, exception) ->
+                                        writeError(
+                                                response,
+                                                HttpServletResponse.SC_FORBIDDEN,
+                                                "You do not have permission to perform this action"))
                 )
                 .addFilterBefore(
                         jwtAuthenticationFilter,
@@ -92,16 +102,12 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // old version
-//    @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//        http
-//                .cors(Customizer.withDefaults())
-//                .csrf(csrf -> csrf.disable())
-//                .httpBasic(httpBasic -> httpBasic.disable())
-//                .formLogin(form -> form.disable())
-//                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
-//
-//        return http.build();
-//    }
+    private void writeError(HttpServletResponse response, int status, String message)
+            throws IOException {
+        response.setStatus(status);
+        response.setContentType("application/json");
+        objectMapper.writeValue(
+                response.getOutputStream(),
+                new ErrorResponse(message, status, LocalDateTime.now()));
+    }
 }

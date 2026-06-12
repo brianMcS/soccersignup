@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Game} from '../../models/game.model';
 import {GamesService} from '../../services/games.service';
+import { getApiErrorMessage } from '../../utils/api-error';
 
 @Component({
   selector: 'app-history',
@@ -33,8 +34,10 @@ export class HistoryComponent {
         );
         this.loading = false;
       },
-      error: () => {
-        this.errorMessage = 'Could not load game history. Please try again.'
+      error: (error) => {
+        this.errorMessage = getApiErrorMessage(
+          error,
+          'Could not load game history. Please try again.');
         this.loading = false;
       }
     });

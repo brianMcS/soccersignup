@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.soccersignup.backend.model.Player;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
 
 @RestController
@@ -37,7 +38,7 @@ public class AuthController {
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentPlayer(Authentication authentication) {
         if (authentication == null || !(authentication.getPrincipal() instanceof Player player)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Not authenticated");
+            throw new AuthenticationCredentialsNotFoundException("Not authenticated");
         }
         return ResponseEntity.ok(PlayerResponse.from(player));
     }
