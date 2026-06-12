@@ -74,8 +74,7 @@ export class AuthService {
     const top = window.screenY + (window.outerHeight - height) / 2;
 
     this.oauthPopup = window.open(
-      'http://localhost:8080/oauth2/authorization/google',
-      // '/oauth2/authorization/google',   // relative — no hardcoded localhost
+      '/oauth2/authorization/google',
       'OAuth2Login',
       `width=${width},height=${height},left=${left},top=${top}`
     );
@@ -98,13 +97,14 @@ export class AuthService {
 
   private setupOAuthListener(): void {
     window.addEventListener('message', (event: MessageEvent) => {
-      // In production, lock this to your real domain
-      if (event.origin !== window.location.origin &&
-        event.origin !== 'http://localhost:8080') return;
+      if (event.origin !== window.location.origin || event.source !== this.oauthPopup) {
+        return;
+      }
 
       try {
         const data = event.data as AuthResponse;
         if (data?.success && data.token) {
+          this.oauthPopup = null;
           this.ngZone.run(() => {
             this.setToken(data.token!);
             this.router.navigate(['/play']);

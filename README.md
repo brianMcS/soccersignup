@@ -242,6 +242,11 @@ Docker Compose reads the local values from `.env`. This file is ignored by Git;
 commit only `.env.example`, which documents the required variables without
 containing credentials.
 
+For local Google sign-in, register
+`http://localhost:4200/login/oauth2/code/google` as an authorized redirect URI
+in Google Cloud. The Angular development proxy forwards `/oauth2` and `/login`
+to the backend, matching the single-origin routing used in production.
+
 | Variable | Purpose |
 | --- | --- |
 | `POSTGRES_DB` | Local PostgreSQL database name |

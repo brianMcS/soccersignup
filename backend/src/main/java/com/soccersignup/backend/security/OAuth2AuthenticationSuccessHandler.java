@@ -11,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -23,13 +24,16 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private final JwtTokenProvider jwtTokenProvider;
     private final ObjectMapper objectMapper;
     private final PlayerService playerService;
+    private final String frontendOrigin;
 
     public OAuth2AuthenticationSuccessHandler(JwtTokenProvider jwtTokenProvider,
                                               ObjectMapper objectMapper,
-                                              PlayerService playerService) {
+                                              PlayerService playerService,
+                                              @Value("${app.frontend.origin}") String frontendOrigin) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.objectMapper = objectMapper;
         this.playerService = playerService;
+        this.frontendOrigin = frontendOrigin;
     }
 
     @Override
@@ -53,10 +57,11 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         }
 
         // Extract attributes with fallbacks for different providers
-        String email = Optional.ofNullable(oAuth2User.getAttribute("email"))
-                .orElse(Optional.ofNullable(oAuth2User.getAttribute("email_address")).orElse(null)).toString();
-        String name = Optional.ofNullable(oAuth2User.getAttribute("name"))
-                .orElse(Optional.ofNullable(oAuth2User.getAttribute("login")).orElse("Unknown")).toString();
+        String email = Optional.ofNullable(oAuth2User.<String>getAttribute("email"))
+                .orElseGet(() -> oAuth2User.getAttribute("email_address"));
+        String name = Optional.ofNullable(oAuth2User.<String>getAttribute("name"))
+                .orElseGet(() -> Optional.ofNullable(oAuth2User.<String>getAttribute("login"))
+                        .orElse("Unknown"));
         String oauthProviderId = oAuth2User.getName();
 
         // Validate email
@@ -94,7 +99,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                 "player", playerData
         );
         // Serialize the whole message safely and embed as a single JSON string
-        String safeJson = objectMapper.writeValueAsString(message);
+        String safeJson = escapeForInlineScript(objectMapper.writeValueAsString(message));
+        String targetOrigin = escapeForInlineScript(objectMapper.writeValueAsString(frontendOrigin));
 
         String html = """
         <!DOCTYPE html>
@@ -102,15 +108,24 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         <body>
             <p>Authentication successful. Closing...</p>
             <script>
-                window.opener.postMessage(%s, '*');
+                if (window.opener) {
+                    window.opener.postMessage(%s, %s);
+                }
                 window.close();
             </script>
         </body></html>
-        """.formatted(safeJson);  // safeJson is Jackson-escaped, safe to embed
+        """.formatted(safeJson, targetOrigin);
 
         response.setContentType("text/html;charset=UTF-8");
         response.setStatus(HttpServletResponse.SC_OK);
         response.getWriter().write(html);
+    }
+
+    private String escapeForInlineScript(String json) {
+        return json
+                .replace("<", "\\u003c")
+                .replace(">", "\\u003e")
+                .replace("&", "\\u0026");
     }
 
     private void sendErrorResponse(HttpServletResponse response, String message, int status) throws IOException {
