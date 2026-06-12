@@ -1,13 +1,13 @@
 package com.soccersignup.backend.service.impl;
 
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.math.BigDecimal;
 import java.util.List;
 
 import com.soccersignup.backend.dto.GameRequest;
 import com.soccersignup.backend.exception.ResourceNotFoundException;
 import com.soccersignup.backend.model.GameStatus;
+import com.soccersignup.backend.model.SlotStatus;
+import com.soccersignup.backend.repository.GameSlotRepository;
 import com.soccersignup.backend.service.GameService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,9 +19,13 @@ import com.soccersignup.backend.repository.GameRepository;
 public class GameServiceImpl  implements GameService {
 
     private final GameRepository gameRepository;
+    private final GameSlotRepository gameSlotRepository;
 
-    public GameServiceImpl(GameRepository gameRepository) {
+    public GameServiceImpl(
+            GameRepository gameRepository,
+            GameSlotRepository gameSlotRepository) {
         this.gameRepository = gameRepository;
+        this.gameSlotRepository = gameSlotRepository;
     }
 
     @Override
@@ -30,31 +34,35 @@ public class GameServiceImpl  implements GameService {
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<Game> getAllGames() {
-        return completePastGames(gameRepository.findAll());
+        return gameRepository.findAll();
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<Game> getGamesByStatus(GameStatus status){
-        completePastGames(gameRepository.findAll());
         return gameRepository.findByStatus(status);
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public Game getGameById(Long id){
-        Game game = gameRepository.findById(id)
+        return gameRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Game not found with id: " + id));
-        completePastGame(game);
-        return game;
     }
 
     @Override
     @Transactional
     public Game updateGame(Long id, GameRequest request){
         Game existing = getGameById(id);
+        long confirmedCount = gameSlotRepository.countByGameAndStatus(
+                existing, SlotStatus.CONFIRMED);
+        if (request.maxPlayers() < confirmedCount) {
+            throw new IllegalStateException(
+                    "Maximum players cannot be lower than the confirmed player count of "
+                            + confirmedCount);
+        }
         existing.setGameDate(request.gameDate());
         existing.setKickOffTime(request.kickOffTime());
         existing.setLocation(request.location());
@@ -73,32 +81,6 @@ public class GameServiceImpl  implements GameService {
         }
         game.setStatus(GameStatus.CLOSED);
         return gameRepository.save(game);
-    }
-
-    private List<Game> completePastGames(List<Game> games) {
-        boolean changed = games.stream()
-                .map(this::completePastGame)
-                .reduce(false, Boolean::logicalOr);
-        if (changed) {
-            gameRepository.saveAll(games);
-        }
-        return games;
-    }
-
-    private boolean completePastGame(Game game) {
-        if ((game.getStatus() != GameStatus.OPEN && game.getStatus() != GameStatus.CLOSED)
-                || game.getGameDate() == null) {
-            return false;
-        }
-
-        LocalTime kickOff = game.getKickOffTime() != null ? game.getKickOffTime() : LocalTime.MAX;
-        LocalDateTime startsAt = LocalDateTime.of(game.getGameDate(), kickOff);
-        if (!startsAt.isBefore(LocalDateTime.now())) {
-            return false;
-        }
-
-        game.setStatus(GameStatus.COMPLETED);
-        return true;
     }
 
     private BigDecimal defaultFee(BigDecimal feeAmount) {

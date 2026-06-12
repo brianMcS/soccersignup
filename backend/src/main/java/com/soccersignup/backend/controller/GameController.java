@@ -48,7 +48,7 @@ public class GameController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<GameResponse> getGameById(@RequestParam Long id) {
+    public ResponseEntity<GameResponse> getGameById(@PathVariable Long id) {
         return ResponseEntity.ok(GameResponse.from(gameService.getGameById(id)));
     }
 
