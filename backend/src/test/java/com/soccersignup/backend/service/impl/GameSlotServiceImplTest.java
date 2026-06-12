@@ -54,7 +54,7 @@ class GameSlotServiceImplTest {
         GameSlot waitlistedSlot = createSlot(
                 game, promotedPlayer, SlotStatus.WAITLISTED);
 
-        when(gameRepository.findById(1L)).thenReturn(Optional.of(game));
+        when(gameRepository.findWithLockingById(1L)).thenReturn(Optional.of(game));
         when(playerRepository.findById(1L)).thenReturn(Optional.of(leavingPlayer));
         when(gameSlotRepository.findByGameAndPlayer(game, leavingPlayer))
                 .thenReturn(Optional.of(leavingSlot));
@@ -68,6 +68,7 @@ class GameSlotServiceImplTest {
         assertThat(waitlistedSlot.getStatus()).isEqualTo(SlotStatus.CONFIRMED);
         verify(gameSlotRepository).delete(leavingSlot);
         verify(gameSlotRepository).save(waitlistedSlot);
+        verify(gameRepository).findWithLockingById(1L);
         verify(teamSheetService).handlePublishedSheetDeparture(
                 game, leavingPlayer, promotedPlayer);
     }

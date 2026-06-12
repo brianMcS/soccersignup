@@ -62,7 +62,7 @@ public class GameSlotServiceImpl implements GameSlotService {
     @Override
     @Transactional
     public void removeSignup(Long gameId, Long playerId) {
-        Game game = findGameById(gameId);
+        Game game = findWithLockingById(gameId);
         Player player = findPlayerById(playerId);
         GameSlot removedSlot = findSignup(game, player);
         gameSlotRepository.delete(removedSlot);
