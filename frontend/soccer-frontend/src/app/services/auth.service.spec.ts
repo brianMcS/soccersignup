@@ -38,7 +38,9 @@ describe('AuthService', () => {
   });
 
   it('accepts an OAuth token only from the popup on the current origin', () => {
-    const popup = {} as Window;
+    const popupFrame = document.createElement('iframe');
+    document.body.appendChild(popupFrame);
+    const popup = popupFrame.contentWindow!;
     spyOn(window, 'open').and.returnValue(popup);
     service.loginWithGoogle();
     spyOn(service, 'setToken');
@@ -51,21 +53,28 @@ describe('AuthService', () => {
 
     expect(service.setToken).toHaveBeenCalledWith('signed-token');
     expect(router.navigate).toHaveBeenCalledWith(['/play']);
+    popupFrame.remove();
   });
 
   it('ignores OAuth messages from a different window', () => {
-    const popup = {} as Window;
+    const popupFrame = document.createElement('iframe');
+    const otherFrame = document.createElement('iframe');
+    document.body.append(popupFrame, otherFrame);
+    const popup = popupFrame.contentWindow!;
+    const otherWindow = otherFrame.contentWindow!;
     spyOn(window, 'open').and.returnValue(popup);
     service.loginWithGoogle();
     spyOn(service, 'setToken');
 
     window.dispatchEvent(new MessageEvent('message', {
       origin: window.location.origin,
-      source: {} as Window,
+      source: otherWindow,
       data: { success: true, token: 'stolen-token' }
     }));
 
     expect(service.setToken).not.toHaveBeenCalled();
     expect(router.navigate).not.toHaveBeenCalled();
+    popupFrame.remove();
+    otherFrame.remove();
   });
 });

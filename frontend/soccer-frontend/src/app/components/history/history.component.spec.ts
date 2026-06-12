@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
 
 import { HistoryComponent } from './history.component';
+import { GamesService } from '../../services/games.service';
 
 describe('HistoryComponent', () => {
   let component: HistoryComponent;
@@ -8,7 +10,13 @@ describe('HistoryComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [HistoryComponent]
+      imports: [HistoryComponent],
+      providers: [
+        {
+          provide: GamesService,
+          useValue: { getCompletedGames: () => of([]) }
+        }
+      ]
     })
     .compileComponents();
 

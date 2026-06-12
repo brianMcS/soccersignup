@@ -1,6 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
+import { provideRouter } from '@angular/router';
 
 import { AdminGamesComponent } from './admin-games.component';
+import { AdminService } from '../../../services/admin.service';
 
 describe('AdminGamesComponent', () => {
   let component: AdminGamesComponent;
@@ -8,7 +11,16 @@ describe('AdminGamesComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AdminGamesComponent]
+      imports: [AdminGamesComponent],
+      providers: [
+        provideRouter([]),
+        {
+          provide: AdminService,
+          useValue: {
+            getAllGames: () => of([])
+          }
+        }
+      ]
     })
     .compileComponents();
 

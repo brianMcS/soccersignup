@@ -1,6 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute, provideRouter } from '@angular/router';
+import { of } from 'rxjs';
 
 import { OAuthRedirectComponent } from './o-auth-redirect.component';
+import { AuthService } from '../../services/auth.service';
 
 describe('OauthRedirectComponent', () => {
   let component: OAuthRedirectComponent;
@@ -8,7 +11,18 @@ describe('OauthRedirectComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [OAuthRedirectComponent]
+      imports: [OAuthRedirectComponent],
+      providers: [
+        provideRouter([]),
+        {
+          provide: ActivatedRoute,
+          useValue: { queryParams: of({}) }
+        },
+        {
+          provide: AuthService,
+          useValue: jasmine.createSpyObj<AuthService>('AuthService', ['setToken'])
+        }
+      ]
     })
     .compileComponents();
 

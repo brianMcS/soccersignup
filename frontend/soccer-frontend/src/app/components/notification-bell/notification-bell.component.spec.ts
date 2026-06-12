@@ -1,6 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { BehaviorSubject, of } from 'rxjs';
+import { provideRouter } from '@angular/router';
 
 import { NotificationBellComponent } from './notification-bell.component';
+import { NotificationService } from '../../services/notification.service';
 
 describe('NotificationBellComponent', () => {
   let component: NotificationBellComponent;
@@ -8,7 +11,19 @@ describe('NotificationBellComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [NotificationBellComponent]
+      imports: [NotificationBellComponent],
+      providers: [
+        provideRouter([]),
+        {
+          provide: NotificationService,
+          useValue: {
+            unreadCount: new BehaviorSubject(0).asObservable(),
+            getNotifications: () => of([]),
+            markAsRead: () => of(void 0),
+            markAllAsRead: () => of(void 0)
+          }
+        }
+      ]
     })
     .compileComponents();
 
