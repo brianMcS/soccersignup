@@ -41,7 +41,7 @@ public class PlayerController {
     }
 
     @PostMapping
-    //@PreAuthorize("hasAnyRole('ADMIN', 'ORGANISER')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<PlayerResponse> createPlayer(@Valid @RequestBody PlayerRequest request) {
         Player player = new Player(request.name(), request.email(), request.phone());
         Player saved = playerService.savePlayer(player);

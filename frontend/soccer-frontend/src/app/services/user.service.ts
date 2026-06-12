@@ -18,6 +18,9 @@ export class UserService {
 
   public currentUser$: Observable<CurrentUser | null> = this.currentUserSubject.asObservable();
   public isAdmin$: Observable<boolean> = this.currentUser$.pipe(
+    map(u => !!u?.roles?.includes('ROLE_ADMIN'))
+  );
+  public isOrganiser$: Observable<boolean> = this.currentUser$.pipe(
     map(u => !!u?.roles?.some(r => r === 'ROLE_ADMIN' || r === 'ROLE_ORGANISER'))
   );
   public isLoggedIn$: Observable<boolean> = this.currentUser$.pipe(
@@ -40,9 +43,12 @@ export class UserService {
   }
 
   get isAdmin(): boolean {
+    return !!this.currentUser?.roles?.includes('ROLE_ADMIN');
+  }
+
+  get isOrganiser(): boolean {
     return !!this.currentUser?.roles?.some(
-      r => r === 'ROLE_ADMIN' || r === 'ROLE_ORGANISER'
-    );
+      r => r === 'ROLE_ADMIN' || r === 'ROLE_ORGANISER');
   }
 
   get isLoggedIn(): boolean {

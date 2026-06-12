@@ -17,7 +17,7 @@
         {{ item.label }}
       </a>
       <a
-        *ngIf="isAdmin"
+        *ngIf="canManageGames"
         routerLink="/admin"
         class="nav-link-desktop nav-link-admin"
         [class.nav-link-desktop--active]="isActive('/admin')"
@@ -118,7 +118,7 @@
 
     <!-- Admin link — only visible to admins -->
     <a
-      *ngIf="isAdmin"
+      *ngIf="canManageGames"
       routerLink="/admin"
       class="drawer-link drawer-link-admin"
       [class.drawer-link--active]="isActive('/admin')"

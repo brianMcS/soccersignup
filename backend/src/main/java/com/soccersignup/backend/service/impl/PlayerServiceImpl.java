@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Locale;
 
 import com.soccersignup.backend.dto.PlayerRequest;
 import com.soccersignup.backend.dto.PlayerResponse;
@@ -79,9 +80,10 @@ public class PlayerServiceImpl implements PlayerService {
     @Override
     @Transactional
     public Player findOrCreateOAuthPlayer(String email, String name, OAuthProvider provider, String oauthProviderId) {
-        return playerRepository.findByEmail(email)
+        String normalizedEmail = email.trim().toLowerCase(Locale.ROOT);
+        return playerRepository.findByEmailIgnoreCase(normalizedEmail)
                 .orElseGet(() -> {
-                    Player newPlayer = new Player(name, email, null, provider, oauthProviderId);
+                    Player newPlayer = new Player(name, normalizedEmail, null, provider, oauthProviderId);
                     newPlayer.addRole(PlayerRole.PLAYER);
                     return playerRepository.save(newPlayer);
                 });

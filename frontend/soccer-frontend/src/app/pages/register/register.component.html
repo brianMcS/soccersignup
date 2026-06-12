@@ -57,7 +57,55 @@
         <span class="eyebrow-text">Social Soccer</span>
       </div>
       <h1 class="reg-heading">Ready to<br><span class="heading-accent">Play?</span></h1>
-      <p class="reg-subheading">Sign in with Google to join this week's game, see who's playing, and track your history.</p>
+      <p class="reg-subheading">Sign in to join this week's game, see who's playing, and track your history.</p>
+
+      <form (ngSubmit)="onPasswordLogin()" #loginFormRef="ngForm" novalidate class="reg-form">
+        <div class="form-group">
+          <label class="form-label" for="login-email">Email Address</label>
+          <input
+            id="login-email"
+            type="email"
+            [(ngModel)]="loginForm.email"
+            name="loginEmail"
+            autocomplete="email"
+            required
+            email
+            placeholder="john@example.com"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="login-password">Password</label>
+          <input
+            id="login-password"
+            type="password"
+            [(ngModel)]="loginForm.password"
+            name="loginPassword"
+            autocomplete="current-password"
+            required
+            minlength="8"
+            placeholder="Your password"
+          />
+        </div>
+
+        <div class="alert-error" *ngIf="errorMessage" role="alert">
+          {{ errorMessage }}
+        </div>
+
+        <button
+          type="submit"
+          class="btn-accent btn-submit"
+          [disabled]="loginFormRef.invalid || passwordLoginLoading"
+        >
+          <span>{{ passwordLoginLoading ? 'Signing in...' : 'Sign In' }}</span>
+        </button>
+      </form>
+
+      <div class="reg-divider">
+        <span class="divider-line"></span>
+        <span class="divider-text">or</span>
+        <span class="divider-line"></span>
+      </div>
 
       <!-- Google sign-in — PRIMARY action -->
       <button
@@ -126,28 +174,14 @@
         <span>←</span> Back
       </button>
 
-      <!-- ── Success state ──────────────────────────────────────────────── -->
-      <div *ngIf="submitted" class="reg-success">
-        <div class="success-icon">✓</div>
-        <h2 class="success-heading">You're registered!</h2>
-        <p class="success-body">
-          Welcome to Social Soccer. Sign in with Google to join this week's game.
-        </p>
-        <button class="btn-accent" style="width:100%;margin-top:1.25rem" (click)="backToLanding()">
-          <span>Sign In Now</span>
-          <span class="btn-arrow">→</span>
-        </button>
-      </div>
-
-      <!-- ── Form ───────────────────────────────────────────────────────── -->
-      <ng-container *ngIf="!submitted">
+      <ng-container>
 
         <div class="reg-eyebrow">
           <span class="ball-icon">⚽</span>
           <span class="eyebrow-text">Create Profile</span>
         </div>
         <h1 class="reg-heading reg-heading--sm">Join the<br><span class="heading-accent">Squad</span></h1>
-        <p class="reg-subheading">Register once, then sign in with Google each week to grab your spot.</p>
+        <p class="reg-subheading">Create an account to grab your spot each week.</p>
 
         <form (ngSubmit)="onSubmit()" #registerForm="ngForm" novalidate class="reg-form">
 
@@ -169,6 +203,46 @@
             <p class="form-error" *ngIf="nameField.invalid && nameField.touched">
               <span *ngIf="nameField.errors?.['required']">Name is required.</span>
               <span *ngIf="nameField.errors?.['minlength']">Minimum 2 characters.</span>
+            </p>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="password">Password</label>
+            <input
+              id="password"
+              type="password"
+              [(ngModel)]="form.password"
+              name="password"
+              autocomplete="new-password"
+              placeholder="At least 8 characters"
+              required
+              minlength="8"
+              maxlength="72"
+              #passwordField="ngModel"
+              [class.input-error]="passwordField.invalid && passwordField.touched"
+              [class.input-valid]="passwordField.valid && passwordField.touched"
+            />
+            <p class="form-error" *ngIf="passwordField.invalid && passwordField.touched">
+              Password must be at least 8 characters.
+            </p>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="confirm-password">Confirm Password</label>
+            <input
+              id="confirm-password"
+              type="password"
+              [(ngModel)]="form.confirmPassword"
+              name="confirmPassword"
+              autocomplete="new-password"
+              placeholder="Repeat your password"
+              required
+              #confirmPasswordField="ngModel"
+              [class.input-error]="confirmPasswordField.touched && form.password !== form.confirmPassword"
+              [class.input-valid]="confirmPasswordField.touched && form.password === form.confirmPassword"
+            />
+            <p class="form-error" *ngIf="confirmPasswordField.touched && form.password !== form.confirmPassword">
+              Passwords must match.
             </p>
           </div>
 
@@ -223,7 +297,7 @@
           <button
             type="submit"
             class="btn-accent btn-submit"
-            [disabled]="registerForm.invalid || submitting"
+            [disabled]="registerForm.invalid || form.password !== form.confirmPassword || submitting"
           >
             <span>{{ submitting ? 'Registering...' : 'Create Profile' }}</span>
             <span class="btn-arrow" *ngIf="!submitting">→</span>

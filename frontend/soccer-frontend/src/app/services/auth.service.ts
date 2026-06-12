@@ -17,6 +17,13 @@ export interface AuthResponse {
   error?: string;
 }
 
+export interface RegistrationRequest {
+  name: string;
+  email: string;
+  phone: string;
+  password: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private isBrowser: boolean;
@@ -86,6 +93,14 @@ export class AuthService {
 
   loginAsDevUser(email: string): Observable<AuthResponse> {
     return this.http.post<AuthResponse>('/api/dev/login', { email });
+  }
+
+  loginWithPassword(email: string, password: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>('/api/auth/login', { email, password });
+  }
+
+  register(request: RegistrationRequest): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>('/api/auth/register', request);
   }
 
   handleOAuthCallback(token: string): void {

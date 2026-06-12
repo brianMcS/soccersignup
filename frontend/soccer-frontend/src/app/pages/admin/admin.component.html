@@ -13,6 +13,7 @@
   <div class="admin-tabs-wrap">
     <div class="admin-tabs page-container">
       <button
+        *ngIf="isAdmin"
         class="admin-tab"
         [class.admin-tab--active]="activeTab === 'games'"
         (click)="setTab('games')"
@@ -34,7 +35,7 @@
   <!-- ─── TAB CONTENT ──────────────────────────────────────────────────── -->
   <div class="admin-content page-container">
     <app-admin-games   *ngIf="activeTab === 'games'"></app-admin-games>
-    <app-admin-players *ngIf="activeTab === 'players'"></app-admin-players>
+    <app-admin-players *ngIf="isAdmin && activeTab === 'players'"></app-admin-players>
   </div>
 
 </div>

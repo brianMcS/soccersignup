@@ -1,7 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import {PlayerService} from '../../services/player.service';
 import {AuthService} from '../../services/auth.service';
 import {CurrentUser, UserService} from '../../services/user.service';
 import {Subscription} from 'rxjs';
@@ -22,6 +21,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
   currentUser: CurrentUser | null = null;
   view: View = 'landing';       // 'landing' = sign-in CTA, 'register' = show form
   googleLoading = false;
+  passwordLoginLoading = false;
   devLoginLoading = false;
   selectedDevEmail = 'player1@test.local';
   showDevLogin = false;
@@ -52,15 +52,14 @@ export class RegisterComponent implements OnInit, OnDestroy {
     { label: 'Admin - Test Admin', email: 'admin@test.local' },
   ];
 
-  form = { name: '', email: '', phone: '' };
+  loginForm = { email: '', password: '' };
+  form = { name: '', email: '', phone: '', password: '', confirmPassword: '' };
   submitting  = false;
-  submitted   = false;           // true after successful registration
   errorMessage: string | null = null;
 
   private subs = new Subscription();
 
   constructor(
-    private playerService: PlayerService,
     private authService: AuthService,
     private userService: UserService,
     private router: Router
@@ -86,6 +85,27 @@ export class RegisterComponent implements OnInit, OnDestroy {
     this.googleLoading = true;
     this.authService.loginWithGoogle();
     setTimeout(() => this.googleLoading = false, 1500);
+  }
+
+  onPasswordLogin(): void {
+    this.passwordLoginLoading = true;
+    this.errorMessage = null;
+
+    this.authService.loginWithPassword(
+      this.loginForm.email,
+      this.loginForm.password
+    ).subscribe({
+      next: (response) => {
+        this.passwordLoginLoading = false;
+        this.completeAuthentication(response);
+      },
+      error: (err) => {
+        this.passwordLoginLoading = false;
+        this.errorMessage = this.getErrorMessage(
+          err,
+          'Sign in failed. Check your email and password.');
+      }
+    });
   }
 
   onDevLogin(): void {
@@ -126,32 +146,62 @@ export class RegisterComponent implements OnInit, OnDestroy {
   backToLanding(): void {
     this.view = 'landing';
     this.errorMessage = null;
-    this.form = { name: '', email: '', phone: '' };
+    this.form = { name: '', email: '', phone: '', password: '', confirmPassword: '' };
   }
 
   // ─── Registration form ────────────────────────────────────────────────────
   onSubmit(): void {
+    if (this.form.password !== this.form.confirmPassword) {
+      this.errorMessage = 'Passwords do not match.';
+      return;
+    }
+
     this.submitting  = true;
     this.errorMessage = null;
 
-    this.playerService.registerPlayer(this.form).subscribe({
-      next: () => {
-        this.submitted  = true;
+    this.authService.register({
+      name: this.form.name,
+      email: this.form.email,
+      phone: this.form.phone,
+      password: this.form.password
+    }).subscribe({
+      next: (response) => {
         this.submitting = false;
-        this.form = { name: '', email: '', phone: '' };
-    },
-    error: (err) => {
+        this.completeAuthentication(response);
+      },
+      error: (err) => {
         this.submitting = false;
-        if (err.error && typeof  err.error === 'object'){
-          const messages = Object.values(err.error) as string[];
-          this.errorMessage = messages[0];
-        } else if (typeof err.error === 'string') {
-          this.errorMessage = err.error;
-        } else {
-          this.errorMessage = 'Registration failed. Please try again.'
-        }
+        this.errorMessage = this.getErrorMessage(
+          err,
+          'Registration failed. Please try again.');
       }
     });
+  }
+
+  private completeAuthentication(response: { success: boolean; token?: string; error?: string }): void {
+    if (response.success && response.token) {
+      this.authService.setToken(response.token);
+      this.router.navigate(['/play']);
+      return;
+    }
+    this.errorMessage = response.error ?? 'Authentication failed. Please try again.';
+  }
+
+  private getErrorMessage(error: any, fallback: string): string {
+    if (typeof error?.error?.error === 'string') {
+      return error.error.error;
+    }
+    if (error?.error && typeof error.error === 'object') {
+      const validationMessages = Object.values(error.error)
+        .filter(value => typeof value === 'string') as string[];
+      if (validationMessages.length > 0) {
+        return validationMessages[0];
+      }
+    }
+    if (typeof error?.error === 'string') {
+      return error.error;
+    }
+    return fallback;
   }
 
   // Re-used in template: check if a form field has a specific error

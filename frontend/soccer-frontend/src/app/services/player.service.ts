@@ -19,7 +19,4 @@ export class PlayerService {
     return this.http.get<Player>(`${this.apiUrl}/${id}`);
   }
 
-  registerPlayer(player: { name: string; email: string; phone: string }): Observable<Player> {
-    return this.http.post<Player>(this.apiUrl, player);
-  }
 }

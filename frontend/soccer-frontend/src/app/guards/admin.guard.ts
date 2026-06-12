@@ -6,7 +6,7 @@ export const adminGuard: CanActivateFn = () => {
   const user   = inject(UserService);
   const router = inject(Router);
 
-  if (user.isAdmin) {
+  if (user.isOrganiser) {
     return true;
   }
 

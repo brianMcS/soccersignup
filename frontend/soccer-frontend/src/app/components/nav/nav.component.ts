@@ -22,7 +22,7 @@ interface NavItem{
 export class NavComponent implements OnInit, OnDestroy {
   menuOpen = false;
   currentUser: CurrentUser | null = null;
-  isAdmin = false;
+  canManageGames = false;
   activeRoute = '';
 
   readonly navItems: NavItem[] = [
@@ -44,7 +44,7 @@ export class NavComponent implements OnInit, OnDestroy {
     this.subs.add(
       this.userService.currentUser$.subscribe(u => {
         this.currentUser = u;
-        this.isAdmin = this.userService.isAdmin;
+        this.canManageGames = this.userService.isOrganiser;
 
         if(u){
           this.notificationService.fetchUnreadCount();

@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import {authGuard} from './guards/auth.guard';
 import {adminGuard} from './guards/admin.guard';
-import { TeamSheetViewComponent} from './components/team-sheet-view/team-sheet-view.component';
+import {systemAdminGuard} from './guards/system-admin.guard';
 
 export const appRoutes: Routes = [
   // ─── Public ──────────────────────────────────────────────────────────────
@@ -30,7 +30,7 @@ export const appRoutes: Routes = [
   },
   {
     path: 'players',
-    canActivate: [authGuard],
+    canActivate: [systemAdminGuard],
     loadComponent: () => import('./pages/players/players.component')
       .then(m => m.PlayersComponent)
   },

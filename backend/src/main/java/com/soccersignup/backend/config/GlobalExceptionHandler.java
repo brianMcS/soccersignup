@@ -2,6 +2,7 @@ package com.soccersignup.backend.config;
 
 import com.soccersignup.backend.dto.ErrorResponse;
 import com.soccersignup.backend.exception.ResourceNotFoundException;
+import com.soccersignup.backend.exception.InvalidCredentialsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -35,6 +36,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(e.getMessage(), 400, LocalDateTime.now()));
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidCredentials(InvalidCredentialsException e) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(new ErrorResponse(e.getMessage(), 401, LocalDateTime.now()));
     }
 
     // Handles @Valid failures - returns {"email":"Must be valid email address"}

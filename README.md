@@ -41,7 +41,7 @@ PostgreSQL.
 
 ### Players
 
-- Register a player profile and sign in with Google OAuth 2.0.
+- Register with email and password or sign in with Google OAuth 2.0.
 - Browse open games with date, kick-off time, venue, and squad capacity.
 - Join or leave a game with immediate status feedback.
 - Move onto a first-in, first-out waitlist automatically when a game is full.
@@ -76,7 +76,7 @@ PostgreSQL.
 | --- | --- |
 | Frontend | Angular 19, TypeScript, RxJS, Tailwind CSS |
 | Backend | Java 17, Spring Boot 3.4, Spring Web, Spring Data JPA |
-| Security | Spring Security, Google OAuth 2.0, JWT |
+| Security | Spring Security, BCrypt, Google OAuth 2.0, JWT |
 | Data | PostgreSQL 15, H2 for local development |
 | API documentation | Springdoc OpenAPI and Swagger UI |
 | Tooling | Maven Wrapper, Angular CLI, Docker, Docker Compose |
@@ -88,8 +88,8 @@ PostgreSQL.
 flowchart LR
     U["Player or organiser"] --> A["Angular application"]
     A -->|"REST + JWT"| C["Spring MVC controllers"]
-    A -->|"OAuth popup"| O["Google OAuth 2.0"]
-    O --> S["Spring Security"]
+    A -->|"Email/password or OAuth popup"| O["Spring Security authentication"]
+    O --> S["Authenticated player"]
     S --> J["JWT issued to frontend"]
     C --> V["Application services"]
     V --> R["Spring Data repositories"]
@@ -110,6 +110,10 @@ The backend follows a controller-service-repository structure:
 - **Repositories** provide persistence through Spring Data JPA.
 - **Security filters** validate JWTs and restore the authenticated player for
   role and ownership checks.
+- Passwords are stored as BCrypt hashes and are never returned by the API.
+- Player-directory management is administrator-only. Organisers can manage
+  games, attendance, payments, and team sheets without administrator account
+  permissions.
 - **Strategy interfaces** separate team-sheet randomisation from team
   assignment, keeping that behaviour testable and replaceable.
 
@@ -246,6 +250,22 @@ For local Google sign-in, register
 `http://localhost:4200/login/oauth2/code/google` as an authorized redirect URI
 in Google Cloud. The Angular development proxy forwards `/oauth2` and `/login`
 to the backend, matching the single-origin routing used in production.
+
+Create the Google OAuth client as a **Web application**. Its local settings
+must contain:
+
+- Authorized JavaScript origin: `http://localhost:4200`
+- Authorized redirect URI:
+  `http://localhost:4200/login/oauth2/code/google`
+
+Copy the generated client ID and client secret into `.env`, then recreate the
+backend container with `docker compose up -d --build --force-recreate`.
+
+`Error 401: invalid_client` means Google does not recognize the configured
+client ID, commonly because the client was deleted or the wrong project/client
+type was used. `Error 400: redirect_uri_mismatch` means the authorized redirect
+URI does not exactly match `GOOGLE_REDIRECT_URI`, including its scheme, port,
+path, and trailing slash.
 
 | Variable | Purpose |
 | --- | --- |

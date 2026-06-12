@@ -26,10 +26,13 @@ public class GameSlotController {
 
     // GET /api/gameslots/{gameId}
     @GetMapping("/{gameId}")
-    public ResponseEntity<List<GameSlotResponse>> getSignups(@PathVariable Long gameId) {
+    public ResponseEntity<List<GameSlotResponse>> getSignups(
+            @PathVariable Long gameId,
+            Authentication authentication) {
+        Player currentPlayer = (Player) authentication.getPrincipal();
         List<GameSlot> slots = gameSlotService.getSignupsForGame(gameId);
         List<GameSlotResponse> response = slots.stream()
-                .map(GameSlotResponse::from)
+                .map(slot -> GameSlotResponse.forViewer(slot, currentPlayer))
                 .toList();
         return ResponseEntity.ok(response);
     }
