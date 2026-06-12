@@ -64,7 +64,7 @@
         >
           <td class="td-date">{{ formatDate(game.gameDate) }}</td>
           <td class="td-location">{{ game.location }}</td>
-          <td class="td-time">{{ formatTime(game.kickOffTime ?? '') }}</td>
+          <td class="td-time">{{ formatTime(game.kickOffTime) }}</td>
           <td class="td-center">
               <span class="players-pill">
                 {{ game.confirmedCount ?? 0 }}
@@ -111,7 +111,7 @@
         </div>
         <div class="card-location">📍 {{ game.location }}</div>
         <div class="card-meta">
-          <span>⏱ {{ formatTime(game.kickOffTime ?? '') }}</span>
+          <span>⏱ {{ formatTime(game.kickOffTime) }}</span>
           <span *ngIf="(game.waitlistedCount ?? 0) > 0" class="waitlist-pill">
             +{{ game.waitlistedCount }} waitlist
           </span>

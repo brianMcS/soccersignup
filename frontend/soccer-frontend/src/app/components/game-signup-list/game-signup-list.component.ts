@@ -10,6 +10,7 @@ import { TeamSheetService } from '../../services/team-sheet.service';
 import {RouterModule} from '@angular/router';
 import {NotificationService} from '../../services/notification.service';
 import { getApiErrorMessage } from '../../utils/api-error';
+import { formatDateOnly } from '../../utils/date-only';
 
 type PageState = 'loading' | 'no-game' | 'ready' | 'error';
 
@@ -166,12 +167,12 @@ export class GameSignupListComponent implements OnInit, OnDestroy {
 
   // Actions
   join(): void{
-    if (!this.game?.id || !this.currentUser?.id) return;
+    if (!this.game || !this.currentUser) return;
     this.joining = true;
     this.actionError = null;
     this.actionSuccess = null;
 
-    this.gamesService.joinGame(this.game!.id!, this.currentUser!.id).subscribe({
+    this.gamesService.joinGame(this.game.id).subscribe({
       next: (slot) => {
         this.joining = false;
         this.actionSuccess = slot.status === 'WAITLISTED'
@@ -260,14 +261,11 @@ export class GameSignupListComponent implements OnInit, OnDestroy {
   }
 
   formatDate(dateStr: string): string {
-    if(!dateStr) return '';
-    try {
-      return new Date(dateStr).toLocaleDateString('en-IE', {
-        weekday: 'long', day: 'numeric', month: 'long'
-      });
-    } catch {
-      return dateStr
-    }
+    return formatDateOnly(dateStr, {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long'
+    });
   }
 
   formatTime(timeStr: string): string {

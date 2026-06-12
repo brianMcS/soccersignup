@@ -3,6 +3,7 @@ import {CommonModule} from '@angular/common';
 import {Game} from '../../models/game.model';
 import {GamesService} from '../../services/games.service';
 import { getApiErrorMessage } from '../../utils/api-error';
+import { parseDateOnly } from '../../utils/date-only';
 
 @Component({
   selector: 'app-history',
@@ -30,7 +31,7 @@ export class HistoryComponent {
     this.gamesService.getCompletedGames().subscribe({
       next: (games) => {
         this.games = games.sort((a, b) =>
-          new Date(b.gameDate).getTime() - new Date(a.gameDate).getTime()
+          parseDateOnly(b.gameDate).getTime() - parseDateOnly(a.gameDate).getTime()
         );
         this.loading = false;
       },
@@ -46,7 +47,7 @@ export class HistoryComponent {
   formatDate(dateStr: string): string {
     if (!dateStr) return '—';
     try {
-      return new Date(dateStr).toLocaleDateString('en-IE', {
+      return parseDateOnly(dateStr).toLocaleDateString('en-IE', {
         weekday: 'short', day: 'numeric', month: 'short', year: 'numeric'
       });
     } catch { return dateStr; }

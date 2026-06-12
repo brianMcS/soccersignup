@@ -63,9 +63,9 @@ export const appRoutes: Routes = [
   },
 
   // ─── Fallback ─────────────────────────────────────────────────────────────
-  // {
-  //   path: '**',
-  //   loadComponent: () => import('./pages/not-found/not-found.component')
-  //     .then(m => m.NotFoundComponent)
-  // }
+  {
+    path: '**',
+    loadComponent: () => import('./pages/not-found/not-found.component')
+      .then(m => m.NotFoundComponent)
+  }
 ];

@@ -2,27 +2,10 @@ import { Injectable } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {GameSlot} from '../models/game-slot.model';
+import { Game, GameRequest } from '../models/game.model';
 
-export interface GameRequest{
-  gameDate: string;
-  kickOffTime: string;
-  location: string;
-  maxPlayers: number;
-  feeAmount: number;
-  revolutLink?: string;
-}
-
-export interface GameResponse {
-  id: number;
-  gameDate: string;
-  kickOffTime: string;
-  location: string;
-  maxPlayers: number;
-  feeAmount: number;
-  revolutLink?: string;
-  status: 'OPEN' | 'CLOSED' | 'CANCELLED' | 'COMPLETED';
-  createdAt?: string;
-}
+export type GameResponse = Game;
+export type { GameRequest };
 
 export interface PlayerResponse {
   id: number;

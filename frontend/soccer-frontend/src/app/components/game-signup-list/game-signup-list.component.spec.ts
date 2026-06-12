@@ -54,6 +54,7 @@ describe('GameSignupListComponent', () => {
       {
         id: 2,
         gameDate: '2026-07-09',
+        kickOffTime: '19:00',
         location: 'Pitch',
         maxPlayers: 18,
         feeAmount: 5,
@@ -62,6 +63,7 @@ describe('GameSignupListComponent', () => {
       {
         id: 1,
         gameDate: '2026-06-11',
+        kickOffTime: '19:00',
         location: 'Pitch',
         maxPlayers: 18,
         feeAmount: 5,

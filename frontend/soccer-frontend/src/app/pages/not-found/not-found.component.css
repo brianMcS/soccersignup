@@ -1,0 +1,60 @@
+:host {
+  display: block;
+}
+
+.not-found-page {
+  min-height: calc(100vh - var(--nav-height));
+  display: grid;
+  place-items: center;
+  padding: 2rem var(--page-px);
+  background:
+    radial-gradient(circle at top, rgb(46 125 50 / 20%), transparent 34rem),
+    var(--color-pitch-950);
+}
+
+.not-found-card {
+  width: min(100%, 36rem);
+  padding: clamp(2rem, 6vw, 4rem);
+  text-align: center;
+  border: 1px solid var(--color-surface-600);
+  border-radius: var(--radius-lg);
+  background: rgb(17 22 20 / 92%);
+  box-shadow: 0 1.5rem 4rem rgb(0 0 0 / 35%);
+}
+
+.not-found-code {
+  margin: 0;
+  color: var(--color-amber-400);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+}
+
+h1 {
+  margin: 0.75rem 0 1rem;
+  color: var(--color-ink);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2.75rem, 9vw, 5rem);
+  font-weight: 400;
+  line-height: 0.95;
+}
+
+.not-found-card > p:last-of-type {
+  margin: 0 auto;
+  max-width: 28rem;
+  color: var(--color-ink-muted);
+  line-height: 1.6;
+}
+
+.not-found-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+.not-found-actions a {
+  text-decoration: none;
+}

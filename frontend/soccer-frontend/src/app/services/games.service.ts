@@ -23,19 +23,14 @@ export class GamesService {
     return this.http.get<Game[]>(`${this.gamesUrl}?status=COMPLETED`);
   }
 
-  // POST /api/games — create a game (organiser use)
-  createGame(game: Partial<Game>): Observable<Game> {
-    return this.http.post<Game>(this.gamesUrl, game);
-  }
-
   // GET /api/gameslots/{gameId} — who is signed up
   getSignups(gameId: number): Observable<GameSlot[]> {
     return this.http.get<GameSlot[]>(`${this.slotsUrl}/${gameId}`);
   }
 
   // POST /api/gameslots — sign a player up
-  joinGame(gameId: number, playerId: number): Observable<GameSlot> {
-    const body: SignupRequest = { gameId, playerId };
+  joinGame(gameId: number): Observable<GameSlot> {
+    const body: SignupRequest = { gameId };
     return this.http.post<GameSlot>(this.slotsUrl, body);
   }
 

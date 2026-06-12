@@ -6,6 +6,10 @@ import { AdminService, GameRequest, GameResponse } from '../../../services/admin
 import { Router } from '@angular/router';
 import { GameSlot } from '../../../models/game-slot.model';
 import { getApiErrorMessage } from '../../../utils/api-error';
+import {
+  formatDateOnly,
+  parseDateOnly as parseCalendarDate
+} from '../../../utils/date-only';
 
 type ViewMode = 'list' | 'create' | 'edit';
 type GameFilter = 'next4Weeks' | 'next3Months' | 'allUpcoming' | 'past';
@@ -298,12 +302,12 @@ export class AdminGamesComponent implements OnInit {
   }
 
   formatDate(dateStr: string): string {
-    if (!dateStr) return '';
-    try {
-      return new Date(dateStr).toLocaleDateString('en-IE', {
-        weekday: 'short', day: 'numeric', month: 'short', year: 'numeric'
-      });
-    } catch { return dateStr; }
+    return formatDateOnly(dateStr, {
+      weekday: 'short',
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    });
   }
 
   formatTime(timeStr: string): string {
@@ -323,8 +327,7 @@ export class AdminGamesComponent implements OnInit {
   }
 
   parseDateOnly(dateStr: string): Date {
-    const [year, month, day] = dateStr.split('-').map(Number);
-    return new Date(year, month - 1, day);
+    return parseCalendarDate(dateStr);
   }
 
   startOfToday(): Date {
