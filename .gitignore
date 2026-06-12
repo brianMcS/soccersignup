@@ -16,6 +16,7 @@ target/
 # Spring Boot
 application.properties
 application.yml
+**/application-*-secrets.properties
 
 # Node.js
 node_modules/

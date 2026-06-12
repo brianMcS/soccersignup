@@ -5,9 +5,9 @@ services:
     image: postgres:15
     container_name: postgres
     environment:
-      POSTGRES_DB: soccersignup
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
@@ -19,9 +19,14 @@ services:
       dockerfile: Dockerfile
     container_name: springboot-backend
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/soccersignup
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: mysecretpassword
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI}
+      APP_JWT_SECRET: ${APP_JWT_SECRET}
+      APP_FRONTEND_ORIGIN: ${APP_FRONTEND_ORIGIN}
     depends_on:
       - postgres
     ports:

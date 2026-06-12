@@ -226,21 +226,32 @@ a test-user selector. Use one of the seeded accounts:
 To run PostgreSQL and the backend together:
 
 ```bash
+cp .env.example .env
+# Edit .env and replace every placeholder value.
 docker compose up --build
 ```
 
+PowerShell users can create the local file with:
+
+```powershell
+Copy-Item .env.example .env
+```
+
 The compose file exposes PostgreSQL on `5432` and the backend on `8080`.
-Configure OAuth and JWT secrets through environment variables before using
-this mode outside local development.
+Docker Compose reads the local values from `.env`. This file is ignored by Git;
+commit only `.env.example`, which documents the required variables without
+containing credentials.
 
 | Variable | Purpose |
 | --- | --- |
-| `SPRING_DATASOURCE_URL` | PostgreSQL JDBC connection URL |
-| `SPRING_DATASOURCE_USERNAME` | Database user |
-| `SPRING_DATASOURCE_PASSWORD` | Database password |
+| `POSTGRES_DB` | Local PostgreSQL database name |
+| `POSTGRES_USER` | Local PostgreSQL user |
+| `POSTGRES_PASSWORD` | Local PostgreSQL password |
 | `GOOGLE_CLIENT_ID` | Google OAuth client ID |
 | `GOOGLE_CLIENT_SECRET` | Google OAuth client secret |
+| `GOOGLE_REDIRECT_URI` | Google OAuth callback URL |
 | `APP_JWT_SECRET` | Signing key of at least 256 bits |
+| `APP_FRONTEND_ORIGIN` | Frontend origin allowed by the backend |
 
 ## API Examples
 
