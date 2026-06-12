@@ -1,6 +1,7 @@
 import {Inject, Injectable, PLATFORM_ID} from '@angular/core';
 import {BehaviorSubject, map, Observable} from 'rxjs';
 import {isPlatformBrowser} from '@angular/common';
+import { decodeJwtPayload, isJwtUsable } from '../utils/jwt-token';
 
 export interface CurrentUser {
   id: number;
@@ -32,13 +33,13 @@ export class UserService {
     if(this.isBrowser){
       const token = localStorage.getItem('auth_token');
       if(token){
-        const user = this.decodeToken(token);
-        this.currentUserSubject.next(user);
+        this.setFromToken(token);
       }
     }
   }
 
   get currentUser(): CurrentUser | null {
+    this.clearExpiredSession();
     return this.currentUserSubject.getValue();
   }
 
@@ -55,9 +56,13 @@ export class UserService {
     return this.currentUser !== null;
   }
 
-  setFromToken(token: string): void {
+  setFromToken(token: string): boolean {
     const user = this.decodeToken(token);
     this.currentUserSubject.next(user);
+    if (!user && this.isBrowser) {
+      localStorage.removeItem('auth_token');
+    }
+    return user !== null;
   }
 
   clear(): void {
@@ -65,21 +70,35 @@ export class UserService {
   }
 
   private decodeToken(token: string): CurrentUser | null {
-    try {
-      const payload = token.split('.')[1];
-      const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
-
-      const subjectId = Number(decoded.sub);
-
-      return {
-        id:    decoded.id    ?? decoded.playerId ?? (Number.isFinite(subjectId) ? subjectId : 0),
-        name:  decoded.name  ?? decoded.sub      ?? 'Player',
-        email: decoded.email ?? decoded.sub      ?? '',
-        roles: decoded.roles ?? [],
-      };
-    } catch {
-      console.warn('UserService: could not decode JWT');
+    if (!isJwtUsable(token)) {
       return null;
+    }
+
+    const decoded = decodeJwtPayload(token);
+    if (!decoded) {
+      return null;
+    }
+
+    const subjectId = Number(decoded.sub);
+
+    return {
+      id: decoded.id ?? decoded.playerId
+        ?? (Number.isFinite(subjectId) ? subjectId : 0),
+      name: decoded.name ?? decoded.sub ?? 'Player',
+      email: decoded.email ?? decoded.sub ?? '',
+      roles: decoded.roles ?? [],
+    };
+  }
+
+  private clearExpiredSession(): void {
+    if (!this.isBrowser || !this.currentUserSubject.getValue()) {
+      return;
+    }
+
+    const token = localStorage.getItem('auth_token');
+    if (!token || !isJwtUsable(token)) {
+      localStorage.removeItem('auth_token');
+      this.currentUserSubject.next(null);
     }
   }
 }

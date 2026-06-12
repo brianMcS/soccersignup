@@ -24,9 +24,12 @@ export class OAuthRedirectComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
       const token = params['token'];
       if (token) {
-        this.authService.setToken(token); // use the service, not localStorage directly
         this.loading = false;
-        this.router.navigate(['/play']);
+        if (this.authService.setToken(token)) {
+          this.router.navigate(['/play']);
+        } else {
+          this.error = 'The authentication session is invalid or has expired.';
+        }
       } else {
         this.loading = false;
         this.error = 'No token received from authentication server.';

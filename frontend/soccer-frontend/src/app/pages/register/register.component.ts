@@ -117,8 +117,11 @@ export class RegisterComponent implements OnInit, OnDestroy {
       next: (response) => {
         this.devLoginLoading = false;
         if (response.success && response.token) {
-          this.authService.setToken(response.token);
-          this.router.navigate(['/play']);
+          if (this.authService.setToken(response.token)) {
+            this.router.navigate(['/play']);
+          } else {
+            this.errorMessage = 'The server returned an invalid or expired session.';
+          }
         } else {
           this.errorMessage = response.error || 'Dev login failed. Please try another test user.';
         }
@@ -181,8 +184,11 @@ export class RegisterComponent implements OnInit, OnDestroy {
 
   private completeAuthentication(response: { success: boolean; token?: string; error?: string }): void {
     if (response.success && response.token) {
-      this.authService.setToken(response.token);
-      this.router.navigate(['/play']);
+      if (this.authService.setToken(response.token)) {
+        this.router.navigate(['/play']);
+      } else {
+        this.errorMessage = 'The server returned an invalid or expired session.';
+      }
       return;
     }
     this.errorMessage = response.error ?? 'Authentication failed. Please try again.';

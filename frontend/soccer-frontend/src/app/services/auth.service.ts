@@ -4,6 +4,7 @@ import {isPlatformBrowser} from '@angular/common';
 import {UserService} from './user.service';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
+import { isJwtUsable } from '../utils/jwt-token';
 
 export interface AuthResponse {
   success: boolean;
@@ -50,18 +51,25 @@ export class AuthService {
     return localStorage.getItem('auth_token');
   }
 
-  hasToken(): boolean {
-    return !!this.getToken();
-  }
-
   isLoggedIn(): boolean {
     return this.userService.isLoggedIn;
   }
 
-  setToken(token: string): void {
-    if (!this.isBrowser) return;
+  setToken(token: string): boolean {
+    if (!this.isBrowser || !isJwtUsable(token)) {
+      if (this.isBrowser) {
+        localStorage.removeItem('auth_token');
+      }
+      this.userService.clear();
+      return false;
+    }
+
     localStorage.setItem('auth_token', token);
-    this.userService.setFromToken(token);
+    if (!this.userService.setFromToken(token)) {
+      localStorage.removeItem('auth_token');
+      return false;
+    }
+    return true;
   }
 
   logout(): void {
@@ -104,8 +112,7 @@ export class AuthService {
   }
 
   handleOAuthCallback(token: string): void {
-    if(this.isBrowser && token) {
-      this.setToken(token);
+    if(this.isBrowser && token && this.setToken(token)) {
       this.router.navigate(['/play']);
     }
   }
@@ -121,8 +128,9 @@ export class AuthService {
         if (data?.success && data.token) {
           this.oauthPopup = null;
           this.ngZone.run(() => {
-            this.setToken(data.token!);
-            this.router.navigate(['/play']);
+            if (this.setToken(data.token!)) {
+              this.router.navigate(['/play']);
+            }
           });
         } else if (data && !data.success && data.error) {
           this.ngZone.run(() => alert('Authentication failed: ' + data.error));

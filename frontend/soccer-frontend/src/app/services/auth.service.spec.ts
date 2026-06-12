@@ -4,6 +4,14 @@ import { Router } from '@angular/router';
 
 import { AuthService } from './auth.service';
 
+function tokenFor(payload: object): string {
+  const encoded = btoa(JSON.stringify(payload))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+  return `header.${encoded}.signature`;
+}
+
 describe('AuthService', () => {
   let service: AuthService;
   let router: jasmine.SpyObj<Router>;
@@ -22,6 +30,30 @@ describe('AuthService', () => {
 
   it('should be created', () => {
     expect(service).toBeTruthy();
+  });
+
+  it('stores a valid token and updates authentication state', () => {
+    const token = tokenFor({
+      sub: '42',
+      email: 'alex@example.com',
+      roles: ['ROLE_PLAYER'],
+      exp: Math.floor(Date.now() / 1000) + 3600
+    });
+
+    expect(service.setToken(token)).toBeTrue();
+    expect(localStorage.getItem('auth_token')).toBe(token);
+    expect(service.isLoggedIn()).toBeTrue();
+  });
+
+  it('rejects an expired token', () => {
+    const token = tokenFor({
+      sub: '42',
+      exp: Math.floor(Date.now() / 1000) - 1
+    });
+
+    expect(service.setToken(token)).toBeFalse();
+    expect(localStorage.getItem('auth_token')).toBeNull();
+    expect(service.isLoggedIn()).toBeFalse();
   });
 
   it('opens Google sign-in using a relative URL', () => {
@@ -43,7 +75,7 @@ describe('AuthService', () => {
     const popup = popupFrame.contentWindow!;
     spyOn(window, 'open').and.returnValue(popup);
     service.loginWithGoogle();
-    spyOn(service, 'setToken');
+    spyOn(service, 'setToken').and.returnValue(true);
 
     window.dispatchEvent(new MessageEvent('message', {
       origin: window.location.origin,
