@@ -97,6 +97,7 @@ public class TeamSheetServiceImpl implements TeamSheetService {
 
         sheet.getEntries().clear();
         sheet.getEntries().addAll(replacementEntries);
+        markAsDraft(sheet);
 
         return saveAndConvert(sheet);
     }
@@ -107,6 +108,7 @@ public class TeamSheetServiceImpl implements TeamSheetService {
         Game game = findGameById(gameId);
         TeamSheet sheet = findTeamSheet(game);
         validateNotEmpty(sheet);
+        validateCompleteConfirmedSquad(game, sheet);
         sheet.setPublished(true);
         sheet.setPublishedAt(LocalDateTime.now());
         teamSheetRepository.save(sheet);
@@ -255,6 +257,28 @@ public class TeamSheetServiceImpl implements TeamSheetService {
     private void validateNotEmpty(TeamSheet sheet) {
         if (sheet.getEntries().isEmpty()) {
             throw new IllegalStateException("Cannot publish an empty team sheet.");
+        }
+    }
+
+    private void validateCompleteConfirmedSquad(Game game, TeamSheet sheet) {
+        Set<Long> confirmedPlayerIds = findConfirmedSlots(game).stream()
+                .map(slot -> slot.getPlayer().getId())
+                .collect(java.util.stream.Collectors.toSet());
+        Set<Long> assignedPlayerIds = sheet.getEntries().stream()
+                .map(entry -> entry.getPlayer().getId())
+                .collect(java.util.stream.Collectors.toSet());
+
+        Set<Long> missingPlayerIds = new HashSet<>(confirmedPlayerIds);
+        missingPlayerIds.removeAll(assignedPlayerIds);
+
+        Set<Long> unconfirmedPlayerIds = new HashSet<>(assignedPlayerIds);
+        unconfirmedPlayerIds.removeAll(confirmedPlayerIds);
+
+        if (!missingPlayerIds.isEmpty() || !unconfirmedPlayerIds.isEmpty()) {
+            throw new IllegalStateException(
+                    "Team sheet must include every confirmed player exactly once. "
+                            + missingPlayerIds.size() + " confirmed player(s) are missing and "
+                            + unconfirmedPlayerIds.size() + " unconfirmed player(s) are assigned.");
         }
     }
 

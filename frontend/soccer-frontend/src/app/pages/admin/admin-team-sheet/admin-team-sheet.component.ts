@@ -171,7 +171,7 @@ export class AdminTeamSheetComponent implements OnInit {
       },
       error: (err) => {
         this.saving = false;
-        this.errorMessage = err?.error?.message ?? 'Could not save draft.';
+        this.errorMessage = this.apiError(err, 'Could not save draft.');
       }
     });
   }
@@ -197,13 +197,13 @@ export class AdminTeamSheetComponent implements OnInit {
           },
           error: (err) => {
             this.publishing = false;
-            this.errorMessage = err?.error?.message ?? 'Could not publish.';
+            this.errorMessage = this.apiError(err, 'Could not publish.');
           }
         });
       },
       error: (err) => {
         this.publishing = false;
-        this.errorMessage = err?.error?.message ?? 'Could not save before publishing.';
+        this.errorMessage = this.apiError(err, 'Could not save before publishing.');
       }
     });
   }
@@ -233,6 +233,10 @@ export class AdminTeamSheetComponent implements OnInit {
       .slice(0, 2)
       .join('')
       .toUpperCase();
+  }
+
+  private apiError(error: any, fallback: string): string {
+    return error?.error?.error ?? error?.error?.message ?? fallback;
   }
 
   getFirstName(name: string): string {

@@ -177,10 +177,10 @@ class TeamSheetServiceImplTest {
         Game game = createGame(1L);
         game.setGameDate(LocalDate.of(2026, 6, 12));
         TeamSheet sheet = createSheet(game);
-        sheet.getEntries().add(createEntry(sheet, createPlayer(1L, "Alex")));
-
         Player firstPlayer = createPlayer(1L, "Alex");
         Player secondPlayer = createPlayer(2L, "Sam");
+        sheet.getEntries().add(createEntry(sheet, firstPlayer));
+        sheet.getEntries().add(createEntry(sheet, secondPlayer));
         GameSlot firstSlot = createSlot(game, firstPlayer);
         GameSlot secondSlot = createSlot(game, secondPlayer);
 
@@ -204,6 +204,76 @@ class TeamSheetServiceImplTest {
                 .containsExactly(firstPlayer, secondPlayer);
         assertThat(sheet.isPublished()).isTrue();
         assertThat(sheet.getPublishedAt()).isNotNull();
+    }
+
+    @Test
+    void publishTeamSheetRejectsMissingConfirmedPlayer() {
+        Game game = createGame(1L);
+        TeamSheet sheet = createSheet(game);
+        Player assignedPlayer = createPlayer(1L, "Alex");
+        Player missingPlayer = createPlayer(2L, "Sam");
+        sheet.getEntries().add(createEntry(sheet, assignedPlayer));
+
+        when(gameRepository.findById(1L)).thenReturn(Optional.of(game));
+        when(teamSheetRepository.findByGame(game)).thenReturn(Optional.of(sheet));
+        when(gameSlotRepository.findByGameAndStatus(game, SlotStatus.CONFIRMED))
+                .thenReturn(List.of(
+                        createSlot(game, assignedPlayer),
+                        createSlot(game, missingPlayer)));
+
+        assertThatThrownBy(() -> service.publishTeamSheet(1L))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("1 confirmed player(s) are missing")
+                .hasMessageContaining("0 unconfirmed player(s) are assigned");
+
+        verify(teamSheetRepository, never()).save(any());
+        verify(notificationRepository, never()).saveAll(any());
+    }
+
+    @Test
+    void publishTeamSheetRejectsAssignedPlayerWhoIsNoLongerConfirmed() {
+        Game game = createGame(1L);
+        TeamSheet sheet = createSheet(game);
+        Player confirmedPlayer = createPlayer(1L, "Alex");
+        Player stalePlayer = createPlayer(2L, "Sam");
+        sheet.getEntries().add(createEntry(sheet, confirmedPlayer));
+        sheet.getEntries().add(createEntry(sheet, stalePlayer));
+
+        when(gameRepository.findById(1L)).thenReturn(Optional.of(game));
+        when(teamSheetRepository.findByGame(game)).thenReturn(Optional.of(sheet));
+        when(gameSlotRepository.findByGameAndStatus(game, SlotStatus.CONFIRMED))
+                .thenReturn(List.of(createSlot(game, confirmedPlayer)));
+
+        assertThatThrownBy(() -> service.publishTeamSheet(1L))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("0 confirmed player(s) are missing")
+                .hasMessageContaining("1 unconfirmed player(s) are assigned");
+
+        verify(teamSheetRepository, never()).save(any());
+        verify(notificationRepository, never()).saveAll(any());
+    }
+
+    @Test
+    void savingPublishedTeamSheetReturnsItToDraft() {
+        Game game = createGame(1L);
+        TeamSheet sheet = createSheet(game);
+        sheet.setPublished(true);
+        sheet.setPublishedAt(LocalDateTime.now());
+        Player player = createPlayer(1L, "Alex");
+        TeamSheetRequest request = new TeamSheetRequest(List.of(
+                new TeamSheetEntryRequest(1L, TeamSide.HOME, 7, 25, 50)));
+
+        when(gameRepository.findById(1L)).thenReturn(Optional.of(game));
+        when(teamSheetRepository.findByGame(game)).thenReturn(Optional.of(sheet));
+        when(playerRepository.findById(1L)).thenReturn(Optional.of(player));
+        when(gameSlotRepository.existsByGameAndPlayerAndStatus(
+                game, player, SlotStatus.CONFIRMED)).thenReturn(true);
+        when(teamSheetRepository.save(sheet)).thenReturn(sheet);
+
+        service.saveTeamSheet(1L, request);
+
+        assertThat(sheet.isPublished()).isFalse();
+        assertThat(sheet.getPublishedAt()).isNull();
     }
 
     @Test
