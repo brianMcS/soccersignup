@@ -33,21 +33,6 @@ public class PlayerServiceImpl implements PlayerService {
     }
 
     @Override
-    public Optional<Player> getPlayerById(Long id) {
-        return playerRepository.findById(id);
-    }
-
-    @Override
-    public Player savePlayer(Player player) {
-        return playerRepository.save(player);
-    }
-
-    @Override
-    public void deletePlayer(Long id) {
-        playerRepository.deleteById(id);
-    }
-
-    @Override
     public void deactivatePlayer(Long id){
         Optional<Player> playerOpt = playerRepository.findById(id);
         if (playerOpt.isPresent()) {
@@ -55,16 +40,6 @@ public class PlayerServiceImpl implements PlayerService {
             player.setIsActive(false); // Mark as inactive instead of deleting
             playerRepository.save(player);
         }
-    }
-
-    @Override
-    public Player createPlayer(PlayerRequest request) {
-        Player player = new Player();
-        player.setName(request.name());
-        player.setEmail(request.email());
-        player.setPhone(request.phone());
-        player.setIsActive(true); // New players are active by default
-        return playerRepository.save(player);
     }
 
     @Override

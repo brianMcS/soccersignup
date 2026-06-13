@@ -1,6 +1,5 @@
 package com.soccersignup.backend.repository;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface GameRepository extends JpaRepository<Game, Long> {
-    Optional<Game> findByGameDate(LocalDate gameDate);
     List<Game> findByStatus(GameStatus status);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)

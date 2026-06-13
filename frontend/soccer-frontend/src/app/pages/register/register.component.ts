@@ -193,9 +193,4 @@ export class RegisterComponent implements OnInit, OnDestroy {
     }
     this.errorMessage = response.error ?? 'Authentication failed. Please try again.';
   }
-
-  // Re-used in template: check if a form field has a specific error
-  hasError(field: any, error: string): boolean {
-    return field?.invalid && field?.touched && field?.errors?.[error];
-  }
 }

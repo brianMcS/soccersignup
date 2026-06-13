@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 import {authGuard} from './guards/auth.guard';
 import {adminGuard} from './guards/admin.guard';
-import {systemAdminGuard} from './guards/system-admin.guard';
 
 export const appRoutes: Routes = [
   // ─── Public ──────────────────────────────────────────────────────────────
@@ -15,11 +14,6 @@ export const appRoutes: Routes = [
     loadComponent: () => import('./pages/register/register.component')
       .then(m => m.RegisterComponent)
   },
-  {
-    path: 'oauth-redirect',
-    loadComponent: () => import('./components/oauth-redirect/o-auth-redirect.component')
-      .then(m => m.OAuthRedirectComponent)
-  },
 
   // ─── Auth-gated (players) ─────────────────────────────────────────────────
   {
@@ -27,12 +21,6 @@ export const appRoutes: Routes = [
     canActivate: [authGuard],
     loadComponent: () => import('./components/game-signup-list/game-signup-list.component')
       .then(m => m.GameSignupListComponent)
-  },
-  {
-    path: 'players',
-    canActivate: [systemAdminGuard],
-    loadComponent: () => import('./pages/players/players.component')
-      .then(m => m.PlayersComponent)
   },
   {
     path: 'history',

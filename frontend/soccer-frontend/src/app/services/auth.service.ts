@@ -111,12 +111,6 @@ export class AuthService {
     return this.http.post<AuthResponse>('/api/auth/register', request);
   }
 
-  handleOAuthCallback(token: string): void {
-    if(this.isBrowser && token && this.setToken(token)) {
-      this.router.navigate(['/play']);
-    }
-  }
-
   private setupOAuthListener(): void {
     window.addEventListener('message', (event: MessageEvent) => {
       if (event.origin !== window.location.origin || event.source !== this.oauthPopup) {

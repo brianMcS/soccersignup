@@ -4,7 +4,7 @@ export interface GameSlot {
   playerId?: number;
   playerName?: string;
   playerEmail?: string;
-  status?: 'CONFIRMED' | 'WAITLISTED' | 'WITHDRAWN';
+  status?: 'CONFIRMED' | 'WAITLISTED';
   signedUpAt?: string;
   paymentStatus?: 'UNPAID' | 'SELF_REPORTED' | 'CONFIRMED';
   feeAmount?: number;

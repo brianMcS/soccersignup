@@ -37,10 +37,6 @@ export class AdminService {
     return this.http.get<GameResponse[]>('/api/games');
   }
 
-  getGamesByStatus(status: string): Observable<GameResponse[]> {
-    return this.http.get<GameResponse[]>(`/api/games?status=${status}`);
-  }
-
   updateGame(id: number, request: GameRequest) :Observable<GameResponse>{
     return this.http.put<GameResponse>(`/api/games/${id}`, request);
   }
@@ -69,10 +65,6 @@ export class AdminService {
   //Signups
   getSignupsForGame(gameId: number): Observable<GameSlot[]> {
     return this.http.get<GameSlot[]>(`/api/gameslots/${gameId}`);
-  }
-
-  removeSignup(gameId: number, playerId: number): Observable<void> {
-    return this.http.delete<void>(`/api/gameslots/${gameId}/players/${playerId}`);
   }
 
   confirmPayment(gameId: number, playerId: number): Observable<GameSlot> {

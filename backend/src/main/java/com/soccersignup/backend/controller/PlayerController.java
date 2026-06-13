@@ -4,14 +4,12 @@ import java.util.List;
 
 import com.soccersignup.backend.dto.PlayerResponse;
 import com.soccersignup.backend.dto.UpdateRolesRequest;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 import com.soccersignup.backend.dto.PlayerRequest;
-import com.soccersignup.backend.model.Player;
 import com.soccersignup.backend.service.PlayerService;
 
 @RestController
@@ -30,22 +28,6 @@ public class PlayerController {
                 .stream()
                 .map(PlayerResponse::from)
                 .toList();
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<PlayerResponse> getPlayerById(@PathVariable Long id) {
-        return playerService.getPlayerById(id)
-                .map(PlayerResponse::from)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<PlayerResponse> createPlayer(@Valid @RequestBody PlayerRequest request) {
-        Player player = new Player(request.name(), request.email(), request.phone());
-        Player saved = playerService.savePlayer(player);
-        return ResponseEntity.status(HttpStatus.CREATED).body(PlayerResponse.from(saved));
     }
 
     @PutMapping("/{id}")
