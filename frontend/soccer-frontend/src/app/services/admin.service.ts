@@ -1,11 +1,6 @@
 import { Injectable } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
-import {GameSlot} from '../models/game-slot.model';
-import { Game, GameRequest } from '../models/game.model';
-
-export type GameResponse = Game;
-export type { GameRequest };
 
 export interface PlayerResponse {
   id: number;
@@ -28,27 +23,6 @@ export class AdminService {
 
   constructor(private http: HttpClient) {}
 
-  // Games
-  createGame(request: GameRequest) : Observable<GameResponse>{
-    return this.http.post<GameResponse>('/api/games', request);
-  }
-
-  createGames(requests: GameRequest[]): Observable<GameResponse[]> {
-    return this.http.post<GameResponse[]>('/api/games/batch', { games: requests });
-  }
-
-  getAllGames(): Observable<GameResponse[]>{
-    return this.http.get<GameResponse[]>('/api/games');
-  }
-
-  updateGame(id: number, request: GameRequest) :Observable<GameResponse>{
-    return this.http.put<GameResponse>(`/api/games/${id}`, request);
-  }
-
-  closeGame(id: number): Observable<GameResponse>{
-    return this.http.post<GameResponse>(`/api/games/${id}/close`, {});
-  }
-
   // Players
   getAllPlayers(): Observable<PlayerResponse[]> {
     return this.http.get<PlayerResponse[]>('/api/players');
@@ -64,24 +38,5 @@ export class AdminService {
 
   updatePlayerRoles(id: number, roles: string[]): Observable<PlayerResponse>{
     return this.http.put<PlayerResponse>(`/api/players/${id}/roles`, { roles });
-  }
-
-  //Signups
-  getSignupsForGame(gameId: number): Observable<GameSlot[]> {
-    return this.http.get<GameSlot[]>(`/api/gameslots/${gameId}`);
-  }
-
-  confirmPayment(gameId: number, playerId: number, version: number): Observable<GameSlot> {
-    return this.http.patch<GameSlot>(
-      `/api/gameslots/${gameId}/players/${playerId}/confirm`,
-      { version }
-    );
-  }
-
-  rejectPayment(gameId: number, playerId: number, version: number): Observable<GameSlot> {
-    return this.http.patch<GameSlot>(
-      `/api/gameslots/${gameId}/players/${playerId}/reject`,
-      { version }
-    );
   }
 }

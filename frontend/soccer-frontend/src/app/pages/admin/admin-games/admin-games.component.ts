@@ -2,9 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule }  from '@angular/common';
 import { FormsModule }   from '@angular/forms';
 import { Observable } from 'rxjs';
-import { AdminService, GameRequest, GameResponse } from '../../../services/admin.service';
 import { Router } from '@angular/router';
 import { GameSlot } from '../../../models/game-slot.model';
+import { Game, GameRequest } from '../../../models/game.model';
+import { GamesService } from '../../../services/games.service';
 import { getApiErrorMessage } from '../../../utils/api-error';
 import {
   formatDateOnly,
@@ -13,6 +14,7 @@ import {
 
 type ViewMode = 'list' | 'create' | 'edit';
 type GameFilter = 'next4Weeks' | 'next3Months' | 'allUpcoming' | 'past';
+type GameResponse = Game;
 
 @Component({
   selector: 'app-admin-games',
@@ -51,7 +53,7 @@ export class AdminGamesComponent implements OnInit {
   paymentActionPlayerId: number | null = null;
   signupsByGame: Record<number, GameSlot[]> = {};
 
-  constructor(private adminService: AdminService, private router: Router) {}
+  constructor(private gamesService: GamesService, private router: Router) {}
 
   ngOnInit(): void {
     this.loadGames();
@@ -60,7 +62,7 @@ export class AdminGamesComponent implements OnInit {
   // ─── Data ─────────────────────────────────────────────────────────────────
   loadGames(): void {
     this.loading = true;
-    this.adminService.getAllGames().subscribe({
+    this.gamesService.getAllGames().subscribe({
       next: (games) => {
         this.games = games;
         this.loading = false;
@@ -117,10 +119,10 @@ export class AdminGamesComponent implements OnInit {
     this.errorMessage = null;
 
     const request$: Observable<GameResponse | GameResponse[]> = this.editingGame
-      ? this.adminService.updateGame(this.editingGame.id, this.form)
+      ? this.gamesService.updateGame(this.editingGame.id, this.form)
       : this.recurring
-        ? this.adminService.createGames(this.buildRecurringRequests())
-        : this.adminService.createGame(this.form);
+        ? this.gamesService.createGames(this.buildRecurringRequests())
+        : this.gamesService.createGame(this.form);
 
     request$.subscribe({
       next: () => {
@@ -204,7 +206,7 @@ export class AdminGamesComponent implements OnInit {
     this.closingId    = game.id;
     this.errorMessage = null;
 
-    this.adminService.closeGame(game.id).subscribe({
+    this.gamesService.closeGame(game.id).subscribe({
       next: () => {
         this.closingId      = null;
         this.successMessage = 'Game closed.';
@@ -229,7 +231,7 @@ export class AdminGamesComponent implements OnInit {
   }
 
   loadPayments(gameId: number): void {
-    this.adminService.getSignupsForGame(gameId).subscribe({
+    this.gamesService.getSignups(gameId).subscribe({
       next: slots => this.signupsByGame[gameId] = slots,
       error: (error) => {
         this.errorMessage = getApiErrorMessage(
@@ -253,7 +255,7 @@ export class AdminGamesComponent implements OnInit {
   confirmPayment(gameId: number, slot: GameSlot): void {
     if (!slot.playerId || slot.version === undefined) return;
     this.paymentActionPlayerId = slot.playerId;
-    this.adminService.confirmPayment(gameId, slot.playerId, slot.version).subscribe({
+    this.gamesService.confirmPayment(gameId, slot.playerId, slot.version).subscribe({
       next: updated => {
         this.replacePaymentSlot(gameId, updated);
         this.paymentActionPlayerId = null;
@@ -268,7 +270,7 @@ export class AdminGamesComponent implements OnInit {
   resetPayment(gameId: number, slot: GameSlot): void {
     if (!slot.playerId || slot.version === undefined) return;
     this.paymentActionPlayerId = slot.playerId;
-    this.adminService.rejectPayment(gameId, slot.playerId, slot.version).subscribe({
+    this.gamesService.rejectPayment(gameId, slot.playerId, slot.version).subscribe({
       next: updated => {
         this.replacePaymentSlot(gameId, updated);
         this.paymentActionPlayerId = null;

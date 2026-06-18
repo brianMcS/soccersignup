@@ -3,34 +3,34 @@ import { of } from 'rxjs';
 import { provideRouter } from '@angular/router';
 
 import { AdminGamesComponent } from './admin-games.component';
-import { AdminService } from '../../../services/admin.service';
+import { GamesService } from '../../../services/games.service';
 
 describe('AdminGamesComponent', () => {
   let component: AdminGamesComponent;
   let fixture: ComponentFixture<AdminGamesComponent>;
-  let adminService: jasmine.SpyObj<AdminService>;
+  let gamesService: jasmine.SpyObj<GamesService>;
 
   beforeEach(async () => {
-    adminService = jasmine.createSpyObj<AdminService>(
-      'AdminService',
+    gamesService = jasmine.createSpyObj<GamesService>(
+      'GamesService',
       [
         'getAllGames',
         'createGame',
         'createGames',
         'updateGame',
         'closeGame',
-        'getSignupsForGame',
+        'getSignups',
         'confirmPayment',
         'rejectPayment'
       ]);
-    adminService.getAllGames.and.returnValue(of([]));
-    adminService.createGames.and.returnValue(of([]));
+    gamesService.getAllGames.and.returnValue(of([]));
+    gamesService.createGames.and.returnValue(of([]));
 
     await TestBed.configureTestingModule({
       imports: [AdminGamesComponent],
       providers: [
         provideRouter([]),
-        { provide: AdminService, useValue: adminService }
+        { provide: GamesService, useValue: gamesService }
       ]
     })
     .compileComponents();
@@ -59,11 +59,11 @@ describe('AdminGamesComponent', () => {
 
     component.submitForm();
 
-    expect(adminService.createGames).toHaveBeenCalledOnceWith([
+    expect(gamesService.createGames).toHaveBeenCalledOnceWith([
       jasmine.objectContaining({ gameDate: '2026-07-01' }),
       jasmine.objectContaining({ gameDate: '2026-07-08' }),
       jasmine.objectContaining({ gameDate: '2026-07-15' })
     ]);
-    expect(adminService.createGame).not.toHaveBeenCalled();
+    expect(gamesService.createGame).not.toHaveBeenCalled();
   });
 });

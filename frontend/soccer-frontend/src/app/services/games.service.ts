@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
-import {Game} from '../models/game.model';
+import {Game, GameRequest} from '../models/game.model';
 import {GameSlot, SignupRequest} from '../models/game-slot.model';
 
 @Injectable({
@@ -21,6 +21,22 @@ export class GamesService {
 
   getCompletedGames(): Observable<Game[]> {
     return this.http.get<Game[]>(`${this.gamesUrl}?status=COMPLETED`);
+  }
+
+  createGame(request: GameRequest): Observable<Game> {
+    return this.http.post<Game>(this.gamesUrl, request);
+  }
+
+  createGames(requests: GameRequest[]): Observable<Game[]> {
+    return this.http.post<Game[]>(`${this.gamesUrl}/batch`, { games: requests });
+  }
+
+  updateGame(id: number, request: GameRequest): Observable<Game> {
+    return this.http.put<Game>(`${this.gamesUrl}/${id}`, request);
+  }
+
+  closeGame(id: number): Observable<Game> {
+    return this.http.post<Game>(`${this.gamesUrl}/${id}/close`, {});
   }
 
   // GET /api/gameslots/{gameId} — who is signed up
@@ -44,6 +60,20 @@ export class GamesService {
   reportPayment(gameId: number, playerId: number, version: number): Observable<GameSlot> {
     return this.http.patch<GameSlot>(
       `${this.slotsUrl}/${gameId}/players/${playerId}/pay`,
+      { version }
+    );
+  }
+
+  confirmPayment(gameId: number, playerId: number, version: number): Observable<GameSlot> {
+    return this.http.patch<GameSlot>(
+      `${this.slotsUrl}/${gameId}/players/${playerId}/confirm`,
+      { version }
+    );
+  }
+
+  rejectPayment(gameId: number, playerId: number, version: number): Observable<GameSlot> {
+    return this.http.patch<GameSlot>(
+      `${this.slotsUrl}/${gameId}/players/${playerId}/reject`,
       { version }
     );
   }
