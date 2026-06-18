@@ -14,6 +14,9 @@ public class TeamSheet {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Version
+    private Long version;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "game_id", nullable = false, unique = true)
     private Game game;
@@ -47,6 +50,9 @@ public class TeamSheet {
 
     // Getters and setters
     public Long getId() { return id; }
+
+    public Long getVersion() { return version; }
+    public void setVersion(Long version) { this.version = version; }
 
     public Game getGame() { return game; }
     public void setGame(Game game) { this.game = game; }

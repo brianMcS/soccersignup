@@ -7,6 +7,7 @@ import java.util.List;
 
 public record TeamSheetResponse(
         Long id,
+        Long version,
         Long gameId,
         boolean published,
         LocalDateTime publishedAt,
@@ -16,6 +17,7 @@ public record TeamSheetResponse(
     public static TeamSheetResponse from(TeamSheet sheet){
         return new TeamSheetResponse(
                 sheet.getId(),
+                sheet.getVersion(),
                 sheet.getGame().getId(),
                 sheet.isPublished(),
                 sheet.getPublishedAt(),

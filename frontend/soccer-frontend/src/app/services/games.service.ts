@@ -41,10 +41,10 @@ export class GamesService {
     );
   }
 
-  reportPayment(gameId: number, playerId: number): Observable<GameSlot> {
+  reportPayment(gameId: number, playerId: number, version: number): Observable<GameSlot> {
     return this.http.patch<GameSlot>(
       `${this.slotsUrl}/${gameId}/players/${playerId}/pay`,
-      {}
+      { version }
     );
   }
 

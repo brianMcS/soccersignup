@@ -47,4 +47,22 @@ describe('AdminService', () => {
     expect(request.request.body).toEqual({ games });
     request.flush([]);
   });
+
+  it('sends the signup version when confirming payment', () => {
+    service.confirmPayment(12, 34, 5).subscribe();
+
+    const request = httpTesting.expectOne('/api/gameslots/12/players/34/confirm');
+    expect(request.request.method).toBe('PATCH');
+    expect(request.request.body).toEqual({ version: 5 });
+    request.flush({});
+  });
+
+  it('sends the signup version when resetting payment', () => {
+    service.rejectPayment(12, 34, 5).subscribe();
+
+    const request = httpTesting.expectOne('/api/gameslots/12/players/34/reject');
+    expect(request.request.method).toBe('PATCH');
+    expect(request.request.body).toEqual({ version: 5 });
+    request.flush({});
+  });
 });

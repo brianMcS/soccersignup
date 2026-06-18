@@ -2,6 +2,7 @@ package com.soccersignup.backend.controller;
 
 import com.soccersignup.backend.dto.TeamSheetRequest;
 import com.soccersignup.backend.dto.TeamSheetResponse;
+import com.soccersignup.backend.dto.VersionedActionRequest;
 import com.soccersignup.backend.model.Player;
 import com.soccersignup.backend.model.PlayerRole;
 import com.soccersignup.backend.service.TeamSheetService;
@@ -51,8 +52,11 @@ public class TeamSheetController {
     // Randomly splits confirmed players into two teams, saves as draft
     @PostMapping("/auto-split")
     @PreAuthorize("hasAnyRole('ADMIN', 'ORGANISER')")
-    public ResponseEntity<TeamSheetResponse> autoSplit(@PathVariable Long gameId) {
-        return ResponseEntity.ok(teamSheetService.autoSplit(gameId));
+    public ResponseEntity<TeamSheetResponse> autoSplit(
+            @PathVariable Long gameId,
+            @RequestBody(required = false) VersionedActionRequest request) {
+        Long expectedVersion = request == null ? null : request.version();
+        return ResponseEntity.ok(teamSheetService.autoSplit(gameId, expectedVersion));
     }
 
     // PUT /api/games/{gameId}/teamsheet
@@ -69,7 +73,10 @@ public class TeamSheetController {
     // Publishes the team sheet and notifies all confirmed players
     @PostMapping("/publish")
     @PreAuthorize("hasAnyRole('ADMIN', 'ORGANISER')")
-    public ResponseEntity<TeamSheetResponse> publishTeamSheet(@PathVariable Long gameId) {
-        return ResponseEntity.ok(teamSheetService.publishTeamSheet(gameId));
+    public ResponseEntity<TeamSheetResponse> publishTeamSheet(
+            @PathVariable Long gameId,
+            @RequestBody VersionedActionRequest request) {
+        return ResponseEntity.ok(teamSheetService.publishTeamSheet(
+                gameId, request.version()));
     }
 }

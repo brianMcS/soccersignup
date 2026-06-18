@@ -87,7 +87,7 @@ export class AdminTeamSheetComponent implements OnInit {
     this.splitting = true;
     this.errorMessage = null;
 
-    this.teamSheetService.autoSplit(this.gameId).subscribe({
+    this.teamSheetService.autoSplit(this.gameId, this.teamSheet?.version).subscribe({
       next: (sheet) => {
         this.teamSheet = sheet;
         this.splitting = false;
@@ -236,8 +236,14 @@ export class AdminTeamSheetComponent implements OnInit {
     const request = this.buildRequest();
 
     this.teamSheetService.saveTeamSheet(this.gameId, request).subscribe({
-      next: () => {
-        this.teamSheetService.publishTeamSheet(this.gameId).subscribe({
+      next: (savedSheet) => {
+        this.teamSheet = savedSheet;
+        if (savedSheet.version === undefined) {
+          this.publishing = false;
+          this.errorMessage = 'Could not publish because the team sheet version is missing. Refresh and try again.';
+          return;
+        }
+        this.teamSheetService.publishTeamSheet(this.gameId, savedSheet.version).subscribe({
           next: (sheet) => {
             this.teamSheet = sheet;
             this.publishing = false;
@@ -300,7 +306,7 @@ export class AdminTeamSheetComponent implements OnInit {
       positionX: e.positionX,
       positionY: e.positionY
     }));
-    return { entries };
+    return { version: this.teamSheet?.version, entries };
   }
 
   private positionEntryAtPointer(

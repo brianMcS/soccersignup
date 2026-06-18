@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
+import com.soccersignup.backend.exception.ConcurrencyConflictException;
 import com.soccersignup.backend.exception.ResourceNotFoundException;
 import com.soccersignup.backend.model.Game;
 import com.soccersignup.backend.model.GameStatus;
@@ -76,8 +77,9 @@ public class GameSlotServiceImpl implements GameSlotService {
 
     @Override
     @Transactional
-    public GameSlot reportPayment(Long gameId, Long playerId) {
+    public GameSlot reportPayment(Long gameId, Long playerId, Long expectedVersion) {
         GameSlot slot = findSignup(findGameById(gameId), findPlayerById(playerId));
+        validateVersion(expectedVersion, slot.getVersion(), "signup");
         if (slot.getStatus() == SlotStatus.WAITLISTED) {
             throw new IllegalStateException("Waitlisted players cannot report payment.");
         }
@@ -91,8 +93,13 @@ public class GameSlotServiceImpl implements GameSlotService {
 
     @Override
     @Transactional
-    public GameSlot confirmPayment(Long gameId, Long playerId, Player confirmedBy) {
+    public GameSlot confirmPayment(
+            Long gameId,
+            Long playerId,
+            Player confirmedBy,
+            Long expectedVersion) {
         GameSlot slot = findSignup(findGameById(gameId), findPlayerById(playerId));
+        validateVersion(expectedVersion, slot.getVersion(), "signup");
         if (slot.getStatus() == SlotStatus.WAITLISTED) {
             throw new IllegalStateException("Waitlisted players cannot have payments confirmed.");
         }
@@ -107,8 +114,9 @@ public class GameSlotServiceImpl implements GameSlotService {
 
     @Override
     @Transactional
-    public GameSlot rejectPayment(Long gameId, Long playerId) {
+    public GameSlot rejectPayment(Long gameId, Long playerId, Long expectedVersion) {
         GameSlot slot = findSignup(findGameById(gameId), findPlayerById(playerId));
+        validateVersion(expectedVersion, slot.getVersion(), "signup");
         if (slot.getPaymentStatus() == PaymentStatus.UNPAID) {
             throw new IllegalStateException("Payment is already unpaid.");
         }
@@ -138,6 +146,14 @@ public class GameSlotServiceImpl implements GameSlotService {
     private GameSlot findSignup(Game game, Player player){
         return gameSlotRepository.findByGameAndPlayer(game, player)
                 .orElseThrow(() -> new ResourceNotFoundException("Signup not found for this player/game"));
+    }
+
+    private void validateVersion(Long expectedVersion, Long actualVersion, String resourceName) {
+        if (expectedVersion == null || !expectedVersion.equals(actualVersion)) {
+            throw new ConcurrencyConflictException(
+                    "This " + resourceName
+                            + " was updated by someone else. Refresh and try again.");
+        }
     }
 
     private void validatePlayerNotAlreadySignedUp(Game game, Player player){

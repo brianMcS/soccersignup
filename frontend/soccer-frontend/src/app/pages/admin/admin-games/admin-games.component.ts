@@ -251,9 +251,9 @@ export class AdminGamesComponent implements OnInit {
   }
 
   confirmPayment(gameId: number, slot: GameSlot): void {
-    if (!slot.playerId) return;
+    if (!slot.playerId || slot.version === undefined) return;
     this.paymentActionPlayerId = slot.playerId;
-    this.adminService.confirmPayment(gameId, slot.playerId).subscribe({
+    this.adminService.confirmPayment(gameId, slot.playerId, slot.version).subscribe({
       next: updated => {
         this.replacePaymentSlot(gameId, updated);
         this.paymentActionPlayerId = null;
@@ -266,9 +266,9 @@ export class AdminGamesComponent implements OnInit {
   }
 
   resetPayment(gameId: number, slot: GameSlot): void {
-    if (!slot.playerId) return;
+    if (!slot.playerId || slot.version === undefined) return;
     this.paymentActionPlayerId = slot.playerId;
-    this.adminService.rejectPayment(gameId, slot.playerId).subscribe({
+    this.adminService.rejectPayment(gameId, slot.playerId, slot.version).subscribe({
       next: updated => {
         this.replacePaymentSlot(gameId, updated);
         this.paymentActionPlayerId = null;

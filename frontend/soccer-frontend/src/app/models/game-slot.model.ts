@@ -1,5 +1,6 @@
 export interface GameSlot {
   id?: number;
+  version?: number;
   gameId?: number;
   playerId?: number;
   playerName?: string;

@@ -9,11 +9,11 @@ public interface TeamSheetService {
 
     TeamSheetResponse getTeamSheet(Long gameId);
 
-    TeamSheetResponse autoSplit(Long gameId);
+    TeamSheetResponse autoSplit(Long gameId, Long expectedVersion);
 
     TeamSheetResponse saveTeamSheet(Long gameId, TeamSheetRequest request);
 
-    TeamSheetResponse publishTeamSheet(Long gameId);
+    TeamSheetResponse publishTeamSheet(Long gameId, Long expectedVersion);
 
     void handlePublishedSheetDeparture(
             Game game,

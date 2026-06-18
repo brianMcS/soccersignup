@@ -3,6 +3,7 @@ package com.soccersignup.backend.controller;
 import java.util.List;
 
 import com.soccersignup.backend.dto.GameSlotResponse;
+import com.soccersignup.backend.dto.VersionedActionRequest;
 import com.soccersignup.backend.model.Player;
 import com.soccersignup.backend.model.PlayerRole;
 import org.springframework.http.HttpStatus;
@@ -75,13 +76,14 @@ public class GameSlotController {
     public ResponseEntity<GameSlotResponse> reportPayment(
             @PathVariable Long gameId,
             @PathVariable Long playerId,
+            @RequestBody VersionedActionRequest request,
         Authentication authentication) {
         Player currentPlayer = (Player) authentication.getPrincipal();
         if (!currentPlayer.getId().equals(playerId)) {
             throw new AccessDeniedException("You cannot report payment for another player.");
         }
         return ResponseEntity.ok(GameSlotResponse.from(
-                gameSlotService.reportPayment(gameId, playerId)));
+                gameSlotService.reportPayment(gameId, playerId, request.version())));
     }
 
     @PatchMapping("/{gameId}/players/{playerId}/confirm")
@@ -89,19 +91,22 @@ public class GameSlotController {
     public ResponseEntity<GameSlotResponse> confirmPayment(
             @PathVariable Long gameId,
             @PathVariable Long playerId,
+            @RequestBody VersionedActionRequest request,
             Authentication authentication) {
         Player currentPlayer = (Player) authentication.getPrincipal();
         return ResponseEntity.ok(GameSlotResponse.from(
-                gameSlotService.confirmPayment(gameId, playerId, currentPlayer)));
+                gameSlotService.confirmPayment(
+                        gameId, playerId, currentPlayer, request.version())));
     }
 
     @PatchMapping("/{gameId}/players/{playerId}/reject")
     @PreAuthorize("hasAnyRole('ADMIN', 'ORGANISER')")
     public ResponseEntity<GameSlotResponse> rejectPayment(
             @PathVariable Long gameId,
-            @PathVariable Long playerId) {
+            @PathVariable Long playerId,
+            @RequestBody VersionedActionRequest request) {
         return ResponseEntity.ok(GameSlotResponse.from(
-                gameSlotService.rejectPayment(gameId, playerId)));
+                gameSlotService.rejectPayment(gameId, playerId, request.version())));
     }
 
     record SignupRequest(Long gameId){}

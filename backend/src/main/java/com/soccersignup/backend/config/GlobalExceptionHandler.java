@@ -1,6 +1,7 @@
 package com.soccersignup.backend.config;
 
 import com.soccersignup.backend.dto.ErrorResponse;
+import com.soccersignup.backend.exception.ConcurrencyConflictException;
 import com.soccersignup.backend.exception.ResourceNotFoundException;
 import com.soccersignup.backend.exception.InvalidCredentialsException;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,14 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<ErrorResponse> handleConflict(IllegalStateException e) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ErrorResponse(e.getMessage(), 409, LocalDateTime.now()));
+    }
+
+    @ExceptionHandler(ConcurrencyConflictException.class)
+    public ResponseEntity<ErrorResponse> handleConcurrencyConflict(
+            ConcurrencyConflictException e) {
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
                 .body(new ErrorResponse(e.getMessage(), 409, LocalDateTime.now()));

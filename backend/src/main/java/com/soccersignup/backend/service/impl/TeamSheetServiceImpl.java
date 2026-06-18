@@ -3,6 +3,7 @@ package com.soccersignup.backend.service.impl;
 import com.soccersignup.backend.dto.TeamSheetEntryRequest;
 import com.soccersignup.backend.dto.TeamSheetRequest;
 import com.soccersignup.backend.dto.TeamSheetResponse;
+import com.soccersignup.backend.exception.ConcurrencyConflictException;
 import com.soccersignup.backend.exception.ResourceNotFoundException;
 import com.soccersignup.backend.model.Game;
 import com.soccersignup.backend.model.GameSlot;
@@ -71,7 +72,7 @@ public class TeamSheetServiceImpl implements TeamSheetService {
 
     @Override
     @Transactional
-    public TeamSheetResponse autoSplit(Long gameId) {
+    public TeamSheetResponse autoSplit(Long gameId, Long expectedVersion) {
         Game game = findGameById(gameId);
         List<GameSlot> confirmedSlots = findConfirmedSlots(game);
         if (confirmedSlots.isEmpty()) {
@@ -79,7 +80,7 @@ public class TeamSheetServiceImpl implements TeamSheetService {
         }
 
         List<GameSlot> randomizedSlots = teamSheetRandomizer.randomize(confirmedSlots);
-        TeamSheet sheet = findOrCreateTeamSheet(game);
+        TeamSheet sheet = findOrCreateTeamSheet(game, expectedVersion);
         List<TeamSheetEntry> entries = teamAssignmentPolicy.assign(sheet, randomizedSlots);
 
         sheet.getEntries().clear();
@@ -92,7 +93,7 @@ public class TeamSheetServiceImpl implements TeamSheetService {
     @Transactional
     public TeamSheetResponse saveTeamSheet(Long gameId, TeamSheetRequest request) {
         Game game = findGameById(gameId);
-        TeamSheet sheet = findOrCreateTeamSheet(game);
+        TeamSheet sheet = findOrCreateTeamSheet(game, request.version());
         List<TeamSheetEntry> replacementEntries = createEntries(sheet, game, request);
 
         sheet.getEntries().clear();
@@ -104,9 +105,10 @@ public class TeamSheetServiceImpl implements TeamSheetService {
 
     @Override
     @Transactional
-    public TeamSheetResponse publishTeamSheet(Long gameId) {
+    public TeamSheetResponse publishTeamSheet(Long gameId, Long expectedVersion) {
         Game game = findGameById(gameId);
         TeamSheet sheet = findTeamSheet(game);
+        validateVersion(expectedVersion, sheet.getVersion(), "team sheet");
         validateNotEmpty(sheet);
         validateCompleteConfirmedSquad(game, sheet);
         sheet.setPublished(true);
@@ -167,8 +169,12 @@ public class TeamSheetServiceImpl implements TeamSheetService {
                         "Team sheet not found for game: " + game.getId()));
     }
 
-    private TeamSheet findOrCreateTeamSheet(Game game) {
+    private TeamSheet findOrCreateTeamSheet(Game game, Long expectedVersion) {
         return teamSheetRepository.findByGame(game)
+                .map(sheet -> {
+                    validateVersion(expectedVersion, sheet.getVersion(), "team sheet");
+                    return sheet;
+                })
                 .orElseGet(() -> createTeamSheet(game));
     }
 
@@ -279,6 +285,14 @@ public class TeamSheetServiceImpl implements TeamSheetService {
                     "Team sheet must include every confirmed player exactly once. "
                             + missingPlayerIds.size() + " confirmed player(s) are missing and "
                             + unconfirmedPlayerIds.size() + " unconfirmed player(s) are assigned.");
+        }
+    }
+
+    private void validateVersion(Long expectedVersion, Long actualVersion, String resourceName) {
+        if (expectedVersion == null || !expectedVersion.equals(actualVersion)) {
+            throw new ConcurrencyConflictException(
+                    "This " + resourceName
+                            + " was updated by someone else. Refresh and try again.");
         }
     }
 

@@ -209,12 +209,18 @@ export class GameSignupListComponent implements OnInit, OnDestroy {
   }
 
   reportPayment(): void {
-    if (!this.game?.id || !this.currentUser?.id || !this.canReportPayment) return;
+    const version = this.userSlot?.version;
+    if (!this.game?.id
+      || !this.currentUser?.id
+      || !this.canReportPayment
+      || version === undefined) {
+      return;
+    }
     this.reportingPayment = true;
     this.actionError = null;
     this.actionSuccess = null;
 
-    this.gamesService.reportPayment(this.game.id, this.currentUser.id).subscribe({
+    this.gamesService.reportPayment(this.game.id, this.currentUser.id, version).subscribe({
       next: () => {
         this.reportingPayment = false;
         this.actionSuccess = 'Payment reported. The organiser can now confirm it.';

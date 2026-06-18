@@ -10,6 +10,7 @@ import com.soccersignup.backend.model.PlayerRole;
 
 public record GameSlotResponse(
         Long id,
+        Long version,
         Long playerId,
         String playerName,
         String playerEmail,
@@ -23,6 +24,7 @@ public record GameSlotResponse(
     public static GameSlotResponse from(GameSlot gameSlot) {
         return new GameSlotResponse(
                 gameSlot.getId(),
+                gameSlot.getVersion(),
                 gameSlot.getPlayer().getId(),
                 gameSlot.getPlayer().getName(),
                 gameSlot.getPlayer().getEmail(),
@@ -46,6 +48,7 @@ public record GameSlotResponse(
 
         return new GameSlotResponse(
                 gameSlot.getId(),
+                gameSlot.getVersion(),
                 gameSlot.getPlayer().getId(),
                 gameSlot.getPlayer().getName(),
                 null,

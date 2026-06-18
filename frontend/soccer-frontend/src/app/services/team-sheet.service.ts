@@ -19,8 +19,8 @@ export class TeamSheetService {
   }
 
   // Ask the backend to randomly split confirmed players into two teams
-  autoSplit(gameId: number): Observable<TeamSheet> {
-    return this.http.post<TeamSheet>(`${this.url(gameId)}/auto-split`, {});
+  autoSplit(gameId: number, version?: number): Observable<TeamSheet> {
+    return this.http.post<TeamSheet>(`${this.url(gameId)}/auto-split`, { version });
   }
 
   // Save the full team sheet (organiser's drag-and-drop result)
@@ -29,7 +29,7 @@ export class TeamSheetService {
   }
 
   // Publish the team sheet — notifies all confirmed players
-  publishTeamSheet(gameId: number): Observable<TeamSheet> {
-    return this.http.post<TeamSheet>(`${this.url(gameId)}/publish`, {});
+  publishTeamSheet(gameId: number, version: number): Observable<TeamSheet> {
+    return this.http.post<TeamSheet>(`${this.url(gameId)}/publish`, { version });
   }
 }

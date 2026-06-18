@@ -71,17 +71,17 @@ export class AdminService {
     return this.http.get<GameSlot[]>(`/api/gameslots/${gameId}`);
   }
 
-  confirmPayment(gameId: number, playerId: number): Observable<GameSlot> {
+  confirmPayment(gameId: number, playerId: number, version: number): Observable<GameSlot> {
     return this.http.patch<GameSlot>(
       `/api/gameslots/${gameId}/players/${playerId}/confirm`,
-      {}
+      { version }
     );
   }
 
-  rejectPayment(gameId: number, playerId: number): Observable<GameSlot> {
+  rejectPayment(gameId: number, playerId: number, version: number): Observable<GameSlot> {
     return this.http.patch<GameSlot>(
       `/api/gameslots/${gameId}/players/${playerId}/reject`,
-      {}
+      { version }
     );
   }
 }

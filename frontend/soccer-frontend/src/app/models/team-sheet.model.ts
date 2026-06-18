@@ -12,6 +12,7 @@ export interface TeamSheetEntry {
 
 export interface TeamSheet {
   id?: number;
+  version?: number;
   gameId: number;
   published: boolean;
   publishedAt?: string;
@@ -21,6 +22,7 @@ export interface TeamSheet {
 
 // What the frontend sends when saving the team sheet
 export interface TeamSheetRequest {
+  version?: number;
   entries: TeamSheetEntryRequest[];
 }
 

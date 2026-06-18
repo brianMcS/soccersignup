@@ -2,6 +2,7 @@ package com.soccersignup.backend.service.impl;
 
 import com.soccersignup.backend.dto.TeamSheetEntryRequest;
 import com.soccersignup.backend.dto.TeamSheetRequest;
+import com.soccersignup.backend.exception.ConcurrencyConflictException;
 import com.soccersignup.backend.exception.ResourceNotFoundException;
 import com.soccersignup.backend.model.Game;
 import com.soccersignup.backend.model.GameSlot;
@@ -160,7 +161,7 @@ class TeamSheetServiceImplTest {
                 .thenReturn(List.of(homeEntry, awayEntry));
         when(teamSheetRepository.save(sheet)).thenReturn(sheet);
 
-        service.autoSplit(1L);
+        service.autoSplit(1L, 1L);
 
         assertThat(sheet.isPublished()).isFalse();
         assertThat(sheet.getPublishedAt()).isNull();
@@ -189,7 +190,7 @@ class TeamSheetServiceImplTest {
         when(gameSlotRepository.findByGameAndStatus(game, SlotStatus.CONFIRMED))
                 .thenReturn(List.of(firstSlot, secondSlot));
 
-        service.publishTeamSheet(1L);
+        service.publishTeamSheet(1L, 1L);
 
         verify(notificationRepository).deleteByGameAndReadFalse(game);
 
@@ -221,7 +222,7 @@ class TeamSheetServiceImplTest {
                         createSlot(game, assignedPlayer),
                         createSlot(game, missingPlayer)));
 
-        assertThatThrownBy(() -> service.publishTeamSheet(1L))
+        assertThatThrownBy(() -> service.publishTeamSheet(1L, 1L))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("1 confirmed player(s) are missing")
                 .hasMessageContaining("0 unconfirmed player(s) are assigned");
@@ -244,7 +245,7 @@ class TeamSheetServiceImplTest {
         when(gameSlotRepository.findByGameAndStatus(game, SlotStatus.CONFIRMED))
                 .thenReturn(List.of(createSlot(game, confirmedPlayer)));
 
-        assertThatThrownBy(() -> service.publishTeamSheet(1L))
+        assertThatThrownBy(() -> service.publishTeamSheet(1L, 1L))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("0 confirmed player(s) are missing")
                 .hasMessageContaining("1 unconfirmed player(s) are assigned");
@@ -260,7 +261,7 @@ class TeamSheetServiceImplTest {
         sheet.setPublished(true);
         sheet.setPublishedAt(LocalDateTime.now());
         Player player = createPlayer(1L, "Alex");
-        TeamSheetRequest request = new TeamSheetRequest(List.of(
+        TeamSheetRequest request = new TeamSheetRequest(1L, List.of(
                 new TeamSheetEntryRequest(1L, TeamSide.HOME, 7, 25, 50)));
 
         when(gameRepository.findById(1L)).thenReturn(Optional.of(game));
@@ -274,6 +275,39 @@ class TeamSheetServiceImplTest {
 
         assertThat(sheet.isPublished()).isFalse();
         assertThat(sheet.getPublishedAt()).isNull();
+    }
+
+    @Test
+    void saveTeamSheetRejectsStaleVersion() {
+        Game game = createGame(1L);
+        TeamSheet sheet = createSheet(game);
+        TeamSheetRequest request = new TeamSheetRequest(0L, List.of(
+                new TeamSheetEntryRequest(1L, TeamSide.HOME, 7, 25, 50)));
+
+        when(gameRepository.findById(1L)).thenReturn(Optional.of(game));
+        when(teamSheetRepository.findByGame(game)).thenReturn(Optional.of(sheet));
+
+        assertThatThrownBy(() -> service.saveTeamSheet(1L, request))
+                .isInstanceOf(ConcurrencyConflictException.class)
+                .hasMessage("This team sheet was updated by someone else. Refresh and try again.");
+
+        verify(teamSheetRepository, never()).save(any());
+    }
+
+    @Test
+    void publishTeamSheetRejectsStaleVersion() {
+        Game game = createGame(1L);
+        TeamSheet sheet = createSheet(game);
+
+        when(gameRepository.findById(1L)).thenReturn(Optional.of(game));
+        when(teamSheetRepository.findByGame(game)).thenReturn(Optional.of(sheet));
+
+        assertThatThrownBy(() -> service.publishTeamSheet(1L, 0L))
+                .isInstanceOf(ConcurrencyConflictException.class)
+                .hasMessage("This team sheet was updated by someone else. Refresh and try again.");
+
+        verify(teamSheetRepository, never()).save(any());
+        verify(notificationRepository, never()).saveAll(any());
     }
 
     @Test
@@ -363,6 +397,7 @@ class TeamSheetServiceImplTest {
     private TeamSheet createSheet(Game game) {
         TeamSheet sheet = new TeamSheet();
         sheet.setGame(game);
+        sheet.setVersion(1L);
         return sheet;
     }
 

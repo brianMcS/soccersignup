@@ -11,9 +11,13 @@ public interface GameSlotService {
 
     void removeSignup(Long gameId, Long playerId);
 
-    GameSlot reportPayment(Long gameId, Long playerId);
+    GameSlot reportPayment(Long gameId, Long playerId, Long expectedVersion);
 
-    GameSlot confirmPayment(Long gameId, Long playerId, Player confirmedBy);
+    GameSlot confirmPayment(
+            Long gameId,
+            Long playerId,
+            Player confirmedBy,
+            Long expectedVersion);
 
-    GameSlot rejectPayment(Long gameId, Long playerId);
+    GameSlot rejectPayment(Long gameId, Long playerId, Long expectedVersion);
 }
