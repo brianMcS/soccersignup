@@ -75,6 +75,13 @@ export class RegisterComponent implements OnInit, OnDestroy {
         this.currentUser = u;
       })
     );
+
+    this.subs.add(
+      this.authService.oauthError$.subscribe(message => {
+        this.googleLoading = false;
+        this.errorMessage = message;
+      })
+    );
   }
 
   ngOnDestroy(): void {
@@ -84,6 +91,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
   // ─── Auth ─────────────────────────────────────────────────────────────────
   onGoogleLogin(): void {
     this.googleLoading = true;
+    this.errorMessage = null;
     this.authService.loginWithGoogle();
     setTimeout(() => this.googleLoading = false, 1500);
   }

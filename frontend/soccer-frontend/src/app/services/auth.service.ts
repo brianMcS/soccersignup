@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import {isPlatformBrowser} from '@angular/common';
 import {UserService} from './user.service';
 import {HttpClient} from '@angular/common/http';
-import {Observable} from 'rxjs';
+import {Observable, Subject} from 'rxjs';
 import { isJwtUsable } from '../utils/jwt-token';
 
 export interface AuthResponse {
@@ -29,8 +29,10 @@ export interface RegistrationRequest {
 export class AuthService {
   private isBrowser: boolean;
   private oauthPopup: Window | null = null;
+  private oauthErrorSubject = new Subject<string>();
 
   public isLoggedIn$!: typeof this.userService.isLoggedIn$;
+  public oauthError$ = this.oauthErrorSubject.asObservable();
 
   constructor(
     private router: Router,
@@ -95,7 +97,7 @@ export class AuthService {
     );
 
     if (!this.oauthPopup) {
-      alert('Popup blocked. Please allow popups for this site.');
+      this.oauthErrorSubject.next('Popup blocked. Please allow popups for this site and try again.');
     }
   }
 
@@ -127,7 +129,9 @@ export class AuthService {
             }
           });
         } else if (data && !data.success && data.error) {
-          this.ngZone.run(() => alert('Authentication failed: ' + data.error));
+          this.ngZone.run(() => {
+            this.oauthErrorSubject.next('Authentication failed: ' + data.error);
+          });
         }
       } catch (e) {
         console.error('Error handling OAuth message', e);

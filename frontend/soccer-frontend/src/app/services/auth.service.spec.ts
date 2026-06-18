@@ -69,6 +69,17 @@ describe('AuthService', () => {
     );
   });
 
+  it('emits an OAuth error when the Google popup is blocked', (done) => {
+    spyOn(window, 'open').and.returnValue(null);
+
+    service.oauthError$.subscribe(message => {
+      expect(message).toBe('Popup blocked. Please allow popups for this site and try again.');
+      done();
+    });
+
+    service.loginWithGoogle();
+  });
+
   it('accepts an OAuth token only from the popup on the current origin', () => {
     const popupFrame = document.createElement('iframe');
     document.body.appendChild(popupFrame);
@@ -108,5 +119,25 @@ describe('AuthService', () => {
     expect(router.navigate).not.toHaveBeenCalled();
     popupFrame.remove();
     otherFrame.remove();
+  });
+
+  it('emits an OAuth error from the login popup', (done) => {
+    const popupFrame = document.createElement('iframe');
+    document.body.appendChild(popupFrame);
+    const popup = popupFrame.contentWindow!;
+    spyOn(window, 'open').and.returnValue(popup);
+    service.loginWithGoogle();
+
+    service.oauthError$.subscribe(message => {
+      expect(message).toBe('Authentication failed: Google rejected the sign-in.');
+      popupFrame.remove();
+      done();
+    });
+
+    window.dispatchEvent(new MessageEvent('message', {
+      origin: window.location.origin,
+      source: popup,
+      data: { success: false, error: 'Google rejected the sign-in.' }
+    }));
   });
 });
