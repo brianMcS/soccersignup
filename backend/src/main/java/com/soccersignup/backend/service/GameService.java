@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface GameService {
     Game createGame(Game game);
+    List<Game> createGames(List<GameRequest> requests);
     List<Game> getAllGames();
     List<Game> getGamesByStatus(GameStatus status);
     Game getGameById(Long id);

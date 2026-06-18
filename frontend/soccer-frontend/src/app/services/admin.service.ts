@@ -33,6 +33,10 @@ export class AdminService {
     return this.http.post<GameResponse>('/api/games', request);
   }
 
+  createGames(requests: GameRequest[]): Observable<GameResponse[]> {
+    return this.http.post<GameResponse[]>('/api/games/batch', { games: requests });
+  }
+
   getAllGames(): Observable<GameResponse[]>{
     return this.http.get<GameResponse[]>('/api/games');
   }

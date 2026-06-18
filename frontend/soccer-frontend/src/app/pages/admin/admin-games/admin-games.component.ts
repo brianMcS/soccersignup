@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule }  from '@angular/common';
 import { FormsModule }   from '@angular/forms';
-import { forkJoin, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { AdminService, GameRequest, GameResponse } from '../../../services/admin.service';
 import { Router } from '@angular/router';
 import { GameSlot } from '../../../models/game-slot.model';
@@ -119,7 +119,7 @@ export class AdminGamesComponent implements OnInit {
     const request$: Observable<GameResponse | GameResponse[]> = this.editingGame
       ? this.adminService.updateGame(this.editingGame.id, this.form)
       : this.recurring
-        ? forkJoin(this.buildRecurringRequests().map(game => this.adminService.createGame(game)))
+        ? this.adminService.createGames(this.buildRecurringRequests())
         : this.adminService.createGame(this.form);
 
     request$.subscribe({

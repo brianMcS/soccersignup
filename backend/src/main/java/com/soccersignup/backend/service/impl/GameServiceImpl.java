@@ -34,6 +34,15 @@ public class GameServiceImpl  implements GameService {
     }
 
     @Override
+    @Transactional
+    public List<Game> createGames(List<GameRequest> requests) {
+        return gameRepository.saveAll(
+                requests.stream()
+                        .map(this::newGame)
+                        .toList());
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public List<Game> getAllGames() {
         return gameRepository.findAll();
@@ -89,5 +98,16 @@ public class GameServiceImpl  implements GameService {
 
     private String normalizeLink(String revolutLink) {
         return revolutLink == null || revolutLink.isBlank() ? null : revolutLink.trim();
+    }
+
+    private Game newGame(GameRequest request) {
+        Game game = new Game();
+        game.setGameDate(request.gameDate());
+        game.setKickOffTime(request.kickOffTime());
+        game.setLocation(request.location());
+        game.setMaxPlayers(request.maxPlayers());
+        game.setFeeAmount(defaultFee(request.feeAmount()));
+        game.setRevolutLink(normalizeLink(request.revolutLink()));
+        return game;
     }
 }

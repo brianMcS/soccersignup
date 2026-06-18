@@ -1,6 +1,8 @@
 package com.soccersignup.backend.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.soccersignup.backend.dto.CreateGamesRequest;
+import com.soccersignup.backend.dto.GameRequest;
 import com.soccersignup.backend.dto.RegistrationRequest;
 import com.soccersignup.backend.model.Player;
 import com.soccersignup.backend.model.PlayerRole;
@@ -19,7 +21,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -117,6 +121,50 @@ class SecurityAuthorizationIntegrationTest {
                 .andExpect(jsonPath("$.location").value("Dublin"));
     }
 
+    @Test
+    void batchGameCreationCreatesAllGamesInOneRequest() throws Exception {
+        String organiserToken = tokenFor(
+                "organiser@example.com",
+                PlayerRole.PLAYER,
+                PlayerRole.ORGANISER);
+        CreateGamesRequest request = new CreateGamesRequest(List.of(
+                gameRequest(LocalDate.now().plusDays(1), 14),
+                gameRequest(LocalDate.now().plusDays(8), 14)
+        ));
+
+        mockMvc.perform(post("/api/games/batch")
+                        .header("Authorization", "Bearer " + organiserToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].location").value("Dublin"))
+                .andExpect(jsonPath("$[1].location").value("Dublin"));
+    }
+
+    @Test
+    void batchGameCreationRejectsInvalidBatchBeforeCreatingAnyGames() throws Exception {
+        String organiserToken = tokenFor(
+                "organiser-invalid@example.com",
+                PlayerRole.PLAYER,
+                PlayerRole.ORGANISER);
+        long gamesBefore = gameRepository.count();
+        CreateGamesRequest request = new CreateGamesRequest(List.of(
+                gameRequest(LocalDate.now().plusDays(1), 14),
+                gameRequest(LocalDate.now().plusDays(8), 0)
+        ));
+
+        mockMvc.perform(post("/api/games/batch")
+                        .header("Authorization", "Bearer " + organiserToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Validation failed"))
+                .andExpect(jsonPath("$.fieldErrors").isMap());
+
+        assertThat(gameRepository.count()).isEqualTo(gamesBefore);
+    }
+
     private String tokenFor(String email, PlayerRole... roles) {
         Player player = new Player(email, email, null);
         for (PlayerRole role : roles) {
@@ -124,5 +172,15 @@ class SecurityAuthorizationIntegrationTest {
         }
         Player saved = playerRepository.saveAndFlush(player);
         return jwtTokenProvider.generateToken(saved);
+    }
+
+    private GameRequest gameRequest(LocalDate gameDate, int maxPlayers) {
+        return new GameRequest(
+                gameDate,
+                LocalTime.of(19, 0),
+                "Dublin",
+                maxPlayers,
+                null,
+                null);
     }
 }

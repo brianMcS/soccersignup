@@ -3,6 +3,7 @@ package com.soccersignup.backend.controller;
 import java.math.BigDecimal;
 import java.util.List;
 
+import com.soccersignup.backend.dto.CreateGamesRequest;
 import com.soccersignup.backend.dto.GameRequest;
 import com.soccersignup.backend.dto.GameResponse;
 import com.soccersignup.backend.model.GameStatus;
@@ -37,6 +38,17 @@ public class GameController {
         game.setRevolutLink(normalizeLink(request.revolutLink()));
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(GameResponse.from(gameService.createGame(game)));
+    }
+
+    @PostMapping("/batch")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ORGANISER')")
+    public ResponseEntity<List<GameResponse>> createGames(
+            @Valid @RequestBody CreateGamesRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(gameService.createGames(request.games())
+                        .stream()
+                        .map(GameResponse::from)
+                        .toList());
     }
 
     @GetMapping
