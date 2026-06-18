@@ -14,25 +14,8 @@
   margin: 0 auto;
 }
 
-.skeleton {
-  border-radius: 1rem;
-  background-image: linear-gradient(
-    90deg,
-    var(--color-surface-800) 0%,
-    var(--color-surface-700) 50%,
-    var(--color-surface-800) 100%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.4s ease infinite;
-}
-
 .skeleton-hero  { height: 160px; }
 .skeleton-pitch { height: 480px; }
-
-@keyframes shimmer {
-  0%   { background-position: -200% 0; }
-  100% { background-position:  200% 0; }
-}
 
 /* ─── EMPTY / ERROR ───────────────────────────────────────── */
 .teams-empty {
@@ -141,78 +124,6 @@
 
 .team-colour--home { background: var(--color-pitch-500, #2e7d32); }
 .team-colour--away { background: var(--color-amber-500, #e8a820); }
-
-/* ─── PITCH ───────────────────────────────────────────────── */
-.pitch {
-  position: relative;
-  width: 100%;
-  /* 3:2 landscape aspect ratio — standard football pitch proportions */
-  aspect-ratio: 3 / 2;
-  background: linear-gradient(
-    180deg,
-    #2d5a27 0%, #336b2e 8.33%,
-    #2d5a27 8.33%, #2d5a27 16.66%,
-    #336b2e 16.66%, #336b2e 25%,
-    #2d5a27 25%, #2d5a27 33.33%,
-    #336b2e 33.33%, #336b2e 41.66%,
-    #2d5a27 41.66%, #2d5a27 50%,
-    #336b2e 50%, #336b2e 58.33%,
-    #2d5a27 58.33%, #2d5a27 66.66%,
-    #336b2e 66.66%, #336b2e 75%,
-    #2d5a27 75%, #2d5a27 83.33%,
-    #336b2e 83.33%, #336b2e 91.66%,
-    #2d5a27 91.66%, #2d5a27 100%
-  );
-  border-radius: 0.75rem;
-  border: 2px solid rgba(255,255,255,0.15);
-  overflow: hidden;
-}
-
-/* ─── PITCH MARKINGS ──────────────────────────────────────── */
-.pitch-markings {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.pitch-centre-line {
-  position: absolute;
-  left: 50%;
-  top: 5%;
-  bottom: 5%;
-  width: 1px;
-  background: rgba(255,255,255,0.3);
-  transform: translateX(-50%);
-}
-
-.pitch-centre-circle {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 18%;
-  aspect-ratio: 1;
-  border: 1px solid rgba(255,255,255,0.3);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.pitch-box {
-  position: absolute;
-  top: 25%;
-  height: 50%;
-  width: 12%;
-  border: 1px solid rgba(255,255,255,0.3);
-}
-
-.pitch-box--home {
-  left: 0;
-  border-left: none;
-}
-
-.pitch-box--away {
-  right: 0;
-  border-right: none;
-}
 
 /* ─── PLAYER TOKENS ───────────────────────────────────────── */
 .player-token {
