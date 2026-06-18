@@ -1,5 +1,13 @@
-import {Component, HostListener, OnDestroy, OnInit} from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  OnDestroy,
+  OnInit,
+  ViewChild
+} from '@angular/core';
 import {CommonModule} from '@angular/common';
+import {A11yModule} from '@angular/cdk/a11y';
 import {NavigationEnd, Router, RouterModule} from '@angular/router';
 import {filter, Subscription} from 'rxjs';
 import {AuthService} from '../../services/auth.service';
@@ -15,11 +23,13 @@ interface NavItem{
 
 @Component({
   selector: 'app-nav',
-  imports: [CommonModule, RouterModule, NotificationBellComponent],
+  imports: [CommonModule, RouterModule, NotificationBellComponent, A11yModule],
   templateUrl: './nav.component.html',
   styleUrl: './nav.component.css'
 })
 export class NavComponent implements OnInit, OnDestroy {
+  @ViewChild('menuButton') menuButton?: ElementRef<HTMLButtonElement>;
+
   menuOpen = false;
   currentUser: CurrentUser | null = null;
   canManageGames = false;
@@ -57,7 +67,7 @@ export class NavComponent implements OnInit, OnDestroy {
         filter(e => e instanceof NavigationEnd)
       ).subscribe((e: any) => {
         this.activeRoute = e.urlAfterRedirects;
-        this.menuOpen = false;
+        this.closeMenu(false);
       })
     );
     this.activeRoute = this.router.url;
@@ -69,11 +79,19 @@ export class NavComponent implements OnInit, OnDestroy {
   }
 
   toggleMenu(): void {
-    this.menuOpen = !this.menuOpen;
+    if (this.menuOpen) {
+      this.closeMenu();
+    } else {
+      this.menuOpen = true;
+    }
   }
 
-  closeMenu(): void {
+  closeMenu(restoreFocus = true): void {
+    if (!this.menuOpen) return;
     this.menuOpen = false;
+    if (restoreFocus) {
+      setTimeout(() => this.menuButton?.nativeElement.focus());
+    }
   }
 
   logout(): void {

@@ -88,11 +88,20 @@
       </p>
 
       <!-- ── THE PITCH ──────────────────────────────────────── -->
+      <p class="editor-hint editor-hint--accessible">
+        Keyboard: focus a player and use the arrow keys to move them.
+        Touch: select a player, then tap the pitch to place them.
+      </p>
+      <p class="sr-only" aria-live="polite">{{ positionAnnouncement }}</p>
+
       <div
         #pitchRef
         class="pitch"
         (dragover)="onPitchDragOver($event)"
         (drop)="onPitchDrop($event)"
+        (click)="onPitchClick($event)"
+        [class.pitch--placing]="selectedEntry"
+        aria-label="Team formation pitch. Select a player and tap or click here to position them."
       >
         <!-- Pitch markings -->
         <div class="pitch-markings" aria-hidden="true">
@@ -111,10 +120,17 @@
           *ngFor="let entry of homeEntries"
           class="player-token player-token--home"
           [class.player-token--dragging]="draggingEntry === entry"
+          [class.player-token--selected]="selectedEntry === entry"
           [ngStyle]="getTokenStyle(entry)"
           draggable="true"
+          tabindex="0"
+          role="group"
+          [attr.aria-label]="entry.playerName + ', Dark team, jersey ' + entry.jerseyNumber
+            + '. Use arrow keys to move. Press Enter or Space to select for tap placement.'"
           (dragstart)="onDragStart(entry)"
           (dragend)="onDragEnd()"
+          (click)="$event.stopPropagation(); selectEntry(entry)"
+          (keydown)="onTokenKeydown($event, entry)"
         >
           <div class="token-jersey">{{ entry.jerseyNumber }}</div>
           <div class="token-name">
@@ -124,8 +140,9 @@
           <!-- Switch team button -->
           <button
             class="token-switch"
-            (click)="switchTeam(entry)"
+            (click)="$event.stopPropagation(); switchTeam(entry)"
             (mousedown)="$event.stopPropagation()"
+            [attr.aria-label]="'Move ' + entry.playerName + ' to the Light team'"
             title="Move to other team"
           >⇄</button>
         </div>
@@ -135,10 +152,17 @@
           *ngFor="let entry of awayEntries"
           class="player-token player-token--away"
           [class.player-token--dragging]="draggingEntry === entry"
+          [class.player-token--selected]="selectedEntry === entry"
           [ngStyle]="getTokenStyle(entry)"
           draggable="true"
+          tabindex="0"
+          role="group"
+          [attr.aria-label]="entry.playerName + ', Light team, jersey ' + entry.jerseyNumber
+            + '. Use arrow keys to move. Press Enter or Space to select for tap placement.'"
           (dragstart)="onDragStart(entry)"
           (dragend)="onDragEnd()"
+          (click)="$event.stopPropagation(); selectEntry(entry)"
+          (keydown)="onTokenKeydown($event, entry)"
         >
           <div class="token-jersey">{{ entry.jerseyNumber }}</div>
           <div class="token-name">
@@ -147,8 +171,9 @@
           </div>
           <button
             class="token-switch"
-            (click)="switchTeam(entry)"
+            (click)="$event.stopPropagation(); switchTeam(entry)"
             (mousedown)="$event.stopPropagation()"
+            [attr.aria-label]="'Move ' + entry.playerName + ' to the Dark team'"
             title="Move to other team"
           >⇄</button>
         </div>

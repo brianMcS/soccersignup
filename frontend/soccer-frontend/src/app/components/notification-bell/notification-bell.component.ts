@@ -1,9 +1,18 @@
-import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  HostListener,
+  OnDestroy,
+  OnInit,
+  ViewChild
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { NotificationService } from '../../services/notification.service';
 import { Notification as PlayerNotification } from '../../models/notification.model';
+
+let nextNotificationDialogId = 0;
 
 @Component({
   selector: 'app-notification-bell',
@@ -13,7 +22,10 @@ import { Notification as PlayerNotification } from '../../models/notification.mo
   styleUrl: './notification-bell.component.css'
 })
 export class NotificationBellComponent implements OnInit, OnDestroy {
+  @ViewChild('bellButton') bellButton?: ElementRef<HTMLButtonElement>;
+  @ViewChild('notificationDialog') notificationDialog?: ElementRef<HTMLDivElement>;
 
+  readonly dialogId = `notification-dialog-${nextNotificationDialogId++}`;
   unreadCount = 0;
   notifications: PlayerNotification[] = [];
   dropdownOpen = false;
@@ -49,6 +61,7 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
   openDropdown(): void {
     this.dropdownOpen = true;
     this.loading = true;
+    setTimeout(() => this.notificationDialog?.nativeElement.focus());
 
     this.notificationService.getNotifications().subscribe({
       next: (notifications: PlayerNotification[]) => {
@@ -61,19 +74,27 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
     });
   }
 
-  closeDropdown(): void {
+  closeDropdown(restoreFocus = true): void {
+    if (!this.dropdownOpen) return;
     this.dropdownOpen = false;
+    if (restoreFocus) {
+      setTimeout(() => this.bellButton?.nativeElement.focus());
+    }
   }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
     if (!target.closest('.bell-wrap')) {
-      this.dropdownOpen = false;
+      this.closeDropdown(false);
     }
   }
 
-  // ← this was the remaining problem — Notification changed to PlayerNotification
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    this.closeDropdown();
+  }
+
   onNotificationClick(notification: PlayerNotification): void {
     if (!notification.read) {
       this.notificationService.markAsRead(notification.id).subscribe({
@@ -83,7 +104,7 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
       });
     }
 
-    this.closeDropdown();
+    this.closeDropdown(false);
 
     if (notification.link) {
       this.router.navigate([notification.link]);

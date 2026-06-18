@@ -2,9 +2,13 @@
 
   <!-- Bell button -->
   <button
+    #bellButton
     class="bell-btn"
     (click)="toggleDropdown()"
     [class.bell-btn--active]="dropdownOpen"
+    [attr.aria-expanded]="dropdownOpen"
+    [attr.aria-controls]="dialogId"
+    aria-haspopup="dialog"
     aria-label="Notifications"
   >
     <!-- Bell SVG icon -->
@@ -25,11 +29,20 @@
   </button>
 
   <!-- Dropdown -->
-  <div *ngIf="dropdownOpen" class="bell-dropdown">
+  <div
+    *ngIf="dropdownOpen"
+    #notificationDialog
+    [id]="dialogId"
+    class="bell-dropdown"
+    role="dialog"
+    aria-modal="false"
+    aria-labelledby="notification-dialog-title"
+    tabindex="-1"
+  >
 
     <!-- Dropdown header -->
     <div class="bell-dropdown-header">
-      <span class="bell-dropdown-title">Notifications</span>
+      <span id="notification-dialog-title" class="bell-dropdown-title">Notifications</span>
       <button
         *ngIf="unreadCount > 0"
         class="mark-all-btn"
@@ -57,13 +70,19 @@
         *ngFor="let n of notifications"
         class="notif-item"
         [class.notif-item--unread]="!n.read"
-        (click)="onNotificationClick(n)"
       >
-        <span class="notif-dot" *ngIf="!n.read"></span>
-        <div class="notif-body">
-          <p class="notif-message">{{ n.message }}</p>
-          <span class="notif-time">{{ formatTime(n.createdAt) }}</span>
-        </div>
+        <button
+          type="button"
+          class="notif-action"
+          (click)="onNotificationClick(n)"
+          [attr.aria-label]="n.message + ', ' + formatTime(n.createdAt)"
+        >
+          <span class="notif-dot" *ngIf="!n.read" aria-hidden="true"></span>
+          <span class="notif-body">
+            <span class="notif-message">{{ n.message }}</span>
+            <span class="notif-time">{{ formatTime(n.createdAt) }}</span>
+          </span>
+        </button>
       </li>
     </ul>
 

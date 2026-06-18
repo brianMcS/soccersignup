@@ -45,9 +45,11 @@
 
     <!-- Hamburger (mobile only) -->
     <button class="nav-hamburger"
+            #menuButton
             [class.nav-hamburger--open]="menuOpen"
             (click)="toggleMenu()"
             [attr.aria-expanded]="menuOpen"
+            aria-controls="mobile-navigation"
             aria-label="Toggle navigation menu"
     >
       <span class="bar bar-1"></span>
@@ -59,6 +61,7 @@
 
 <!-- ─── BACKDROP ──────────────────────────────────────────────────────────── -->
 <div
+  *ngIf="menuOpen"
   class="nav-backdrop"
   [class.nav-backdrop--visible]="menuOpen"
   (click)="closeMenu()"
@@ -67,11 +70,15 @@
 
 <!-- ─── SLIDE-OUT DRAWER ──────────────────────────────────────────────────── -->
 <aside
+  *ngIf="menuOpen"
+  id="mobile-navigation"
   class="nav-drawer"
   [class.nav-drawer--open]="menuOpen"
   role="dialog"
+  aria-modal="true"
   aria-label="Navigation menu"
-  [attr.aria-hidden]="!menuOpen"
+  cdkTrapFocus
+  [cdkTrapFocusAutoCapture]="true"
 >
   <!-- Drawer header -->
   <div class="drawer-header">

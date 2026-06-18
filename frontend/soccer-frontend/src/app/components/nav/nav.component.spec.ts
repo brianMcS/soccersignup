@@ -46,4 +46,32 @@ describe('NavComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('only renders the mobile dialog while the menu is open', () => {
+    expect(fixture.nativeElement.querySelector('[role="dialog"]')).toBeNull();
+
+    component.toggleMenu();
+    fixture.detectChanges();
+
+    const dialog: HTMLElement =
+      fixture.nativeElement.querySelector('[role="dialog"]');
+    expect(dialog).not.toBeNull();
+    expect(dialog.getAttribute('aria-modal')).toBe('true');
+  });
+
+  it('closes on Escape and restores focus to the menu button', (done) => {
+    const menuButton: HTMLButtonElement =
+      fixture.nativeElement.querySelector('.nav-hamburger');
+    component.toggleMenu();
+    fixture.detectChanges();
+
+    component.onEscape();
+    fixture.detectChanges();
+
+    setTimeout(() => {
+      expect(component.menuOpen).toBeFalse();
+      expect(document.activeElement).toBe(menuButton);
+      done();
+    });
+  });
 });

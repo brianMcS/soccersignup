@@ -36,6 +36,8 @@ export class AdminTeamSheetComponent implements OnInit {
 
   // The entry currently being dragged
   draggingEntry: TeamSheetEntry | null = null;
+  selectedEntry: TeamSheetEntry | null = null;
+  positionAnnouncement = '';
 
   // Track if we have unsaved changes
   isDirty = false;
@@ -113,18 +115,7 @@ export class AdminTeamSheetComponent implements OnInit {
     event.preventDefault();
     if (!this.draggingEntry || !this.pitchRef) return;
 
-    const pitch = this.pitchRef.nativeElement;
-    const rect = pitch.getBoundingClientRect();
-
-    // Calculate drop position as percentage of pitch dimensions
-    const x = ((event.clientX - rect.left) / rect.width) * 100;
-    const y = ((event.clientY - rect.top) / rect.height) * 100;
-
-    // Keep each team on its own side of the halfway line.
-    this.draggingEntry.positionX = this.draggingEntry.teamSide === 'HOME'
-      ? Math.min(Math.max(x, 3), 50)
-      : Math.min(Math.max(x, 50), 97);
-    this.draggingEntry.positionY = Math.min(Math.max(y, 3), 97);
+    this.positionEntryAtPointer(this.draggingEntry, event.clientX, event.clientY);
 
     this.draggingEntry = null;
     this.isDirty = true;
@@ -133,6 +124,55 @@ export class AdminTeamSheetComponent implements OnInit {
   onPitchDragOver(event: DragEvent): void {
     // Must prevent default to allow drop
     event.preventDefault();
+  }
+
+  selectEntry(entry: TeamSheetEntry): void {
+    this.selectedEntry = this.selectedEntry === entry ? null : entry;
+    this.positionAnnouncement = this.selectedEntry
+      ? `${entry.playerName} selected. Tap or click the pitch to place them, or use the arrow keys.`
+      : `${entry.playerName} deselected.`;
+  }
+
+  onPitchClick(event: MouseEvent): void {
+    if (!this.selectedEntry) return;
+    this.positionEntryAtPointer(this.selectedEntry, event.clientX, event.clientY);
+    this.isDirty = true;
+  }
+
+  onTokenKeydown(event: KeyboardEvent, entry: TeamSheetEntry): void {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      this.selectEntry(entry);
+      return;
+    }
+
+    const movement = event.shiftKey ? 5 : 1;
+    let nextX = entry.positionX;
+    let nextY = entry.positionY;
+
+    switch (event.key) {
+      case 'ArrowLeft':
+        nextX -= movement;
+        break;
+      case 'ArrowRight':
+        nextX += movement;
+        break;
+      case 'ArrowUp':
+        nextY -= movement;
+        break;
+      case 'ArrowDown':
+        nextY += movement;
+        break;
+      default:
+        return;
+    }
+
+    event.preventDefault();
+    entry.positionX = this.clampX(entry.teamSide, nextX);
+    entry.positionY = this.clamp(nextY, 3, 97);
+    this.selectedEntry = entry;
+    this.isDirty = true;
+    this.announcePosition(entry);
   }
 
   // ─── SWITCH TEAM ──────────────────────────────────────────────────────────
@@ -145,7 +185,9 @@ export class AdminTeamSheetComponent implements OnInit {
     // but on the correct side
     entry.positionX = 100 - entry.positionX;
 
+    this.selectedEntry = entry;
     this.isDirty = true;
+    this.announcePosition(entry);
   }
 
   // ─── JERSEY NUMBER ────────────────────────────────────────────────────────
@@ -259,6 +301,36 @@ export class AdminTeamSheetComponent implements OnInit {
       positionY: e.positionY
     }));
     return { entries };
+  }
+
+  private positionEntryAtPointer(
+    entry: TeamSheetEntry,
+    clientX: number,
+    clientY: number
+  ): void {
+    const rect = this.pitchRef.nativeElement.getBoundingClientRect();
+    const x = ((clientX - rect.left) / rect.width) * 100;
+    const y = ((clientY - rect.top) / rect.height) * 100;
+
+    entry.positionX = this.clampX(entry.teamSide, x);
+    entry.positionY = this.clamp(y, 3, 97);
+    this.announcePosition(entry);
+  }
+
+  private clampX(teamSide: TeamSide, value: number): number {
+    return teamSide === 'HOME'
+      ? this.clamp(value, 3, 50)
+      : this.clamp(value, 50, 97);
+  }
+
+  private clamp(value: number, minimum: number, maximum: number): number {
+    return Math.min(Math.max(value, minimum), maximum);
+  }
+
+  private announcePosition(entry: TeamSheetEntry): void {
+    this.positionAnnouncement =
+      `${entry.playerName} moved to ${Math.round(entry.positionX)} percent across `
+      + `and ${Math.round(entry.positionY)} percent down the pitch.`;
   }
 
   private showSuccess(message: string): void {

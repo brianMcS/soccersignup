@@ -35,4 +35,37 @@ describe('NotificationBellComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('renders notifications as keyboard-operable buttons', () => {
+    component.notifications = [{
+      id: 1,
+      message: 'Teams published',
+      read: false,
+      createdAt: new Date().toISOString()
+    }];
+    component.dropdownOpen = true;
+    component.loading = false;
+    fixture.detectChanges();
+
+    const action: HTMLButtonElement =
+      fixture.nativeElement.querySelector('.notif-action');
+
+    expect(action.tagName).toBe('BUTTON');
+    expect(action.getAttribute('aria-label')).toContain('Teams published');
+  });
+
+  it('closes on Escape and restores focus to the bell button', (done) => {
+    const bellButton: HTMLButtonElement =
+      fixture.nativeElement.querySelector('.bell-btn');
+    component.dropdownOpen = true;
+    fixture.detectChanges();
+
+    component.onEscape();
+
+    setTimeout(() => {
+      expect(component.dropdownOpen).toBeFalse();
+      expect(document.activeElement).toBe(bellButton);
+      done();
+    });
+  });
 });
