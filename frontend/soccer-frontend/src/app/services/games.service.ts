@@ -50,14 +50,28 @@ export class GamesService {
     return this.http.post<GameSlot>(this.slotsUrl, body);
   }
 
-  // DELETE /api/gameslots/{gameId}/players/{playerId}
-  leaveGame(gameId: number, playerId: number): Observable<void> {
+  leaveGame(gameId: number): Observable<void> {
+    return this.http.delete<void>(`${this.slotsUrl}/${gameId}/me`);
+  }
+
+  removePlayerFromGame(gameId: number, playerId: number): Observable<void> {
     return this.http.delete<void>(
       `${this.slotsUrl}/${gameId}/players/${playerId}`
     );
   }
 
-  reportPayment(gameId: number, playerId: number, version: number): Observable<GameSlot> {
+  reportPayment(gameId: number, version: number): Observable<GameSlot> {
+    return this.http.patch<GameSlot>(
+      `${this.slotsUrl}/${gameId}/me/pay`,
+      { version }
+    );
+  }
+
+  reportPlayerPayment(
+    gameId: number,
+    playerId: number,
+    version: number
+  ): Observable<GameSlot> {
     return this.http.patch<GameSlot>(
       `${this.slotsUrl}/${gameId}/players/${playerId}/pay`,
       { version }

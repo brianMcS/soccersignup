@@ -4,10 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soccersignup.backend.dto.CreateGamesRequest;
 import com.soccersignup.backend.dto.GameRequest;
 import com.soccersignup.backend.dto.RegistrationRequest;
+import com.soccersignup.backend.dto.VersionedActionRequest;
 import com.soccersignup.backend.model.Player;
 import com.soccersignup.backend.model.PlayerRole;
 import com.soccersignup.backend.model.Game;
+import com.soccersignup.backend.model.GameSlot;
+import com.soccersignup.backend.model.PaymentStatus;
 import com.soccersignup.backend.repository.GameRepository;
+import com.soccersignup.backend.repository.GameSlotRepository;
 import com.soccersignup.backend.repository.PlayerRepository;
 import com.soccersignup.backend.security.JwtTokenProvider;
 import org.junit.jupiter.api.Test;
@@ -22,10 +26,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -44,6 +51,8 @@ class SecurityAuthorizationIntegrationTest {
     private PlayerRepository playerRepository;
     @Autowired
     private GameRepository gameRepository;
+    @Autowired
+    private GameSlotRepository gameSlotRepository;
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
 
@@ -165,6 +174,60 @@ class SecurityAuthorizationIntegrationTest {
         assertThat(gameRepository.count()).isEqualTo(gamesBefore);
     }
 
+    @Test
+    void playerCanLeaveOwnSignupThroughCurrentPlayerRoute() throws Exception {
+        Game game = gameRepository.saveAndFlush(gameFor(LocalDate.now().plusDays(1)));
+        String playerEmail = "leave-me@example.com";
+        String playerToken = tokenFor(playerEmail, PlayerRole.PLAYER);
+        Player player = playerRepository.findByEmail(playerEmail).orElseThrow();
+
+        mockMvc.perform(post("/api/gameslots")
+                        .header("Authorization", "Bearer " + playerToken)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(
+                                Map.of("gameId", game.getId()))))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(delete("/api/gameslots/{gameId}/me", game.getId())
+                        .header("Authorization", "Bearer " + playerToken)
+                        .with(csrf()))
+                .andExpect(status().isNoContent());
+
+        assertThat(gameSlotRepository.findByGameAndPlayer(game, player)).isEmpty();
+    }
+
+    @Test
+    void playerCanReportOwnPaymentThroughCurrentPlayerRoute() throws Exception {
+        Game game = gameRepository.saveAndFlush(gameFor(LocalDate.now().plusDays(1)));
+        String playerEmail = "pay-me@example.com";
+        String playerToken = tokenFor(playerEmail, PlayerRole.PLAYER);
+        Player player = playerRepository.findByEmail(playerEmail).orElseThrow();
+
+        mockMvc.perform(post("/api/gameslots")
+                        .header("Authorization", "Bearer " + playerToken)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(
+                                Map.of("gameId", game.getId()))))
+                .andExpect(status().isCreated());
+
+        GameSlot slot = gameSlotRepository.findByGameAndPlayer(game, player).orElseThrow();
+
+        mockMvc.perform(patch("/api/gameslots/{gameId}/me/pay", game.getId())
+                        .header("Authorization", "Bearer " + playerToken)
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(
+                                new VersionedActionRequest(slot.getVersion()))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.playerId").value(player.getId()))
+                .andExpect(jsonPath("$.paymentStatus").value("SELF_REPORTED"));
+
+        GameSlot updated = gameSlotRepository.findByGameAndPlayer(game, player).orElseThrow();
+        assertThat(updated.getPaymentStatus()).isEqualTo(PaymentStatus.SELF_REPORTED);
+    }
+
     private String tokenFor(String email, PlayerRole... roles) {
         Player player = new Player(email, email, null);
         for (PlayerRole role : roles) {
@@ -182,5 +245,14 @@ class SecurityAuthorizationIntegrationTest {
                 maxPlayers,
                 null,
                 null);
+    }
+
+    private Game gameFor(LocalDate gameDate) {
+        Game game = new Game();
+        game.setGameDate(gameDate);
+        game.setKickOffTime(LocalTime.of(19, 0));
+        game.setLocation("Dublin");
+        game.setMaxPlayers(14);
+        return game;
     }
 }

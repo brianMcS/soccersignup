@@ -40,7 +40,7 @@ public class GameSlotController {
     }
 
     // POST /api/gameslots
-    // Body: { "gameId": 1, "playerId": 3 }
+    // Body: { "gameId": 1 }
     @PostMapping
     public ResponseEntity<GameSlotResponse> signup(
             @RequestBody SignupRequest request,
@@ -50,6 +50,16 @@ public class GameSlotController {
         GameSlot saved = gameSlotService.addSignup(request.gameId(), currentPlayer.getId());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(GameSlotResponse.from(saved));
+    }
+
+    // DELETE /api/gameslots/{gameId}/me
+    @DeleteMapping("/{gameId}/me")
+    public ResponseEntity<Void> leaveOwnSignup(
+            @PathVariable Long gameId,
+            Authentication authentication) {
+        Player currentPlayer = (Player) authentication.getPrincipal();
+        gameSlotService.removeSignup(gameId, currentPlayer.getId());
+        return ResponseEntity.noContent().build();
     }
 
     // DELETE /api/gameslots/{gameId}/players/{playerId}
@@ -72,12 +82,23 @@ public class GameSlotController {
         return ResponseEntity.noContent().build();
     }
 
+    @PatchMapping("/{gameId}/me/pay")
+    public ResponseEntity<GameSlotResponse> reportOwnPayment(
+            @PathVariable Long gameId,
+            @RequestBody VersionedActionRequest request,
+            Authentication authentication) {
+        Player currentPlayer = (Player) authentication.getPrincipal();
+        return ResponseEntity.ok(GameSlotResponse.from(
+                gameSlotService.reportPayment(
+                        gameId, currentPlayer.getId(), request.version())));
+    }
+
     @PatchMapping("/{gameId}/players/{playerId}/pay")
-    public ResponseEntity<GameSlotResponse> reportPayment(
+    public ResponseEntity<GameSlotResponse> reportPlayerPayment(
             @PathVariable Long gameId,
             @PathVariable Long playerId,
             @RequestBody VersionedActionRequest request,
-        Authentication authentication) {
+            Authentication authentication) {
         Player currentPlayer = (Player) authentication.getPrincipal();
         if (!currentPlayer.getId().equals(playerId)) {
             throw new AccessDeniedException("You cannot report payment for another player.");

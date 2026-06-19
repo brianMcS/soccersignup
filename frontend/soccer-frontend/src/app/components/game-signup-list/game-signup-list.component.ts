@@ -193,7 +193,7 @@ export class GameSignupListComponent implements OnInit, OnDestroy {
     this.actionError = null;
     this.actionSuccess = null;
 
-    this.gamesService.leaveGame(this.game.id, this.currentUser.id).subscribe({
+    this.gamesService.leaveGame(this.game.id).subscribe({
       next: () => {
         this.leaving = false;
         this.actionSuccess = this.teamsPublished
@@ -211,7 +211,7 @@ export class GameSignupListComponent implements OnInit, OnDestroy {
   reportPayment(): void {
     const version = this.userSlot?.version;
     if (!this.game?.id
-      || !this.currentUser?.id
+      || !this.currentUser
       || !this.canReportPayment
       || version === undefined) {
       return;
@@ -220,7 +220,7 @@ export class GameSignupListComponent implements OnInit, OnDestroy {
     this.actionError = null;
     this.actionSuccess = null;
 
-    this.gamesService.reportPayment(this.game.id, this.currentUser.id, version).subscribe({
+    this.gamesService.reportPayment(this.game.id, version).subscribe({
       next: () => {
         this.reportingPayment = false;
         this.actionSuccess = 'Payment reported. The organiser can now confirm it.';

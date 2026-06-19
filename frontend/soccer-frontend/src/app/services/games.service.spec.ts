@@ -28,8 +28,33 @@ describe('GamesService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('sends the signup version when reporting payment', () => {
-    service.reportPayment(12, 34, 5).subscribe();
+  it('uses the current-player endpoint when leaving a game', () => {
+    service.leaveGame(12).subscribe();
+
+    const request = httpTesting.expectOne('/api/gameslots/12/me');
+    expect(request.request.method).toBe('DELETE');
+    request.flush({});
+  });
+
+  it('keeps the explicit-player endpoint for organiser removals', () => {
+    service.removePlayerFromGame(12, 34).subscribe();
+
+    const request = httpTesting.expectOne('/api/gameslots/12/players/34');
+    expect(request.request.method).toBe('DELETE');
+    request.flush({});
+  });
+
+  it('uses the current-player endpoint when reporting payment', () => {
+    service.reportPayment(12, 5).subscribe();
+
+    const request = httpTesting.expectOne('/api/gameslots/12/me/pay');
+    expect(request.request.method).toBe('PATCH');
+    expect(request.request.body).toEqual({ version: 5 });
+    request.flush({});
+  });
+
+  it('keeps the explicit-player endpoint for reporting another player payment', () => {
+    service.reportPlayerPayment(12, 34, 5).subscribe();
 
     const request = httpTesting.expectOne('/api/gameslots/12/players/34/pay');
     expect(request.request.method).toBe('PATCH');
