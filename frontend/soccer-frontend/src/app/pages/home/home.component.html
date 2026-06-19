@@ -1,11 +1,5 @@
-<!-- ════════════════════════════════════════════════════════════
-     HOME — Marketing landing page
-     Sections: hero | features | how-it-works | CTA footer
-     ════════════════════════════════════════════════════════════ -->
-
 <div class="home-page">
 
-  <!-- ─── HERO ──────────────────────────────────────────────────────────── -->
   <section class="hero">
     <div class="hero-bg" aria-hidden="true">
       <div class="hero-bg-overlay"></div>
@@ -15,166 +9,144 @@
     <div class="hero-content page-container">
       <div class="hero-eyebrow animate-fade-up">
         <span class="eyebrow-dot"></span>
-        <span>Dublin · Every Week</span>
+        <span>Limerick football signup</span>
       </div>
 
       <h1 class="hero-heading animate-fade-up delay-100">
-        Show Up.<br>
-        <span class="hero-heading-accent">Play Ball.</span>
+        Check the game.<br>
+        <span class="hero-heading-accent">Manage your spot.</span>
       </h1>
 
       <p class="hero-sub animate-fade-up delay-200">
-        Social Soccer makes it dead simple to organise and join weekly games.
-        One tap to claim your spot. No group chats. No confusion.
+        Social Soccer helps our weekly football group manage signups,
+        waitlists, payments, and team updates in one place.
+      </p>
+
+      <p class="hero-note animate-fade-up delay-225">
+        Location, time, cost, player limits, and availability are shown on the
+        current game page.
       </p>
 
       <div class="hero-actions animate-fade-up delay-300">
-        <a routerLink="/register" class="btn-hero-primary">
-          <span>Get Your Spot</span>
-          <span class="btn-arrow">→</span>
+        <a routerLink="/play" class="btn-hero-primary">
+          <span>View Current Game</span>
+          <span class="btn-arrow">-></span>
         </a>
-        <a routerLink="/play" class="btn-hero-ghost">
-          See Current Game
+        <a routerLink="/register" class="btn-hero-ghost">
+          Sign In / Register
         </a>
       </div>
     </div>
 
-    <!-- Scroll hint -->
     <div class="scroll-hint animate-fade-up delay-500" aria-hidden="true">
       <span class="scroll-line"></span>
-      <span class="scroll-label">Scroll</span>
+      <span class="scroll-label">Details</span>
     </div>
   </section>
 
-  <!-- ─── STATS BAND ─────────────────────────────────────────────────────── -->
-  <section class="stats-band">
-    <div class="page-container stats-inner">
-      <div class="stat">
-        <span class="stat-number">7-a-side</span>
-        <span class="stat-label">Format</span>
+  <section class="quick-entry">
+    <div class="page-container quick-entry-inner">
+      <div class="quick-entry-copy">
+        <p class="section-eyebrow">Here from the group chat?</p>
+        <h2 class="section-heading">Go straight to the current game.</h2>
+        <p class="section-body">
+          Most players already know the group. Use the current game page to
+          check the latest details, join if available, leave if plans change,
+          and see your payment status.
+        </p>
       </div>
-      <div class="stat-divider" aria-hidden="true"></div>
-      <div class="stat">
-        <span class="stat-number">Weekly</span>
-        <span class="stat-label">Frequency</span>
-      </div>
-      <div class="stat-divider" aria-hidden="true"></div>
-      <div class="stat">
-        <span class="stat-number">Open</span>
-        <span class="stat-label">To All Levels</span>
-      </div>
-      <div class="stat-divider" aria-hidden="true"></div>
-      <div class="stat">
-        <span class="stat-number">Free</span>
-        <span class="stat-label">To Join</span>
-      </div>
+
+      <a routerLink="/play" class="quick-entry-link">
+        <span>Open Current Game</span>
+        <span aria-hidden="true">-></span>
+      </a>
     </div>
   </section>
 
-  <!-- ─── FEATURES ───────────────────────────────────────────────────────── -->
   <section class="features page-section">
     <div class="page-container">
-
       <div class="section-header">
-        <p class="section-eyebrow">Why Social Soccer</p>
-        <h2 class="section-heading">Everything you need.<br>Nothing you don't.</h2>
+        <p class="section-eyebrow">What it handles</p>
+        <h2 class="section-heading">Less chasing before kick-off.</h2>
       </div>
 
       <div class="features-grid">
-
-        <div class="feature-card animate-fade-up">
-          <div class="feature-icon">⚽</div>
-          <h3 class="feature-title">Claim Your Spot</h3>
+        <article class="feature-card animate-fade-up">
+          <div class="feature-icon">✓</div>
+          <h3 class="feature-title">Manage your spot</h3>
           <p class="feature-body">
-            Sign up for the current game in one tap. See exactly who's in and
-            how many spots are left in real time.
+            Join the current game when available, leave if you cannot make it,
+            and see whether you are confirmed or waitlisted.
           </p>
-        </div>
+        </article>
 
-        <div class="feature-card animate-fade-up delay-100">
-          <div class="feature-icon">⏳</div>
-          <h3 class="feature-title">Automatic Waitlist</h3>
+        <article class="feature-card animate-fade-up delay-100">
+          <div class="feature-icon">€</div>
+          <h3 class="feature-title">Track payment</h3>
           <p class="feature-body">
-            Game full? Jump on the waitlist. If someone drops out,
-            you're moved up automatically. No manual chasing.
+            Report your payment and let the organiser confirm it, so the group
+            has a clearer picture before the game.
           </p>
-        </div>
+        </article>
 
-        <div class="feature-card animate-fade-up delay-200">
-          <div class="feature-icon">📋</div>
-          <h3 class="feature-title">Track Your History</h3>
+        <article class="feature-card animate-fade-up delay-200">
+          <div class="feature-icon">11</div>
+          <h3 class="feature-title">View teams</h3>
           <p class="feature-body">
-            Every completed game is logged. See past results,
-            who played, and how the squad has evolved over time.
+            When teams are published, players can view the team sheet from the
+            game page.
           </p>
-        </div>
-
+        </article>
       </div>
     </div>
   </section>
 
-  <!-- ─── HOW IT WORKS ───────────────────────────────────────────────────── -->
-  <section class="how-it-works page-section">
-    <div class="page-container">
-
-      <div class="section-header">
-        <p class="section-eyebrow">How It Works</p>
-        <h2 class="section-heading">Three steps.<br>Then just play.</h2>
+  <section class="details-section page-section">
+    <div class="page-container details-grid">
+      <div>
+        <p class="section-eyebrow">Source of truth</p>
+        <h2 class="section-heading">Game details come from the organiser.</h2>
       </div>
 
-      <div class="steps">
+      <div class="details-panel">
+        <p>
+          The organiser sets the date, kick-off time, location, cost, and
+          player limit for each game. Those details can change, so the current
+          game page is the place to check before signing up.
+        </p>
 
-        <div class="step animate-fade-up">
-          <div class="step-number">01</div>
-          <div class="step-content">
-            <h3 class="step-title">Create a Profile</h3>
-            <p class="step-body">
-              Register with your name and email. Takes thirty seconds.
-              Sign in with Google every week after that.
-            </p>
-          </div>
-        </div>
-
-        <div class="step-connector" aria-hidden="true"></div>
-
-        <div class="step animate-fade-up delay-150">
-          <div class="step-number">02</div>
-          <div class="step-content">
-            <h3 class="step-title">Join the Game</h3>
-            <p class="step-body">
-              When the organiser posts the current game, sign up.
-              You'll see the date, location, and who else is playing.
-            </p>
-          </div>
-        </div>
-
-        <div class="step-connector" aria-hidden="true"></div>
-
-        <div class="step animate-fade-up delay-300">
-          <div class="step-number">03</div>
-          <div class="step-content">
-            <h3 class="step-title">Show Up & Play</h3>
-            <p class="step-body">
-              That's it. Turn up, play football, repeat next week.
-            </p>
-          </div>
-        </div>
-
+        <ul class="details-list">
+          <li>Availability may be open, full, waitlisted, or closed.</li>
+          <li>Costs and payment links are shown only when set for the game.</li>
+          <li>Team size depends on the game the organiser creates.</li>
+        </ul>
       </div>
     </div>
   </section>
 
-  <!-- ─── BOTTOM CTA ──────────────────────────────────────────────────────── -->
+  <section class="organiser-section page-section">
+    <div class="page-container organiser-inner">
+      <div>
+        <p class="section-eyebrow">For organisers</p>
+        <h2 class="section-heading">A simpler way to run the weekly game.</h2>
+      </div>
+      <p class="section-body">
+        Create games, close signups, track payments, manage players, and publish
+        teams without doing every update manually in chat.
+      </p>
+    </div>
+  </section>
+
   <section class="cta-section">
     <div class="cta-glow" aria-hidden="true"></div>
     <div class="page-container cta-inner">
-      <h2 class="cta-heading">Ready to play?</h2>
+      <h2 class="cta-heading">Ready to check the game?</h2>
       <p class="cta-sub">
-        Create your profile and grab a spot in the current game.
+        Sign in to view the current game and manage your spot.
       </p>
-      <a routerLink="/register" class="btn-hero-primary">
-        <span>Join the Squad</span>
-        <span class="btn-arrow">→</span>
+      <a routerLink="/play" class="btn-hero-primary">
+        <span>View Current Game</span>
+        <span class="btn-arrow">-></span>
       </a>
     </div>
   </section>
