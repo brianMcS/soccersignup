@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TeamSheetService } from '../../../services/team-sheet.service';
+import { ConfirmDialogService } from '../../../services/confirm-dialog.service';
 import {
   TeamSheet,
   TeamSheetEntry,
@@ -45,7 +46,8 @@ export class AdminTeamSheetComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private teamSheetService: TeamSheetService
+    private teamSheetService: TeamSheetService,
+    private confirmDialog: ConfirmDialogService
   ) {}
 
   ngOnInit(): void {
@@ -82,8 +84,14 @@ export class AdminTeamSheetComponent implements OnInit {
 
   // ─── AUTO SPLIT ───────────────────────────────────────────────────────────
 
-  autoSplit(): void {
-    if (!confirm('This will randomly reassign all players into two teams. Continue?')) return;
+  async autoSplit(): Promise<void> {
+    const confirmed = await this.confirmDialog.confirm({
+      title: 'Auto Split Teams',
+      message: 'This will randomly reassign all players into two teams.',
+      confirmText: 'Auto Split'
+    });
+    if (!confirmed) return;
+
     this.splitting = true;
     this.errorMessage = null;
 
@@ -227,8 +235,14 @@ export class AdminTeamSheetComponent implements OnInit {
 
   // ─── PUBLISH ──────────────────────────────────────────────────────────────
 
-  publish(): void {
-    if (!confirm('Publish these teams? All confirmed players will be notified.')) return;
+  async publish(): Promise<void> {
+    const confirmed = await this.confirmDialog.confirm({
+      title: 'Publish Teams',
+      message: 'All confirmed players will be notified.',
+      confirmText: 'Publish Teams'
+    });
+    if (!confirmed) return;
+
     this.publishing = true;
     this.errorMessage = null;
 

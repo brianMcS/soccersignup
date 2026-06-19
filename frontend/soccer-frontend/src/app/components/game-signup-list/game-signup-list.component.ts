@@ -69,6 +69,8 @@ export class GameSignupListComponent implements OnInit, OnDestroy {
 
     this.gamesService.getAllGames().subscribe({
       next: (games) =>{
+        // TODO: Keep /play focused on the current featured game.
+        // Add a separate /games or /browse route if game discovery expands later.
         const open = games
           .filter(g => g.status === 'OPEN')
           .sort((first, second) => first.gameDate.localeCompare(second.gameDate))[0];

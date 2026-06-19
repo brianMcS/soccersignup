@@ -36,7 +36,7 @@
       <p class="loggedin-email">{{ currentUser.email }}</p>
 
       <button class="btn-accent loggedin-cta" (click)="goToPlay()">
-        <span>View This Week's Game</span>
+        <span>View Current Game</span>
         <span class="btn-arrow">→</span>
       </button>
 
@@ -57,7 +57,7 @@
         <span class="eyebrow-text">Social Soccer</span>
       </div>
       <h1 class="reg-heading">Ready to<br><span class="heading-accent">Play?</span></h1>
-      <p class="reg-subheading">Sign in to join this week's game, see who's playing, and track your history.</p>
+      <p class="reg-subheading">Sign in to join the current game, see who's playing, and track your history.</p>
 
       <form (ngSubmit)="onPasswordLogin()" #loginFormRef="ngForm" novalidate class="reg-form">
         <div class="form-group">

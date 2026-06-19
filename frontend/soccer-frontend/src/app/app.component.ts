@@ -5,10 +5,11 @@ import { RouterOutlet } from '@angular/router';
 import {NavComponent} from './components/nav/nav.component';
 import {NotificationService} from './services/notification.service';
 import {AuthService} from './services/auth.service';
+import {ConfirmDialogComponent} from './components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, NavComponent, FormsModule, CommonModule],
+  imports: [RouterOutlet, NavComponent, FormsModule, CommonModule, ConfirmDialogComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

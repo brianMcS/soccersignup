@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { GameSlot } from '../../../models/game-slot.model';
 import { Game, GameRequest } from '../../../models/game.model';
 import { GamesService } from '../../../services/games.service';
+import { ConfirmDialogService } from '../../../services/confirm-dialog.service';
 import { getApiErrorMessage } from '../../../utils/api-error';
 import {
   formatDateOnly,
@@ -53,7 +54,11 @@ export class AdminGamesComponent implements OnInit {
   paymentActionPlayerId: number | null = null;
   signupsByGame: Record<number, GameSlot[]> = {};
 
-  constructor(private gamesService: GamesService, private router: Router) {}
+  constructor(
+    private gamesService: GamesService,
+    private router: Router,
+    private confirmDialog: ConfirmDialogService
+  ) {}
 
   ngOnInit(): void {
     this.loadGames();
@@ -201,8 +206,15 @@ export class AdminGamesComponent implements OnInit {
   }
 
   // ─── Close game ───────────────────────────────────────────────────────────
-  closeGame(game: GameResponse): void {
-    if (!confirm(`Close "${this.formatDate(game.gameDate)}"? This cannot be undone.`)) return;
+  async closeGame(game: GameResponse): Promise<void> {
+    const confirmed = await this.confirmDialog.confirm({
+      title: 'Close Game',
+      message: `Close "${this.formatDate(game.gameDate)}"? This cannot be undone.`,
+      confirmText: 'Close Game',
+      variant: 'danger'
+    });
+    if (!confirmed) return;
+
     this.closingId    = game.id;
     this.errorMessage = null;
 

@@ -1,0 +1,44 @@
+<ng-container *ngIf="state$ | async as state">
+  <div
+    *ngIf="state.open"
+    class="confirm-backdrop"
+    (click)="cancel()"
+    aria-hidden="true"
+  ></div>
+
+  <section
+    *ngIf="state.open"
+    class="confirm-dialog"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="confirm-dialog-title"
+    aria-describedby="confirm-dialog-message"
+    cdkTrapFocus
+    [cdkTrapFocusAutoCapture]="true"
+    (keydown.escape)="cancel()"
+  >
+    <div class="confirm-dialog__mark" [class.confirm-dialog__mark--danger]="state.variant === 'danger'">
+      !
+    </div>
+
+    <div class="confirm-dialog__body">
+      <h2 id="confirm-dialog-title" class="confirm-dialog__title">{{ state.title }}</h2>
+      <p id="confirm-dialog-message" class="confirm-dialog__message">{{ state.message }}</p>
+    </div>
+
+    <div class="confirm-dialog__actions">
+      <button type="button" class="btn-ghost confirm-dialog__button" (click)="cancel()">
+        {{ state.cancelText }}
+      </button>
+      <button
+        type="button"
+        class="confirm-dialog__button"
+        [class.btn-accent]="state.variant !== 'danger'"
+        [class.btn-danger]="state.variant === 'danger'"
+        (click)="confirm()"
+      >
+        {{ state.confirmText }}
+      </button>
+    </div>
+  </section>
+</ng-container>

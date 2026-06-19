@@ -29,7 +29,7 @@
 
   <div *ngIf="pageState === 'no-game'" class="empty-state play-empty">
     <div class="empty-icon">⚽</div>
-    <h2 class="empty-heading">No Games This Week</h2>
+    <h2 class="empty-heading">No Current Game</h2>
     <p class="empty-body">
       There's no open game scheduled right now.<br>Check back soon — the organiser will post the next one shortly.
     </p>
@@ -57,7 +57,7 @@
           {{ isFull ? 'Game Full' : 'Open Game' }}
         </span>
 
-        <h1 class="hero-title">This Week's<br><span class="hero-accent">Game</span></h1>
+        <h1 class="hero-title">Current<br><span class="hero-accent">Game</span></h1>
 
         <div class="hero-meta">
           <div class="hero-meta-item">

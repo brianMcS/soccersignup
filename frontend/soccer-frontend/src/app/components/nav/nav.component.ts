@@ -37,7 +37,7 @@ export class NavComponent implements OnInit, OnDestroy {
 
   readonly navItems: NavItem[] = [
     { label: 'Home',            route: '/',       icon: '🏠' },
-    { label: "This Week's Game", route: '/play',   icon: '⚽' },
+    { label: 'Current Game', route: '/play',   icon: '⚽' },
     { label: 'History',         route: '/history', icon: '📋' },
   ];
 

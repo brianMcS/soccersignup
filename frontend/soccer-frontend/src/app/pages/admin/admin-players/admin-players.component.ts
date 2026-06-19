@@ -6,6 +6,7 @@ import {
   PlayerResponse,
   PlayerUpdateRequest
 } from '../../../services/admin.service';
+import { ConfirmDialogService } from '../../../services/confirm-dialog.service';
 import { getApiErrorMessage } from '../../../utils/api-error';
 
 @Component({
@@ -34,7 +35,10 @@ export class AdminPlayersComponent implements OnInit {
 
   readonly availableRoles = ['PLAYER', 'ORGANISER', 'ADMIN'];
 
-  constructor(private adminService: AdminService) {}
+  constructor(
+    private adminService: AdminService,
+    private confirmDialog: ConfirmDialogService
+  ) {}
 
   ngOnInit(): void {
     this.loadPlayers();
@@ -75,10 +79,14 @@ export class AdminPlayersComponent implements OnInit {
     this.applyFilter();
   }
 
-  deactivate(player: PlayerResponse): void {
-    if (!confirm(`Remove ${player.name} from the squad? They will no longer be able to join games.`)) {
-      return;
-    }
+  async deactivate(player: PlayerResponse): Promise<void> {
+    const confirmed = await this.confirmDialog.confirm({
+      title: 'Remove Player',
+      message: `Remove ${player.name} from the squad? They will no longer be able to join games.`,
+      confirmText: 'Remove Player',
+      variant: 'danger'
+    });
+    if (!confirmed) return;
 
     this.deactivatingId = player.id;
     this.errorMessage = null;
